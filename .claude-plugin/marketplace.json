@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "devflow",
-      "description": "Development workflow skills. Keeps codebase context documents (CLAUDE.md, README, ARCHITECTURE) in sync with the code as it changes.",
+      "description": "Workflow skills for keeping a codebase understandable: orienting in an unfamiliar repo, and recording decisions with the evidence behind them.",
       "author": {
         "name": "dantelyro"
       },

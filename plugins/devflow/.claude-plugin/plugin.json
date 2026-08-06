@@ -1,7 +1,7 @@
 {
   "name": "devflow",
-  "description": "Development workflow skills. Keeps codebase context documents (CLAUDE.md, README, ARCHITECTURE) in sync with the code as it changes.",
-  "version": "0.1.0",
+  "description": "Workflow skills for keeping a codebase understandable: orienting in an unfamiliar repo, and recording decisions with the evidence behind them.",
+  "version": "0.2.0",
   "author": {
     "name": "dantelyro"
   },
@@ -12,6 +12,10 @@
     "context",
     "documentation",
     "workflow",
-    "codebase"
+    "codebase",
+    "architecture",
+    "decision-log",
+    "adr",
+    "onboarding"
   ]
 }
