@@ -1,0 +1,17 @@
+{
+  "name": "devflow",
+  "description": "Development workflow skills. Keeps codebase context documents (CLAUDE.md, README, ARCHITECTURE) in sync with the code as it changes.",
+  "version": "0.1.0",
+  "author": {
+    "name": "dantelyro"
+  },
+  "homepage": "https://github.com/dantelyro/devflow",
+  "repository": "https://github.com/dantelyro/devflow",
+  "license": "MIT",
+  "keywords": [
+    "context",
+    "documentation",
+    "workflow",
+    "codebase"
+  ]
+}
