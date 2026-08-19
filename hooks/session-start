@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# SessionStart hook for the devflow plugin.
+#
+# Why this exists: evidence-based-decisions triggers on "the start of a session".
+# No user prompt ever says that, so the model has nothing to match its description
+# against and the skill never fires on its own judgement. This injects the trigger.
+#
+# It deliberately injects a pointer, not the skill body -- the Skill tool loads the
+# content on demand, so the per-session context cost stays at a few hundred tokens.
+
+set -euo pipefail
+
+# One JSON string literal, single-quoted so the shell expands nothing inside it.
+# The \n sequences stay as-is and become real newlines when the JSON is parsed.
+# Keep this free of double quotes, backslashes and single quotes: it is spliced
+# into the payload verbatim, with no escaping pass.
+directive='<devflow>\nInvoke the `devflow:evidence-based-decisions` skill with the Skill tool now, before your first response in this session.\n\nIt triggers on the start of a session -- reconciling the context documents of a project against what has landed since they were last updated. No user prompt will ever name that, which is why this hook injects it instead.\n\nWhat the skill will have you do, so you know what you are opting into:\n\n- **The project keeps a decision log, architecture doc, or reconciliation watermark** -- replay `git log --oneline <watermark>..HEAD` over the relevant source paths, read what those commits changed, update whatever they invalidated, and move the watermark.\n- **The project keeps none of those** -- propose the set and ASK. Do not create context documents a project never requested.\n- **Neither applies** -- say so in one line and get on with what the user actually asked for. This is orientation, not a ceremony to perform.\n</devflow>'
+
+# Claude Code reads both `additional_context` and `hookSpecificOutput` without
+# deduplicating, so emit exactly one field: the nested form when running under
+# Claude Code, the SDK-standard top-level form anywhere else.
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -z "${COPILOT_CLI:-}" ]; then
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  }\n}\n' "$directive"
+else
+  printf '{\n  "additionalContext": "%s"\n}\n' "$directive"
+fi
+
+exit 0

@@ -1,9 +1,9 @@
 ---
 name: evidence-based-decisions
 description: >
-  Use at the START of any session on a project that keeps a decision log, architecture
-  document, or mental-model file — and when initializing a new project or running /init, or
-  when a project has no such docs yet. Also use when building against a system you do not
+  Use When initializing a new project or running /init, or
+  when a project has no such docs yet which are  decision log, architecture
+  document, or mental-model files. Also use when building against a system you do not
   control (third-party or government API, vendor SDK, undocumented protocol). Triggers on:
   starting work after someone else has committed, vendor docs disagreeing with observed
   behaviour, a green test suite that failed in production anyway, deciding whether something

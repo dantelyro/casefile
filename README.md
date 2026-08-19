@@ -30,34 +30,56 @@ answers **why** — and keeps that answer honest as the code moves.
 Neither creates architecture documents in a project that has not asked for them. They propose
 and wait.
 
+#### Why there is a hook
+
+A skill fires when the model recognises its `description` in the situation in front of it. That
+works for `repo-discovery`, whose triggers are things a person actually types — *where does X
+live*, *how do I run this*, *an unfamiliar repo*.
+
+It does not work for `evidence-based-decisions`. Its primary trigger is **the start of a
+session**, and no first message ever says so. Its other triggers are facts about the repo — the
+project keeps a decision log; the docs are behind `HEAD` — which cannot be recognised before
+reading the repo, and reading the repo is what the skill is for.
+
+So `hooks/session-start` injects the trigger the prompt cannot supply: a short directive naming
+the skill, emitted on `startup`, `clear` and `compact`. It injects a **pointer, not the skill
+body** — the `Skill` tool loads the content on demand, keeping the per-session cost to a few
+hundred tokens rather than the whole file.
+
 ## Layout
 
 ```
 .claude-plugin/
   marketplace.json      # makes this repo a marketplace
-plugins/
-  devflow/
-    .claude-plugin/
-      plugin.json       # makes this folder a plugin
-    skills/
-      repo-discovery/
-        SKILL.md
-      evidence-based-decisions/
-        SKILL.md
-        references/     # loaded on demand, not with the skill
-          decision-log.md
-          living-documents.md
-          verifying-external-systems.md
+  plugin.json           # makes it a plugin too — source is "./"
+hooks/
+  hooks.json            # auto-discovered; no plugin.json entry needed
+  run-hook.cmd          # polyglot cmd/bash wrapper, so it runs on Windows too
+  session-start         # extensionless on purpose (see the note in the wrapper)
+skills/
+  repo-discovery/
+    SKILL.md
+  evidence-based-decisions/
+    SKILL.md
+    references/         # loaded on demand, not with the skill
+      decision-log.md
+      living-documents.md
+      verifying-external-systems.md
 ```
+
+This repo is both the marketplace and the single plugin it offers — the marketplace entry points
+at `./`, so the two manifests sit side by side in one `.claude-plugin/` folder rather than nested.
 
 A skill's `SKILL.md` is what gets loaded when it triggers, so it stays small. Anything long —
 formats, procedures, reference material — goes in `references/` and is read only when the work
 actually needs it.
 
-The two `.claude-plugin` folders do different jobs: the outer one declares the
-marketplace and lists what it offers, the inner one declares a single plugin.
+The two manifests do different jobs: `marketplace.json` declares the marketplace and lists what
+it offers, `plugin.json` declares the `devflow` plugin itself.
 
 ## Adding a plugin
+
+A second plugin needs its own folder, since `devflow` occupies the root:
 
 1. Create `plugins/<name>/.claude-plugin/plugin.json` with `name`, `description`
    and `version`.
