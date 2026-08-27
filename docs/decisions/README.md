@@ -24,6 +24,7 @@ less than a contemporaneous one.
 | [D-009](0009-the-proposed-doc-set-includes-project-instructions.md) | The proposed doc set includes project instructions | Accepted |
 | [D-010](0010-watermark-extraction-uses-posix-sed-and-guards.md) | Watermark extraction uses POSIX `sed` and guards the empty case | Accepted |
 | [D-011](0011-the-doc-set-gains-purpose-and-requirements.md) | The doc set gains purpose and requirements | Accepted |
+| [D-012](0012-the-skill-runs-on-sonnet-not-opus.md) | The skill runs on Sonnet, not Opus | Accepted |
 
 ## Conventions
 

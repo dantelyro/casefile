@@ -8,6 +8,7 @@ description: >
   vendor docs disagreeing with observed behaviour, a green test suite that failed in production
   anyway, deciding whether something is "done", recording why an approach was chosen,
   superseding an earlier decision, or finding a claim in a project document that is false.
+model: sonnet
 ---
 
 # Evidence-Based Decisions
