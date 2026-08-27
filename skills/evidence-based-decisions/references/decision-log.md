@@ -7,44 +7,71 @@ Its job is not to record *what* was chosen. Git shows that. Its job is to record
 **on what evidence**, so a future reader can tell whether the reasoning still holds.
 
 Everything below about **content** — the entry shape, superseding, what earns an entry — holds
-regardless of file layout. Layout is a separate choice, and it is not obvious.
+whatever the log is about. **Layout is not a judgement call: one decision per file, always.**
 
-## One file, or one file per decision
+## One decision per file — not conditional
 
-| | Single file | One file per decision |
-|---|---|---|
-| Cross-references | Trivial | Need a link or an index |
-| Reading the whole history | One open | A directory listing |
-| Concurrent writers | **Every entry touches the same append point** | No contention |
-| Loading one decision | Pulls in all of them | Just that file |
-| Grep by title | Needs grep + scroll | Filename is the title |
-| Ceremony | Append and go | New file, frontmatter |
+```
+docs/
+├── architecture/
+│   └── mental-model.md      # what exists, where it lives, module state
+└── decisions/               # SIBLING of architecture/, never nested inside it
+    ├── README.md            # generated index: id · title · status. Never entry bodies
+    ├── 0001-hexagonal-architecture-ports-adapters.md
+    ├── 0002-nestjs-on-fastify-not-express.md
+    └── 0003-strict-typescript-esm-no-any.md
+```
 
-**A single file is right early** — under roughly 30 entries, one writer, and when the whole
-log is short enough to read in a sitting. It is genuinely cheaper.
+`NNNN-kebab-slug.md`, four digits, slug from the first eight words of the title. The file opens
+with `# D-NNN — Title` and then the entry format below. The index is generated from the
+directory and holds **only** id, title, status and conventions — the moment it holds reasoning,
+there are two places to update and they will disagree.
 
-**Split when any of these is true:**
+**`decisions/` is a sibling of `architecture/`, not a child.** They answer different questions
+and the doc set treats them as separate living documents: the architecture doc says *what exists
+and where*, the log says *why, and what was given up*. Nesting the log under `architecture/`
+implies decisions are a subsection of the architecture, and they are not — a log covers scope,
+product and process choices that no architecture doc describes (which plan to sell, whether to
+ship with payments simulated, who moderates what). Putting them in a subdirectory of the thing
+they are not about is how the two start duplicating each other.
 
-- The file exceeds ~500 lines, or you find yourself reading it with `grep` and line ranges
-  instead of opening it — that is the format telling you it has outgrown itself.
-- More than one person or agent appends concurrently. Every entry lands at the same place, so
-  every pair of concurrent decisions conflicts.
-- The log gets loaded into a context window where its size competes with the work.
+**Start here on entry one.** Do not begin with a single file intending to split later:
 
-The split form is the conventional ADR layout: `docs/adr/0042-short-title.md`, one decision
-each, status in frontmatter, plus a generated `README.md` index of id / title / status. Keep
-the same entry body; only the container changes.
+- **The threshold never trips in practice.** "Split when it exceeds ~500 lines" is a rule that
+  requires someone to stop, measure, and choose migration over the task in front of them.
+  Nobody does that, so logs sail past the limit — one real project reached **886 lines** before
+  anyone split it, by which point the log was being read with `grep` and line ranges rather than
+  opened, which is the failure the limit was meant to prevent.
+- **Migration is strictly more work than starting split.** The same files get written either
+  way; doing it later adds a bulk move plus every cross-reference.
+- **A "next id" pointer in a shared header is a contention point.** Under this layout the
+  highest filename *is* the pointer, so there is no shared line to conflict over.
 
-**A note on the numbering pointer below:** a "next id" marker in a shared header is itself a
-contention point, and it is the clearest signal that a single file is being asked to do a
-directory's job. Under the split layout, the highest filename *is* the pointer.
+What the layout buys, and why it is worth the extra file:
+
+| | One decision per file |
+|---|---|
+| Concurrent writers | No contention — every entry is a new path |
+| Loading one decision | Just that file, not the whole history |
+| Finding one by title | The filename *is* the title |
+| Context cost | The index is a few lines per decision; bodies load on demand |
+| Cross-references | A relative link, resolved by the index |
+
+The last row is the only genuine cost, and an index pays it off immediately.
+
+**Superseded entries stay in `decisions/`.** Do not move them to an archive directory to keep
+the active set small — a superseded entry is the most valuable thing in the log (see
+"Superseding, never deleting"), and relocating it breaks every `see D-NNN` pointing at it. Its
+`Status` line is what marks it dead; the filename never changes. If the index gets long, group
+it by status, never by trimming it.
 
 ## Entry format
 
 ```markdown
 ### D-042 — One-line statement of the decision, in the present tense
 **Status:** Accepted (2026-08-06). | Open | **SUPERSEDED by D-047 (2026-09-01).**
-**Decided by:** gabriel <gabriel@prover.net.br>
+**Decided by:** gabriel <gabriel@prover.net.br> — resolved by blaming the change, not by
+whoever is running the session. See Attribution.
 **Implemented by:** `992b19e` — omit while the decision is Open or unbuilt.
 **Context:** The forcing question. What made a choice necessary, and what was known at the
 time — including the evidence grade. "The manual documents X" and "a live probe returned X"
@@ -60,21 +87,101 @@ not real.
 
 ## Attribution
 
-**`Decided by`** — the person accountable for the choice, captured when the entry is written:
+**`Decided by`** — the person accountable for the choice. The point of the field is knowing
+**who to ask**, so it has to name whoever actually made the call.
+
+**Never take it from `git config user.name`.** That names whoever is at the terminal right now.
+When an entry is written after the fact — seeding a log for an existing repo, reconciling a
+watermark — that is *the person who asked for the documentation*, which is a different role
+from the person who decided. Substituting one for the other manufactures accountability: it
+puts a name against a choice they may never have made, and it reads as a first-hand record.
+
+**Resolve it by blaming the change the decision governs** — the lines that implement it, in the
+source, not in this log. On an append-only log, blaming the *entry* points at whoever last
+amended it, which is why the target is always the implementing code:
 
 ```bash
-printf '%s <%s>\n' "$(git config user.name)" "$(git config user.email)"
+git log -L '/functionOrConstant/',+20:src/path/to/file.ts \
+      --format='%H|%an <%ae>|%s' --no-patch \
+  | grep -E '\|(feat|fix)(\(.+\))?!?:' | head -1
 ```
 
-Two things this is **not**:
+`git log -L` returns the history of just those lines, newest first.
 
-- **Not the committer.** They diverge — someone lands a decision on another's behalf, or a
-  rebase rewrites authorship. Write the name into the entry rather than relying on
-  `git log` to reconstruct it, because the file will be rewritten by every later amendment
-  and `git blame` on an append-only log points at whoever touched the line last.
-- **Not the agent.** In an agent-assisted repo the agent proposes and the human accepts, so
-  the git identity is the right one. An entry attributed to a tool records nobody accountable,
-  and the point of the field is knowing **who to ask**.
+**Filter to the commits that actually made the code — `feat` and `fix`.** Those are where
+decisions live. `docs`, `chore`, `style`, `test`, `ci` and `build` touch lines without deciding
+anything, and letting them through is how blame ends up naming whoever ran the formatter.
+Include `refactor` as a second pass when `feat`/`fix` returns nothing for those lines: a
+refactor can be where a boundary was really drawn, but it is as often a move that decided
+nothing — read the commit before accepting it.
+
+Widen the range to the file or directory when a decision spans more than a hunk, and prefer the
+substantive change over a later touch-up.
+
+**If the commits carry no prefix, blame by the commit description instead.** Most repos do not
+use conventional commits, so the `grep` returning nothing is the expected result, not a broken
+command — check which convention a repo follows before trusting a type filter over it. Drop the
+filter, read the subject lines, and apply the same judgement by hand: does this subject describe
+a change to behaviour, or only to presentation?
+
+```bash
+git log -L '/functionOrConstant/',+20:src/path/to/file.ts \
+      --format='%h|%an <%ae>|%s' --no-patch
+```
+
+Newest first. Read down the list and take the most recent subject that describes the decision
+you are recording:
+
+- `Turn listing deletion into finalize/reopen instead of a hard delete` — decides something.
+  This is your commit.
+- `Single R$49,90 plan for publishing a service; free plan has no post cap` — decides something.
+- `Migrate backend to TypeScript (strict mode)` — touched the lines, decided nothing *about this
+  entry*. A sweeping mechanical change will sit on top of almost every line range; skip past it.
+- `Up`, `wip`, `fixes` — describes nothing. Read the diff or keep walking back.
+
+Beware the mixed subject: `Add admin-content seed script; document connection_limit for shared
+Postgres` is half feature, half docs. Attribute on the half that touched *your* lines.
+
+The oldest entry in the range is where the code was introduced, which is often — but not
+always — where the choice was made. A decision that was later reversed or reshaped belongs to
+the commit that reshaped it.
+
+Two further things this field is **not**:
+
+- **Not the committer, when they diverge.** Someone lands a decision on another's behalf; a
+  rebase rewrites authorship. Blame gets you the author of the change; where you know the
+  choice belonged to someone else, name that person and say why in the body.
+- **Not the agent.** An entry attributed to a tool records nobody accountable. But do not
+  invert this into "so the human's git identity must be right" — that inference is the whole
+  trap above. In an agent-assisted repo the agent proposes and a human accepts, and blame names
+  the human whose change carried it.
+
+### Attribution has evidence grades too
+
+Same ladder as the rest of this skill; never let a lower rung override a higher one.
+
+| Grade | Source of "who decided" | Trust |
+|---|---|---|
+| 1 | The person stated it — in the entry, a review, a message you can point at | Authoritative |
+| 2 | Blame on the implementing `feat`/`fix`, or a PR approval that explicitly ratifies it | Strong |
+| 3 | Commit authorship where the message only shows *what* changed, not that it was chosen | Hypothesis |
+| 4 | Inferred from repo shape — `git config`, sole committer, "who else would it be" | Worthless |
+
+Grade 4 is seductive because it always produces a confident-looking name.
+
+> **This has already happened.** Seeding a log for a backend, every entry was attributed from
+> `git config user.name` to the person who requested the docs. Blame showed all 18 commits were
+> authored by two entirely different people. Sixteen entries named someone who had made none of
+> the decisions — and the log read as first-hand throughout. A single-contributor repo does not
+> make its one contributor the decider of everything in it, and the contributor you assume is
+> not reliably the one in the history.
+
+**When an entry is reconstructed rather than recorded, say so in the entry.** A retroactively
+seeded log is a set of hypotheses about intent, at whatever grade its evidence supports. Mark
+which parts are read from a source comment or commit message — the author's own reasoning — and
+which are your inference, and leave the reconstruction to be confirmed rather than presenting it
+as first-hand. A reconstructed log is worth having; it is not worth as much as a contemporaneous
+one, and the entry should not blur the difference.
 
 **`Changed by`** — an append-only trail. One line per amendment: date, who, and *what changed*.
 Omit the field entirely until there is a first amendment; an empty heading is noise.
@@ -96,18 +203,31 @@ Optional closing sections that earn their place:
 
 ## Numbering
 
-Sequential `D-NNN` (or `NNNN-` filenames), never reused.
+Sequential `D-NNN`, matching the `NNNN-` filename, never reused.
 
-Under a single file, keep a `next id:` pointer in the header and bump it in the same commit.
-Under the split layout, drop the pointer — the highest filename already is it, and one fewer
-shared line is one fewer conflict.
+**Keep no `next id` pointer anywhere.** The highest filename in `decisions/` is the pointer:
+
+```bash
+ls docs/decisions/ | tail -1
+```
+
+Nothing to bump, nothing to contend over, and it cannot drift out of sync with reality.
+
+Inserting between two existing ids — a decision that belongs beside `D-013` rather than at the
+end — takes a letter suffix: `0013b-…`. It sorts directly after its neighbour, and renumbering
+the tail would invalidate every `see D-NNN` in the repo.
 
 ## Superseding, never deleting
 
 When an entry turns out to be wrong:
 
-1. Mark the old one **SUPERSEDED by D-NNN**, in place, with a one-line summary of what was
-   wrong. Leave the body intact.
+1. Mark the old one **SUPERSEDED by D-NNN** **on its `Status` line**, with a one-line summary of
+   what was wrong. Leave the body intact, and leave the file where it is.
+
+   On the `Status` line specifically, not in a banner further down: one decision per file means
+   a reader can open that entry alone, with nothing around it, and the status is the first thing
+   they must see. A supersession notice below the fold is invisible to exactly the reader most
+   at risk of acting on a dead decision.
 2. Append to its **`Changed by`** trail — date, who, what changed. Superseding is the most
    important thing that ever happens to an entry, so it is the least skippable line.
 3. Write the new entry, stating explicitly what the old one got wrong and *why the reasoning

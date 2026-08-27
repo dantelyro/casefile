@@ -71,6 +71,19 @@ shows — layout, stack, entry points — and set the initial watermark to `HEAD
 decisions that were never made; an empty log with a numbering convention is the correct
 starting state.
 
+**Seed the log as `docs/decisions/NNNN-slug.md`, one decision per file, from the first entry** —
+plus a generated `docs/decisions/README.md` index. `decisions/` is a **sibling** of
+`architecture/`, never nested inside it: they answer different questions, and a log covers scope
+and product choices no architecture doc describes. Neither the layout nor the placement is a
+size-dependent choice to revisit later; see "One decision per file" in
+`references/decision-log.md`.
+
+**Do not attribute a seeded entry to the person who asked you to seed it.** They requested
+documentation; that is not the same as having made the decision. Resolve `Decided by` by blaming
+the `feat`/`fix` commit that implemented the change, and mark the entry as reconstructed. Getting
+this wrong is not cosmetic — it puts a real name against choices they never made, in a document
+that reads as first-hand. See "Attribution" in `references/decision-log.md`.
+
 ## The loop
 
 1. **Read the record first** — decision log, architecture doc, project instructions. A finding
@@ -79,7 +92,8 @@ starting state.
    Capture what comes back; it becomes your fixture.
 3. **Build, with unverified values quarantined** — named constants, one call site, a comment
    saying what they were derived from and how to confirm them.
-4. **Record the decision** with its evidence grade. See `references/decision-log.md`.
+4. **Record the decision** with its evidence grade — a new file in `decisions/`, never appended
+   to a shared one. See `references/decision-log.md`.
 5. **Verify, and say which axis you verified.** See `references/verifying-external-systems.md`.
 6. **When a claim proves false, correct it everywhere** — then sweep for the same claim
    elsewhere. See `references/living-documents.md`.
@@ -124,6 +138,8 @@ the next attempt does not repeat them.
 - A doc claim you know is false, left because correcting it wasn't the task
 - Starting work without checking what landed since the docs were last reconciled
 - Creating an architecture doc or decision log on a project that never asked for one
+- Naming a decider you got from `git config` instead of from blame on the change
+- Filing `decisions/` under `architecture/` — the log is a sibling, not a subsection
 
 ## Rationalizations
 
@@ -139,9 +155,13 @@ the next attempt does not repeat them.
 | "The docs were fine last session" | Other people commit without an agent. Replay `watermark..HEAD` — it takes one command and is the only way to know. |
 | "Nothing's changed since last time" | That is the guess the watermark exists to replace. Run it. |
 | "Every project should have a decision log" | Propose, then ask. Creating docs a team never wanted produces files nobody maintains, which is worse than none. |
+| "It's their repo, so they decided it" | Repo shape is Grade 4. Blame the `feat`/`fix` that made the change — the authors in the history are routinely not the person asking you for docs. |
+| "One file is fine for now, I'll split it later" | Nobody splits later; one real log hit 886 lines first. One decision per file from entry one — it is not a size-dependent choice. |
+| "Someone has to go in the `Decided by` field" | No. A name you cannot source is worse than a sourced one you had to go find, because it reads as first-hand either way. |
 
 ## References
 
-- `references/decision-log.md` — entry format, superseding, what earns an entry
+- `references/decision-log.md` — layout (one decision per file), entry format, attribution,
+  superseding, what earns an entry
 - `references/verifying-external-systems.md` — probing, capturing specs, quarantining unknowns
 - `references/living-documents.md` — architecture docs and project instructions as source of truth
