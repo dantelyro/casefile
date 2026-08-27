@@ -67,12 +67,24 @@ agent, so the gap is real and invisible unless you record where you stopped.
 At session start, replay the gap:
 
 ```bash
-WM=$(grep -oP 'reconciled through:\s*`\K[0-9a-f]+' docs/architecture/mental-model.md)
+DOC=docs/architecture/mental-model.md   # or the project instructions, if that is where it lives
+WM=$(sed -n 's/.*reconciled through:[^`]*`\([0-9a-f]\{7,40\}\)`.*/\1/p' "$DOC" | head -1)
 
-git cat-file -e "$WM^{commit}" 2>/dev/null \
-  && git log --oneline "$WM"..HEAD -- src/ migrations/ \
-  || echo "watermark $WM no longer resolves — see recovery below"
+if [ -z "$WM" ]; then
+  echo "no watermark in $DOC — do not read this as up to date"
+elif git cat-file -e "$WM^{commit}" 2>/dev/null; then
+  git log --oneline "$WM"..HEAD -- src/ migrations/
+else
+  echo "watermark $WM no longer resolves — see recovery below"
+fi
 ```
+
+**Check for the empty case before replaying.** `git log ..HEAD` with an empty left side is not an
+error — both sides default to `HEAD`, so it prints nothing, and nothing is exactly what an
+up-to-date repo prints. A failed extraction is indistinguishable from a clean reconciliation
+unless you test for it. POSIX `sed` rather than `grep -oP` for the same reason: `-P` is a GNU
+extension, and on Git Bash under a non-UTF-8 locale it exits with *"-P supports only unibyte and
+UTF-8 locales"* — straight into the silent-empty path.
 
 Scope the paths to source. A doc-only commit did not change the system, and including it means
 every reconciliation reports work that needs reviewing.
