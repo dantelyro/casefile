@@ -3,7 +3,7 @@
 **Status:** Accepted (2026-08-27).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: stated directly when asking for the
 change ("they should work together"). Not reconstructed.
-**Implemented by:** — pending; the change is in the working tree.
+**Implemented by:** `b2f8cd5` — 2026-08-27.
 
 **Context:** `/init` and `evidence-based-decisions` only composed in one direction. Running
 `/init` pulled in the skill, because the SessionStart hook had already fired. Invoking the skill

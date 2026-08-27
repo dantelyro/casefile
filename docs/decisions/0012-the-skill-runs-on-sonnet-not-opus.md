@@ -4,7 +4,7 @@
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: requested directly in session
 ("i dont think that skill needs opus so a cheaper model should be enough").
 
-**Implemented by:** — pending; the change is in the working tree.
+**Implemented by:** `d366ff9` — 2026-08-27.
 
 **Context:** `evidence-based-decisions` fires on every session start via the hook (D-003). Its
 work is mechanical: read a watermark, replay a commit range, read the diffs, update what they

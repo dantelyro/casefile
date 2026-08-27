@@ -4,7 +4,7 @@
 **Decided by:** dantelyro <beyondmind9@gmail.com> — the defect was found while implementing D-009
 and fixed in the same session; the call to fix it here rather than defer it follows the skill's
 own "correct a false claim immediately" rule.
-**Implemented by:** — pending; the change is in the working tree.
+**Implemented by:** `30f026b` — 2026-08-27.
 
 **Context:** Grade 1 evidence — the documented command was run against this repo and failed:
 

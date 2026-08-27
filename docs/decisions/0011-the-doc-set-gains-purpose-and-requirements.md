@@ -2,7 +2,7 @@
 
 **Status:** Accepted (2026-08-27).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: requested directly in session.
-**Implemented by:** — pending; the change is in the working tree.
+**Implemented by:** `b2f8cd5` — 2026-08-27.
 
 **Context:** The set covered how to run it, what exists, and why it is that way. It had nothing
 for what the project is *for* or what it must do — so a decision entry could argue trade-offs
