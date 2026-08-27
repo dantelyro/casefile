@@ -9,8 +9,17 @@ A personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
 /plugin install devflow@dantelyro
 ```
 
-Claude Code refreshes known marketplaces on startup, so once installed, later
-changes pushed here are picked up automatically.
+Then turn auto-update on: `/plugin` → **Marketplaces** → `dantelyro` → **Enable
+auto-update**. Third-party and local marketplaces have it **off** by default — only
+Anthropic's own marketplaces ship with it enabled — so without this step an install
+stays on the version it was fetched at, forever.
+
+With it on, Claude Code refreshes the marketplace shortly after a session starts, on
+a random delay of up to ten minutes, and the new version loads on the next launch or
+when you run `/reload-plugins`. Never mid-session.
+
+An update only happens when `version` in `plugin.json` changes. Push new commits
+without bumping it and every existing install keeps the cached copy.
 
 ## Plugins
 
