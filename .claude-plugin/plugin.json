@@ -1,7 +1,7 @@
 {
   "name": "devflow",
   "description": "Workflow skills for keeping a codebase understandable: orienting in an unfamiliar repo, and recording decisions with the evidence behind them.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": {
     "name": "dantelyro"
   },

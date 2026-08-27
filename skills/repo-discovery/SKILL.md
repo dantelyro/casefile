@@ -26,10 +26,10 @@ what they do not answer.
 2. **Map** — context documents
 3. **Stack** — manifests, not source
 4. **Entry points** — only now, and only what you need
-5. **Report** — state what you found and what you could not
+5. **Report** — what you found and what you could not
 
-Stop as soon as you can answer the question in front of you. Full discovery is for starting
-work in a repo, not for a one-line fix.
+Stop as soon as you can answer the question in front of you. Discovery is proportional to what
+you are about to do: full discovery is for starting work in a repo, not for a one-line fix.
 
 ## Step 1: Shape
 
@@ -37,18 +37,18 @@ work in a repo, not for a one-line fix.
 git rev-parse --is-inside-work-tree 2>/dev/null || echo "NOT_A_GIT_REPO"
 ```
 
-**`NOT_A_GIT_REPO`** — likely a parent folder holding sibling repos. Do not run git commands
-here; they will fail or, worse, resolve against an unrelated parent repo.
+**`NOT_A_GIT_REPO`** — likely a parent folder holding sibling repos. Git commands here fail or,
+worse, resolve against an unrelated parent repo.
 
 ```bash
 for dir in */; do [ -d "$dir/.git" ] && echo "$dir"; done
 ```
 
-Treat each result as its own project root. **Ask which one** before scanning them all — a
-parent may hold a dozen repos and the answer is usually one of them.
+Treat each result as its own project root, and **ask which one** before scanning: a parent may
+hold a dozen repos and the answer is usually one of them.
 
-**`true`** — a single repo. Check whether it is a monorepo, because it changes where
-everything lives:
+**`true`** — a single repo. Check whether it is a monorepo, because it changes where everything
+lives:
 
 ```bash
 git rev-parse --show-toplevel
@@ -82,11 +82,11 @@ ls docs/ .docs/ 2>/dev/null
 README → contributing. The first is written for exactly your situation and is the densest.
 READMEs drift worst, because they are written once for a launch.
 
-**Believe them provisionally.** A context document describes the repo as of its last update.
-Treat a claim that contradicts the code as a finding, not as truth.
+**Believe them provisionally.** A context document describes the repo as of its last update, so
+a claim that contradicts the code is a finding, not truth.
 
-**Found none?** Say so and offer to create one — do not create it unmarked. See
-`evidence-based-decisions` for what to propose and why asking matters.
+**Found none?** Say so and offer to create one. See `evidence-based-decisions` for what to
+propose and why the offer has to be answered first.
 
 ## Step 3: Stack, from manifests only
 
@@ -102,8 +102,8 @@ The manifest tells you the stack in twenty lines. Inferring it from source costs
 gets it wrong.
 
 **CI config is the most reliable "how to run"** — it is the version that actually has to work,
-and it is kept current by breaking when it is not. A README's setup section has no such
-pressure.
+kept current by breaking when it is not. A README's setup section is under no such pressure, so
+verify anything you take from it.
 
 ## Step 4: Entry points — narrowly
 
@@ -115,11 +115,11 @@ git ls-files | sed 's|/[^/]*$||' | sort | uniq -c | sort -rn | head -20   # wher
 ```
 
 `git ls-files` beats `find` — it respects `.gitignore`, so `node_modules`, `dist` and
-`coverage` never appear. The directory histogram shows where the mass of the project actually
-sits, which is usually more informative than any single file.
+`coverage` never appear. The directory histogram shows where the mass of the project sits,
+which is usually more informative than any single file.
 
 **Never read `node_modules`, `vendor`, `dist`, `.venv`, or lockfiles.** They are enormous,
-generated, and answer nothing you cannot get from the manifest.
+generated, and answer nothing the manifest does not.
 
 ## Step 5: Recent activity, if you are picking up work
 
@@ -144,22 +144,3 @@ State the shape, the map, how to run it, and — most usefully — **what you co
 
 The gap list is the valuable half. It tells the reader which of your later statements are
 grounded and which are inference.
-
-## Cost discipline
-
-| Do | Don't |
-|---|---|
-| `git ls-files` | `find .` across the whole tree |
-| Read the manifest | Infer the stack from imports |
-| Read CI for build steps | Trust a README's setup section unverified |
-| Stop when the question is answered | Complete a full survey for a one-line fix |
-| Ask which repo, in a parent folder | Scan every sibling |
-
-## Common mistakes
-
-- **Exploring before reading the docs.** The map exists; someone already did this work.
-- **Reading `node_modules`.** Huge, generated, tells you nothing the manifest does not.
-- **Trusting the README's "how to run".** Nothing breaks when it goes stale. CI does.
-- **Full survey for a small task.** Discovery is proportional to what you are about to do.
-- **Reporting only what you found.** Without the gaps, a reader cannot tell inference from
-  fact.
