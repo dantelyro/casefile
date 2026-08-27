@@ -21,7 +21,9 @@ less than a contemporaneous one.
 | [D-006](0006-the-decision-log-is-one-decision-per-file.md) | The decision log is one decision per file, from entry one | Accepted |
 | [D-007](0007-decided-by-is-resolved-from-blame.md) | `Decided by` is resolved from blame, never from `git config` | Accepted |
 | [D-008](0008-each-rule-is-stated-once-in-the-place-it.md) | Each rule is stated once, in the place it applies | Accepted |
+| [D-009](0009-the-proposed-doc-set-includes-project-instructions.md) | The proposed doc set includes project instructions | Accepted |
 | [D-010](0010-watermark-extraction-uses-posix-sed-and-guards.md) | Watermark extraction uses POSIX `sed` and guards the empty case | Accepted |
+| [D-011](0011-the-doc-set-gains-purpose-and-requirements.md) | The doc set gains purpose and requirements | Accepted |
 
 ## Conventions
 

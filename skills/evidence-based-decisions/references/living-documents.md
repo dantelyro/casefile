@@ -8,6 +8,8 @@ true.
 | File | Answers | Read it |
 |---|---|---|
 | Project instructions (`CLAUDE.md`, `AGENTS.md`) | How to run, build, test; the gotchas that cost real time | Always — it is loaded for you |
+| Purpose (`docs/purpose.md`) | What pain this solves, for whom, and what it deliberately is not | Before scoping anything, and whenever a request seems out of scope |
+| Requirements (`docs/requirements.md`) | What it must do, and what it must hold true under | Before building a feature, and before calling one done |
 | Architecture / mental model | What exists, where it lives, module boundaries, per-module state | Before designing or building anything |
 | Decision log | Why it is this way, and what was given up | Scan for entries your approach would contradict |
 | Roadmap / phase spec | What to build next, and in what order | Before picking up work |
@@ -15,6 +17,28 @@ true.
 
 Keep them **non-overlapping**: the instructions file points at the architecture document rather
 than restating it. Duplication is what lets two files disagree.
+
+## Purpose
+
+The core: the pain, who has it, what this does about it, and — the half that gets skipped — what
+it deliberately does **not** do. A purpose document with no non-goals cannot settle an argument,
+which is the only reason to have one.
+
+Short, and stable. It changes rarely; when it does, that is a decision and gets an entry.
+
+## Requirements
+
+Two sections, stable ids so decisions and tests can cite them:
+
+- **Functional (`F-NN`)** — what it must do, phrased so a test can fail. "Users can reset a
+  password without support" is a requirement; "good password handling" is not.
+- **Non-functional (`N-NN`)** — what it must hold true under: latency, availability, data
+  residency, budget, compliance. **Each carries a number.** "Fast" is not a requirement, and an
+  unnumbered one cannot be violated, only disappointed.
+
+Mark each `must` or `should`, and say which are unverified. Non-functional requirements are the
+ones most often asserted and never measured — the same built-versus-verified split as the rest of
+this skill.
 
 ## What belongs in project instructions
 
@@ -63,6 +87,11 @@ agent, so the gap is real and invisible unless you record where you stopped.
 ```markdown
 **Docs reconciled through:** `fda5e88` — 2026-08-06
 ```
+
+Where there is no architecture document — a repo small enough that the project instructions *are*
+the architecture — put it in the project instructions header instead, and point the `grep` at that
+file. Exactly one location per repo: a watermark in two files is two watermarks, and the stale one
+is the one that gets read.
 
 At session start, replay the gap:
 

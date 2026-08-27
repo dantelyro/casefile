@@ -58,9 +58,15 @@ takes one second. Full mechanism, including recovery when the SHA stops resolvin
 
 ## No docs yet: propose, then ask
 
-A project with no architecture document or decision log may keep this material elsewhere, or
-want none of it. Say what each file is for and what it costs, and wait for an answer — files
-nobody wanted are worse than no files.
+A project with no project instructions, architecture document or decision log may keep this
+material elsewhere, or want none of it. Say what each file is for and what it costs, and wait
+for an answer — files nobody wanted are worse than no files.
+
+**Run `/init` first.** Project instructions come before the rest of the set: they are the only
+document every session loads, so a log created without them is a log nothing points at. Then
+`docs/purpose.md` and `docs/requirements.md` — what the project is for, and what it must do —
+before the architecture document, which describes a shape that only makes sense once those are
+settled.
 
 Once accepted, seed from what the repo already shows — layout, stack, entry points — set the
 initial watermark to `HEAD`, and start the log as `docs/decisions/NNNN-slug.md`, one decision
