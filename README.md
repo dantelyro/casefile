@@ -65,6 +65,9 @@ skills/
       decision-log.md
       living-documents.md
       verifying-external-systems.md
+docs/
+  decisions/            # why this repo is the way it is; one file per decision
+    README.md           # generated index: id, title, status
 ```
 
 This repo is both the marketplace and the single plugin it offers — the marketplace entry points
