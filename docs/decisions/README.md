@@ -6,10 +6,11 @@ record the reasoning and the trade-offs, so a future reader can tell whether the
 This index carries id, title and status only. Reasoning lives in the entry files — the moment it
 appears here as well, there are two places to update and they will disagree.
 
-**This log was seeded retroactively on 2026-08-27.** Every entry is a reconstruction and says so
-in its opening blockquote, separating what was read from a commit body or source comment — the
-author's own reasoning — from what was inferred. A reconstructed log is worth having, and worth
-less than a contemporaneous one.
+**D-001 to D-012 were seeded retroactively on 2026-08-27.** Each of those is a reconstruction and
+says so in its opening blockquote, separating what was read from a commit body or source comment —
+the author's own reasoning — from what was inferred. A reconstructed log is worth having, and worth
+less than a contemporaneous one. **From D-013 onward the entries are contemporaneous**, recorded in
+the same change that implements them.
 
 | Id | Title | Status |
 | --- | --- | --- |
@@ -25,6 +26,11 @@ less than a contemporaneous one.
 | [D-010](0010-watermark-extraction-uses-posix-sed-and-guards.md) | Watermark extraction uses POSIX `sed` and guards the empty case | Accepted |
 | [D-011](0011-the-doc-set-gains-purpose-and-requirements.md) | The doc set gains purpose and requirements | Accepted |
 | [D-012](0012-the-skill-runs-on-sonnet-not-opus.md) | The skill runs on Sonnet, not Opus | Accepted |
+| [D-013](0013-scaffolding-runs-before-init.md) | Scaffolding runs before `/init` | Accepted |
+| [D-014](0014-a-scaffold-is-planned-on-disk-before-any.md) | A scaffold is planned on disk before any command runs | Accepted |
+| [D-015](0015-generator-commands-carry-their-verification-state.md) | Generator commands carry their verification state | Accepted |
+| [D-016](0016-the-design-system-is-a-separate-skill.md) | The design system is a separate skill | Accepted |
+| [D-017](0017-the-radix-branch-authors-its-primitives-rather-than.md) | The Radix branch authors its primitives rather than shipping them | Accepted |
 
 ## Conventions
 

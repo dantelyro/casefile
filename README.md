@@ -25,19 +25,22 @@ without bumping it and every existing install keeps the cached copy.
 
 ### `devflow`
 
-Workflow skills for keeping a codebase understandable — orienting in it, and recording
-why it is the way it is.
+Workflow skills for keeping a codebase understandable — creating it, orienting in it, and
+recording why it is the way it is.
 
 | Skill | What it does |
 | --- | --- |
 | `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
+| `scaffolding` | Creates a new project — monolith, API, microservice, or separated backend and frontend — by running the framework's own generators rather than writing files from memory. Asks its questions up front, writes a plan naming every command it intends to run, stops for approval, then executes and actually runs the result. No dependency version is ever typed. |
 | `evidence-based-decisions` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
-The two compose: `repo-discovery` answers what a project **is**, `evidence-based-decisions`
-answers **why** — and keeps that answer honest as the code moves.
+The three compose: `scaffolding` **creates** a project, `repo-discovery` answers what a project
+**is**, and `evidence-based-decisions` answers **why** — and keeps that answer honest as the code
+moves. Scaffolding hands off to the other two at the end of its run, once there is something to
+describe.
 
-Neither creates architecture documents in a project that has not asked for them. They propose
-and wait.
+None of them creates architecture documents in a project that has not asked for them. They
+propose and wait.
 
 #### Why there is a hook
 
@@ -66,6 +69,17 @@ hooks/
   run-hook.cmd          # polyglot cmd/bash wrapper, so it runs on Windows too
   session-start         # extensionless on purpose (see the note in the wrapper)
 skills/
+  scaffolding/
+    SKILL.md
+    references/         # loaded on demand, not with the skill
+      backend.md
+      frontend-react.md
+      frontend-vue.md
+      generators.md     # exact commands, each with its verification state
+      invariants.md
+      plan-format.md
+      questions.md
+      release.md
   repo-discovery/
     SKILL.md
   evidence-based-decisions/

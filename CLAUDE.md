@@ -58,9 +58,22 @@ user message states. `hooks/session-start` injects that trigger — as a **point
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 See D-003 and D-004.
 
-**The two skills compose:** `repo-discovery` answers what a project *is*, `evidence-based-decisions`
-answers *why*, and keeps that answer honest as the code moves. Neither creates documents in a
-project that has not asked for them — they propose and wait for an answer.
+**The three skills compose:** `scaffolding` *creates* a project, `repo-discovery` answers what a
+project *is*, `evidence-based-decisions` answers *why* and keeps that answer honest as the code
+moves. None of them creates documents in a project that has not asked for them — they propose and
+wait for an answer.
+
+**`scaffolding` runs before `/init`, not after.** `/init` documents what exists; in a directory
+with no project in it there is nothing to document. So the skill claims `/init` as a trigger, does
+its four phases, and hands off to `/init` and the doc set in its last phase. That precedence is
+stated once, in `skills/scaffolding/SKILL.md` — do not restate it in `evidence-based-decisions`
+(D-008). See D-013.
+
+**A scaffold is planned on disk before any command runs.** The skill writes `scaffold.plan.md`
+listing every command with its flags and stops for approval. The point is not ceremony: it is that
+a plan can be rejected before anything exists, and that a half-failed run resumes by reading a file.
+See D-014. Commands in `references/generators.md` carry a verification state, because a flag set
+written from memory is a hypothesis about a CLI — D-015.
 
 ## Hook gotchas
 
