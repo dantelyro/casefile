@@ -22,7 +22,6 @@ pinned string typed from memory.
 | Tests | Vitest, `globals: true` |
 | Test env | setup file loading `.env.test` |
 | Test layout | tests beside the source; `test/` (or `src/test/`) holds **configuration only** |
-| Coverage | `@vitest/coverage-v8` |
 | Env files | `.env`, `.env.test`, `.env.example`, all created; `.env*` ignored except `.env.example` |
 | Env validation | a zod schema checked at boot — a missing variable fails at startup, not at 3am |
 | Errors | Sentry, DSN from env, silent when the variable is unset |
@@ -55,7 +54,6 @@ commit that ignores the convention is a release that does not happen.
   rule; do not add a third
 - jsdom, `css: true`, setup at `src/test/setup.ts`
 - Testing Library plus `jest-dom`
-- MSW — tests mock the network, not the HTTP client
 - axios, one configured instance in `shared/`, all interceptors on it
 - zod, sharing schemas with the backend
 - SCSS modules; tokens in one theme file
@@ -68,10 +66,10 @@ commit that ignores the convention is a release that does not happen.
 
 ## Scripts
 
-Backend: `dev`, `predev`, `build`, `start`, `test`, `test:watch`, `test:cov`, `lint`, `format`,
+Backend: `dev`, `predev`, `build`, `start`, `test`, `test:watch`, `lint`, `format`,
 `typecheck`, `migrate`, `db:seed`, `docker:up`, `docker:down`.
 
-Frontend: `dev`, `build`, `preview`, `test`, `test:watch`, `test:cov`, `lint`, `format`,
+Frontend: `dev`, `build`, `preview`, `test`, `test:watch`, `lint`, `format`,
 `typecheck`.
 
 A script that exists in one project and not the next is the divergence this file prevents.

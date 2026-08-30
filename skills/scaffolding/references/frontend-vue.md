@@ -12,7 +12,7 @@ appears in. Adding to it costs more than it returns.
 | HTTP | axios |
 | Forms | Quasar's `QForm` rules; VeeValidate only if a form genuinely outgrows them |
 | Styling | SCSS — `quasar.variables.scss` is the theme seam |
-| Tests | Vitest `globals: true`, jsdom, Testing Library, MSW |
+| Tests | Vitest `globals: true`, jsdom, Testing Library |
 
 ## What does not go here
 

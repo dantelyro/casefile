@@ -9,7 +9,7 @@ src/
   app/        providers, router, layout, pages
   features/   one folder per feature, self-contained
   shared/     the axios instance, hooks, ui, theme, lib
-  test/       setup.ts, render helper, MSW server and handlers — configuration only
+  test/       setup.ts and the render helper — configuration only
 ```
 
 Enforced by `eslint-plugin-boundaries`: `app` may import anything, `features` may import
@@ -30,7 +30,7 @@ is one people drift out of; as a lint rule it is a build failure.
 | Routing | asked — question 9 |
 | Components | asked — question 8 |
 | Styling | SCSS modules, tokens in one theme file |
-| Tests | Vitest `globals: true`, jsdom, `css: true`, Testing Library, MSW |
+| Tests | Vitest `globals: true`, jsdom, `css: true`, Testing Library |
 
 Query and Zustand are not competing: Query owns anything that came from the server, Zustand owns
 anything that did not. Putting server data in Zustand is how a project ends up hand-writing cache
