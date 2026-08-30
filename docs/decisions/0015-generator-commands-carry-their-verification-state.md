@@ -5,7 +5,7 @@
 enforce ("i dont want is package version manually built. always run npm command as much as
 possible").
 
-**Implemented by:** pending.
+**Implemented by:** `19d9e44` — 2026-08-30.
 
 **Context:** The skill's premise is that generators, not memory, produce projects. But the
 *commands* are themselves written from memory, and CLIs rename flags, add prompts and change

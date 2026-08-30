@@ -4,7 +4,7 @@
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: chose it from three proposed skill
 shapes in session ("the skill will ask all questions first and then write the plan").
 
-**Implemented by:** pending.
+**Implemented by:** `19d9e44` — 2026-08-30.
 
 **Context:** A scaffold is roughly twenty commands across one or two repos. Asked one question at a
 time and executed as it goes, a wrong answer at question four is discovered at command nineteen,

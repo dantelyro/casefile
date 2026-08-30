@@ -4,7 +4,7 @@
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session ("i think will will
 drop the design system for this skill and build another one").
 
-**Implemented by:** pending.
+**Implemented by:** `19d9e44` — 2026-08-30.
 
 **Context:** The original scope included a phase that asked for typography, spacing and colour in
 the browser, rendered against templates — login, dashboard, profile, lists, buttons, cards — and

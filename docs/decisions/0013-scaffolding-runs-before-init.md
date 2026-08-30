@@ -4,7 +4,7 @@
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: requested directly in session ("this
 skill will trigger on /init too but will run before init since init will have nothing to do").
 
-**Implemented by:** pending.
+**Implemented by:** `19d9e44` — 2026-08-30.
 
 **Context:** `/init` writes project instructions by reading the codebase. `evidence-based-decisions`
 already claims `/init` as a trigger, and its own guidance is to run `/init` *first*, before the rest

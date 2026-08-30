@@ -5,7 +5,7 @@
 all ("let the user choose radix - manitine - or shacn/ui + tailwind") together with the standing
 rule that only versions may not be written by hand. Not asked about directly.
 
-**Implemented by:** pending.
+**Implemented by:** `19d9e44` — 2026-08-30.
 
 **Context:** Radix ships behaviour with no appearance. Choosing it means the project needs a set of
 styled primitives — button, input, label, textarea, select, card, badge, dialog, sheet, toast,
