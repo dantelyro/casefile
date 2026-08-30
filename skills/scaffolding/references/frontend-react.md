@@ -66,11 +66,19 @@ SPA. Same origin at both ends, so no CORS anywhere.
 surface at deploy instead of on the machine where it can be fixed. Development should have
 production's origin topology.
 
-## Errors
+## Errors, not-found and the error boundary
 
-The axios instance parses RFC 9457 problem+json responses back into the same error classes the
+The axios instance parses the backend's error envelope back into the same error classes the
 backend throws, so a component catches a `ConflictError` instead of reading
 `err.response.status === 409`.
+
+Two routes exist from the first commit, because both are added late otherwise:
+
+- **A catch-all not-found route** — `notFoundComponent` in TanStack Router, a `*` route in React
+  Router.
+- **An app-level error boundary** rendering an error page that **displays the correlation id**
+  from the failed response. That id is the only thing connecting what the user saw to the log line
+  that explains it, and a user can only quote what is on screen.
 
 ## Auth wiring — when auth was chosen
 

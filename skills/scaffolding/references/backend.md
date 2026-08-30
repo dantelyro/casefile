@@ -36,12 +36,36 @@ Rules the handler enforces:
 
 ### Response format
 
-**RFC 9457 problem+json** — `type`, `title`, `status`, `detail`, `instance`, plus `code` and an
-`errors[]` array for field-level failures. It is a real standard, it is what enterprise and
-government consumers expect, and it gives the frontend exactly one shape to parse.
+One envelope, everywhere:
 
-The frontend reconstructs the same error classes from that body, so a component catches a
-`ConflictError` rather than inspecting `err.response.status === 409`.
+```json
+{
+  "code": "INVOICE_ALREADY_PAID",
+  "message": "Invoice is already paid",
+  "details": null,
+  "correlationId": "01J9X..."
+}
+```
+
+Validation failures add an `errors[]` array of field paths and messages. The HTTP status carries
+the category; the body does not repeat it.
+
+Which format is chosen matters far less than there being exactly one, and no handler anywhere
+inventing a second. The frontend parses this shape and rebuilds the error classes from `code`, so
+a component catches a `ConflictError` rather than inspecting `err.response.status === 409`.
+
+If a consumer ever demands RFC 9457 problem+json — the IETF standard for error bodies, served as
+`application/problem+json` — that is a change inside the global handler and nowhere else. Having
+one handler is what makes it a small change.
+
+### Unmatched routes
+
+**A catch-all after every route, returning the same envelope with a 404.** Without it a mistyped
+URL falls through to the framework's own HTML error page, which is a different shape from every
+other error the client parses — and it is discovered by a client, not by a test.
+
+The same applies to unhandled promise rejections and uncaught exceptions at the process level: log
+them with the correlation id and exit, rather than continuing in an unknown state.
 
 ## Validation
 

@@ -27,6 +27,13 @@ own components; that is the arrangement.
 If a project genuinely needs the newer patterns, it is a React project. That is what question 7
 is for.
 
+## Not found and errors
+
+Quasar's template already ships an `ErrorNotFound` page and the catch-all route that reaches it —
+keep both rather than deleting them. Add the app-level handler (`app.config.errorHandler`) so an
+uncaught error renders a page showing the correlation id from the failed response, rather than a
+blank screen.
+
 ## Everything else is shared
 
 The invariants in `invariants.md` apply here unchanged: TypeScript, ESLint, Prettier, Husky,
