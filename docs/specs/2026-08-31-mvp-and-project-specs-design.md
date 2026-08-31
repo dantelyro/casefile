@@ -47,7 +47,7 @@ wasted — it was split along the right seams, just filed under a skill that no 
 | `frontend-react.md` | 91 | `project-specs` references, per project type |
 | `frontend-vue.md` | 47 | `project-specs` references, per project type |
 | `plan-format.md` | 60 | `project-specs` output format — D-014's plan-on-disk survives intact |
-| `questions.md` | 125 | `mvp`, as the brief-building question set |
+| `questions.md` | 125 | `project-specs`. It is a **scaffold-parameter** set — shape, framework, ORM, auth, RBAC, components, router — not idea-shaping questions. `mvp` needs its own brief question set, which is new content rather than a migration. |
 | `release.md` | 54 | `project-specs` references |
 | `SKILL.md` | 106 | Split between the two new `SKILL.md` files |
 
@@ -252,7 +252,7 @@ skills/mvp/
     clients.md          deriving the client cast and its size from purpose.md
     dev-team.md         the five actor prompts, standing opinions, invariant blocks
     domain-actors.md    deriving a cast from a brief; disagreement by design
-    brief.md            the question set (from scaffolding/questions.md)
+    brief.md            the idea question set — NEW, not migrated from questions.md
     synthesis.md        finding contradictions; when round 2 is worth dispatching
     documents.md        purpose.md, requirements.md and the session record formats
 
@@ -313,7 +313,9 @@ existing project is. State the ordering once, in `mvp/SKILL.md`, nowhere else (D
 - `skills/evidence-based-decisions/references/living-documents.md` — `docs/discovery/` joins the
   doc-set table.
 - `README.md` — the skill table, the "the three compose" paragraph, and the layout tree all name
-  `scaffolding`. Three skills become four.
+  `scaffolding`. Split across stages: each new skill is added to the table **in the stage that
+  ships it**, because a shipped skill missing from the README is a false document the moment it
+  lands. Removing `scaffolding` waits for stage 3.
 - `CLAUDE.md` — the architecture section states `scaffolding`'s precedence over `/init` and the
   plan-on-disk rule; both move to the new owners. Reconciliation watermark moves in the same commit.
 - `.claude-plugin/plugin.json` and `marketplace.json` — minor version bump, and the duplicated
