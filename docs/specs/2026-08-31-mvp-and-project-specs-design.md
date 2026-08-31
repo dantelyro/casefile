@@ -169,8 +169,9 @@ and a client actor inventing a market fact produce different things, and one act
   "Your purpose says weekend hunters, this feature only serves guides." "You have no story for who
   owns a shared trip log." The reasoning is in the output; you verify it by reading it.
 - **`[claimed — UNVERIFIED]`** — an assertion about the world outside your documents. "Hunters have
-  no signal in the field." "Nobody pays more than $10 a month for this." Grade 4 on the ladder in
-  `evidence-based-decisions`, a hypothesis from a machine that has never been hunting and has never
+  no signal in the field." "Nobody pays more than $10 a month for this." below the lowest rung of the ladder in
+  `evidence-based-decisions` — that ladder grades what came back from a real system, and this came
+  back from nobody, a hypothesis from a machine that has never been hunting and has never
   sold anything. Quarantined in its own section, never merged into the requirement list, carrying an
   explicit instruction to confirm with a real human before anything is designed around it.
 
@@ -217,7 +218,7 @@ created: `evidence-based-decisions` generates and maintains the *reasoning recor
 **The seeding path splits, and the split is itself evidence-graded.** Today its "No docs yet:
 propose, then ask" path covers every case. It should not. Seeding `purpose.md` from a repo that
 already has code is reading real evidence — layout, stack, entry points, Grade 1 and 2. Seeding it
-from a cast of actors is Grade 4 until a human confirms it. Different acts, different owners:
+from a cast of actors is unsourced until a human confirms it. Different acts, different owners:
 
 - **Code exists, docs do not** → `evidence-based-decisions` keeps its current path unchanged. Seed
   from what the repo shows. The code is better evidence than any actor, and always will be.
@@ -237,7 +238,7 @@ future reader needs before deleting one.
 session-start replay matters most for: a commit that changes behaviour invalidates an `F-NN` line
 silently, and nothing else in the repo will notice.
 
-**The `UNVERIFIED` backlog is its business.** Every `[claimed — UNVERIFIED]` line is a Grade 4
+**The `UNVERIFIED` backlog is its business.** Every `[claimed — UNVERIFIED]` line is an unsourced
 hypothesis parked in a project document. Confirming one with a real person is a promotion, and a
 promotion is a decision entry carrying its new grade — the loop that skill already runs. Without
 that handoff the quarantine section is a list nobody revisits, which is D-011's rot with extra
