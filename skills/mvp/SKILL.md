@@ -42,10 +42,11 @@ rests on: untagged, a fabricated fact and a traceable inference read exactly ali
 - **`[reasoned]`** — an inference from the brief, from `docs/purpose.md`, or from another actor's
   stated position. The reasoning travels with the claim, so it is verified by reading it.
 - **`[claimed — UNVERIFIED]`** — an assertion about the world outside your documents: a
-  regulation, a price, a competitor, how a job is really done. Grade 4 on the evidence ladder in
-  `evidence-based-decisions`, because an actor is a language model and a confident sentence about
-  the world costs it nothing. Quarantine it, never merge it into the requirement list, and confirm
-  it with a real person before anything is designed around it.
+  regulation, a price, a competitor, how a job is really done. It sits **below the lowest rung** of
+  the evidence ladder in `evidence-based-decisions` and is not on that ladder at all: even Grade 3
+  prose came from the vendor, while this came from nobody — an actor is a language model, and a
+  confident sentence about the world costs it nothing. Quarantine it, never merge it into the
+  requirement list, and confirm it with a real person before anything is designed around it.
 
 **The tag goes on the claim, not the actor.** One client actor emits both kinds in a single
 paragraph — *"I need X, because the purpose says Y"* beside *"regulators require Z"* — so tagging
@@ -87,7 +88,7 @@ thing that has to be kept true, and it will not be kept true.
 | "The actors all agreed, so it must be true" | They share one model and one brief. Agreement among fabrications is not evidence of anything; a round that produced no conflict produced no information. |
 | "I'll attribute the requirements later" | By then the advocate is gone and the line reads as fact. Attribution is what makes a requirement arguable instead of inherited. |
 | "The client actor is basically the user" | The client owns the product; the domain actor lives in the world it is for. Their conflict is the most useful thing this skill produces, and merging them deletes it. |
-| "This one is obviously true, it doesn't need a tag" | Obvious is how a Grade 4 claim gets into the requirement list. The tag costs a word. |
+| "This one is obviously true, it doesn't need a tag" | Obvious is how an unsourced claim gets into the requirement list. The tag costs a word. |
 | "The list is already small, there is nothing to cut" | Then say what was considered and rejected. An MVP with no cuts recorded is an unexamined feature list with a new name. |
 
 ## References
@@ -99,4 +100,4 @@ thing that has to be kept true, and it will not be kept true.
 | `references/dev-team.md` | Phase 3–4 — the fixed five and what each one is asked |
 | `references/domain-actors.md` | Phase 3–4 — deriving domain actors from the brief, and their prompt |
 | `references/synthesis.md` | Phases 5–6 — grouping, conflict handling, the round 2 questions |
-| `references/documents.md` | Phase 7 — the cut, and the format of `purpose.md` and `requirements.md` |
+| `references/documents.md` | Phase 7 — the cut, and the format of `docs/purpose.md` and `docs/requirements.md` |
