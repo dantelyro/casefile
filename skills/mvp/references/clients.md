@@ -33,8 +33,7 @@ cost the conflict itself, and nobody finds out they had one.
 ## Why `docs/purpose.md` is drafted first
 
 The client cast is derived from the purpose, so it cannot be assembled until the purpose exists in
-writing. That dependency is why phase 2 precedes phase 3, and it is stated here because this is the
-file that depends on it.
+writing. That dependency is why phase 2 precedes phase 3.
 
 Three things are read out of `docs/purpose.md` when building the cast, and each maps to a slot in
 the prompt below:
