@@ -5,6 +5,10 @@ asked at all — `invariants.md` holds what is already decided, backend and fron
 
 Order is not cosmetic: later questions are skipped or constrained by earlier answers.
 
+A question `docs/requirements.md` already settles is recorded from that document, not asked
+again — a second answer to a settled question is a document that can disagree with itself. The
+set still stays closed: this reads an existing answer, it does not add a new question.
+
 ---
 
 ## 1. Shape

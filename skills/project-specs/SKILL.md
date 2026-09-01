@@ -3,10 +3,10 @@ name: project-specs
 description: >
   Use when a project's purpose and requirements exist but the repository does not — turning those
   documents into a real project, whether a monolith, an API, a microservice, or a separated
-  backend and frontend. Triggers on: "scaffold this", "set up the repo", "build it", a
-  `docs/requirements.md` that exists with no code beside it, or adding a frontend or backend
-  beside an existing one. Not for adding features, modules or entities to a project that already
-  exists.
+  backend and frontend. Triggers on: "scaffold this", "set up the repo", "build it, now that the
+  requirements exist", a `docs/requirements.md` that exists with no code beside it, or adding a
+  frontend or backend beside an existing one. Not for adding features, modules or entities to a
+  project that already exists.
 ---
 
 # Project specs
@@ -27,10 +27,9 @@ That line is the whole skill. Everything below is what it takes to hold it.
 ## `mvp` runs first
 
 `mvp` turns an idea into `docs/purpose.md` and `docs/requirements.md`; this skill builds the
-project **from** them. Arriving here without them means choosing the shape — framework, ORM, auth
-model, the boundaries everything else is drawn around — before deciding what the product is, and
-those choices are the expensive ones to undo. If the documents are missing, run `mvp` first.
-`/init` still runs in phase 4, once there is a repo to describe.
+project **from** them. If they are missing, run `mvp` first — the full ordering, and why `/init`
+waits for it, is stated once in `skills/mvp/SKILL.md`. `/init` itself runs in phase 4 below, once
+there is a repo to describe.
 
 ## Four phases
 
