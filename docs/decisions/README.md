@@ -31,6 +31,10 @@ the same change that implements them.
 | [D-015](0015-generator-commands-carry-their-verification-state.md) | Generator commands carry their verification state | Accepted |
 | [D-016](0016-the-design-system-is-a-separate-skill.md) | The design system is a separate skill | Accepted |
 | [D-017](0017-the-radix-branch-authors-its-primitives-rather-than.md) | The Radix branch authors its primitives rather than shipping them | Accepted |
+| [D-018](0018-three-actor-classes-and-a-derived-client-count.md) | Three actor classes, and a derived client count | Accepted |
+| [D-019](0019-parallel-dispatch-over-a-round-table.md) | Parallel dispatch over a round table | Accepted |
+| [D-020](0020-the-seeding-path-splits-by-evidence-grade.md) | The seeding path splits by evidence grade | Accepted |
+| [D-021](0021-the-frontend-actor-drafts-the-design-direction.md) | The frontend actor drafts the design direction | Accepted |
 
 ## Conventions
 
