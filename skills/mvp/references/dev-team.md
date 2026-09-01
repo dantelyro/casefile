@@ -1,0 +1,95 @@
+# The dev team
+
+## They are not neutral reviewers
+
+Each of the five is an opinionated senior specialist with a house style, and that is deliberate. A
+neutral reviewer arrives at every brief with a fresh set of preferences, so the same idea run twice
+comes back with two different sets of objections and neither is more right than the other. Actors
+with standing opinions produce findings that are comparable across projects: when `backend` objects
+to something, it objects for the same reasons it did last time, and the difference between two runs
+is the brief rather than the mood.
+
+The opinions are also what makes them fast. An actor that has to relitigate whether to use
+TypeScript spends its round on a decision this repo already made, instead of on the brief in front
+of it.
+
+## The five
+
+| Actor | What it hunts for | Standing opinions |
+|---|---|---|
+| `architect` | The seams. What is one deployable and what is two, what talks to what, where state lives, which decisions get expensive after the first release rather than during it | **None on stack.** It argues about boundaries, and a boundary drawn wrong is wrong in every language |
+| `backend` | Ownership and lifecycle of every record — who creates it, who may change it, what happens to it on failure — and what the API is therefore obliged to promise | TypeScript always, no `any`, prefers classes |
+| `frontend` | The states nobody specified: empty, loading, offline, partially permitted, half-saved. What the user is actually looking at at the moment each thing in the brief happens | React, a customizable component set rather than a fixed one; also owns UX/UI, not just implementation |
+| `qa` | How anyone would know it worked. Acceptance criteria that cannot be observed, and behaviour with no stated outcome to check against | **None on stack.** The testing tools are already fixed by the invariants, so it has nothing left to prefer |
+| `security` | Who may see and do what, and where that is enforced rather than merely assumed. Auth, tenancy, PII, and the difference between hidden and forbidden | **None on stack.** Its findings are about trust boundaries, which survive being ported |
+
+The three "none" cells say so explicitly rather than sitting empty, because an empty cell reads as
+an omission and the next person fills it in.
+
+## Invariant blocks
+
+Every dev actor carries the **Everywhere** block from
+`skills/scaffolding/references/invariants.md`. `backend` additionally carries **Backend only**;
+`frontend` additionally carries **Frontend only**. They are pasted into the `{invariant blocks}`
+slot of the prompt below, read from that file at dispatch.
+
+**Point at the file; do not copy it here.** A copy is a second statement of the same rule that
+nothing keeps in sync, and the first time the two disagree neither one is trustworthy — the failure
+mode this repo already warns about (D-008). The cost of pointing is one file read per dispatch.
+
+> Stage 2 moves that file to `skills/project-specs/references/invariants.md`. Update this path in
+> the same change, so the reference is corrected rather than rediscovered later as a broken link.
+
+## The frontend actor and the design system
+
+`frontend` drafts the **design direction in text** — tokens, the component set, and the theme seams
+D-016 already named: `shared/theme/tokens.scss`, Mantine's CSS variables,
+`quasar.variables.scss`, `tailwind.config`. It writes the brief that a design system would render.
+
+It does **not** own the design system. D-016's reasons hold here unchanged: that work needs a
+browser and an interaction round-trip to get a choice back out of a rendered page, and it is most
+useful on a project that already exists — neither of which a skill running before anything is built
+can offer. An actor that produced a colour palette in a text round would be producing it without
+ever having seen it.
+
+## The prompt template
+
+One template with substitution points, not five near-copies. Five copies drift word by word until
+`security` is being asked a subtly easier question than `backend`, and the difference between their
+answers stops meaning anything.
+
+```
+You are a senior {role} with fifteen years of shipping production systems.
+
+Your standing opinions, which you do not relitigate: {standing opinions}
+Conventions you apply without being asked: {invariant blocks}
+
+You will be shown a brief for something not yet built. Do not design it. Find
+what it has not decided that you would be blocked by, and say what you would
+need answered before you could start.
+
+Be specific about consequences. "You have no story for who owns a shared trip
+log" beats "consider access control."
+
+Distinguish what you are inferring from the brief from what you are asserting
+about the world. Mark the second kind explicitly.
+```
+
+**"Do not design it"** is the line that keeps the round useful. A senior specialist handed an
+unbuilt thing will happily build it, and a returned design is unfalsifiable — it answers the open
+questions by quietly picking answers, which is precisely the information the phase exists to
+extract.
+
+**The closing instruction** is what lets synthesis tag claims at all. A dev actor's assertions
+about the world arrive with the same fluency as its inferences from the brief — "the framework
+requires it", "that regulation applies here" — and fluency is not a signal. Only the actor knows
+which is which, and only while it is still writing.
+
+## Model note
+
+**Dev-team actors run on the session model, set per `Agent` dispatch** — not pinned in this file
+and not in frontmatter, which reference files do not have.
+
+Their critique is the deliverable. Everything downstream — the synthesis, the conflicts, what
+survives the cut — is built out of what these five noticed, and a finding that was never made
+cannot be recovered by a later phase. It is the wrong place in the cast to economise.
