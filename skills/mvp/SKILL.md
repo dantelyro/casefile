@@ -64,13 +64,15 @@ by speaker discards the distinction the tags exist to draw.
    `references/clients.md` · `references/dev-team.md` · `references/domain-actors.md`
 5. **Synthesize.** Group the answers, surface the conflicts, keep them intact. `references/synthesis.md`
 6. **Round 2 — targeted.** Put each conflict back to the actors who caused it. `references/synthesis.md`
-7. **Cut to an MVP**, refine `docs/purpose.md`, write the documents. `references/documents.md`
+7. **Cut to an MVP**, refine `docs/purpose.md`, write the documents — `docs/requirements.md` and
+   the dated session record `docs/discovery/YYYY-MM-DD-<topic>.md`. `references/documents.md`
 
 ## Nothing is written unasked
 
-The skill offers `docs/purpose.md` and `docs/requirements.md` and waits for an answer. No devflow
-skill creates a document in a project that has not agreed to it: an unwanted file is one more
-thing that has to be kept true, and it will not be kept true.
+The skill offers `docs/purpose.md`, `docs/requirements.md` and
+`docs/discovery/YYYY-MM-DD-<topic>.md`, and waits for an answer. No devflow skill creates a
+document in a project that has not agreed to it: an unwanted file is one more thing that has to be
+kept true, and it will not be kept true.
 
 ## Red flags — stop
 
@@ -100,4 +102,4 @@ thing that has to be kept true, and it will not be kept true.
 | `references/dev-team.md` | Phase 3–4 — the fixed five and what each one is asked |
 | `references/domain-actors.md` | Phase 3–4 — deriving domain actors from the brief, and their prompt |
 | `references/synthesis.md` | Phases 5–6 — grouping, conflict handling, the round 2 questions |
-| `references/documents.md` | Phase 7 — the cut, and the format of `docs/purpose.md` and `docs/requirements.md` |
+| `references/documents.md` | Phases 2 and 7 — the format of `docs/purpose.md`, the cut, and the three output documents |

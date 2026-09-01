@@ -64,7 +64,7 @@ loudest for last — not necessarily the thing that mattered least.
 
 The five answers become one paragraph, written to disk, and **shown to the user before anything
 dispatches.** Not summarized back, not paraphrased in a status line — shown, in full, as the text
-every actor is about to receive. An unreviewed brief is a guess that eight actors then spend a
+every actor is about to receive. An unreviewed brief is a guess that the whole cast then spends a
 round elaborating on; catching a wrong assumption here costs one read, catching it after round 1
 costs the round.
 

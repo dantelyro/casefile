@@ -2,11 +2,11 @@
 
 Round 1 returns one answer per actor, written blind. Synthesis is a **read across** them, not a
 merge into them. Merging is the tempting move — the answers overlap, and a single deduplicated list
-is shorter than eight documents — but the overlaps and the collisions are the only new information
-the round produced. A merged list has thrown both away and kept the prose.
+is shorter than one document per actor — but the overlaps and the collisions are the only new
+information the round produced. A merged list has thrown both away and kept the prose.
 
-So the output of this phase is not a list of requirements. It is three groups, and the third phase
-of the skill turns them into one.
+So the output of this phase is not a list of requirements. It is three groups, and phase 7 of the
+skill turns them into one.
 
 ## What synthesis is looking for
 
