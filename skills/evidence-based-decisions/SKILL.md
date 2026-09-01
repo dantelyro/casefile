@@ -63,6 +63,18 @@ A project with no project instructions, architecture document or decision log ma
 material elsewhere, or want none of it. Say what each file is for and what it costs, and wait
 for an answer — files nobody wanted are worse than no files.
 
+**Two cases, and the split is itself an evidence grade.**
+
+- **Code exists, docs do not.** This path, unchanged. Seed from what the repo shows — layout,
+  stack, entry points. That is Grade 1 and 2 evidence, and it beats any actor's account of what
+  the project probably is.
+- **No code, no docs.** Hand to `mvp`. There is nothing to read, so a cast of actors is the best
+  available source — and everything it produces is unsourced until a person confirms it, which is
+  why that skill tags every line it emits.
+
+Seeding an empty directory from this skill would replace the better-evidenced path with the worse
+one, which is the mistake this entire skill exists to prevent.
+
 **Run `/init` first.** Project instructions come before the rest of the set: they are the only
 document every session loads, so a log created without them is a log nothing points at. Then
 `docs/purpose.md` and `docs/requirements.md` — what the project is for, and what it must do —
