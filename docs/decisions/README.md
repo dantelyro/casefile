@@ -26,7 +26,7 @@ the same change that implements them.
 | [D-010](0010-watermark-extraction-uses-posix-sed-and-guards.md) | Watermark extraction uses POSIX `sed` and guards the empty case | Accepted |
 | [D-011](0011-the-doc-set-gains-purpose-and-requirements.md) | The doc set gains purpose and requirements | Accepted |
 | [D-012](0012-the-skill-runs-on-sonnet-not-opus.md) | The skill runs on Sonnet, not Opus | Accepted |
-| [D-013](0013-scaffolding-runs-before-init.md) | Scaffolding runs before `/init` | Accepted |
+| [D-013](0013-scaffolding-runs-before-init.md) | Scaffolding runs before `/init` | SUPERSEDED by D-022 |
 | [D-014](0014-a-scaffold-is-planned-on-disk-before-any.md) | A scaffold is planned on disk before any command runs | Accepted |
 | [D-015](0015-generator-commands-carry-their-verification-state.md) | Generator commands carry their verification state | Accepted |
 | [D-016](0016-the-design-system-is-a-separate-skill.md) | The design system is a separate skill | Accepted |
@@ -35,6 +35,7 @@ the same change that implements them.
 | [D-019](0019-parallel-dispatch-over-a-round-table.md) | Parallel dispatch over a round table | Accepted |
 | [D-020](0020-the-seeding-path-splits-by-evidence-grade.md) | The seeding path splits by evidence grade | Accepted |
 | [D-021](0021-the-frontend-actor-drafts-the-design-direction.md) | The frontend actor drafts the design direction | Accepted |
+| [D-022](0022-the-cast-replaces-the-scaffolder.md) | The cast replaces the scaffolder | Accepted |
 
 ## Conventions
 

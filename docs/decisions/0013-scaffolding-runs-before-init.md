@@ -1,6 +1,8 @@
 # D-013 — Scaffolding runs before `/init`
 
-**Status:** Accepted (2026-08-30).
+**Status:** **SUPERSEDED by D-022 (2026-08-31).** `scaffolding`, the skill this entry names, no
+longer owns the empty-directory trigger — it was renamed to `project-specs` and narrowed to build
+from documents that already exist. The `/init`-in-an-empty-directory trigger moved to `mvp`.
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: requested directly in session ("this
 skill will trigger on /init too but will run before init since init will have nothing to do").
 
@@ -27,3 +29,9 @@ is sharpening scaffolding's `description`, not duplicating the rule.
 
 **Unverified:** no observation of which skill actually fires on `/init` in an empty directory. This
 is a design intent, not a measured behaviour.
+
+**Changed by:**
+- 2026-08-31 · dantelyro — superseded by D-022; the reasoning that an empty directory has nothing
+  to document still holds, but the skill named here no longer exists under that name and no longer
+  claims the trigger. See D-022 for the split between `mvp` (owns `/init` on an empty directory)
+  and `project-specs` (builds from documents `mvp` produces).
