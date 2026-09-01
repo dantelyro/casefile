@@ -35,7 +35,7 @@ the same change that implements them.
 | [D-019](0019-parallel-dispatch-over-a-round-table.md) | Parallel dispatch over a round table | Accepted |
 | [D-020](0020-the-seeding-path-splits-by-evidence-grade.md) | The seeding path splits by evidence grade | Accepted |
 | [D-021](0021-the-frontend-actor-drafts-the-design-direction.md) | The frontend actor drafts the design direction | Accepted |
-| [D-022](0022-the-cast-replaces-the-scaffolder.md) | The cast replaces the scaffolder | Accepted |
+| [D-022](0022-the-cast-replaces-the-scaffolder.md) | The cast replaces the scaffolder | Accepted, supersedes D-013 |
 
 ## Conventions
 

@@ -67,9 +67,10 @@ by speaker discards the distinction the tags exist to draw.
 6. **Round 2 — targeted.** Put each conflict back to the actors who caused it. `references/synthesis.md`
 7. **Cut to an MVP**, refine `docs/purpose.md`, write the documents — `docs/requirements.md` and
    the dated session record `docs/discovery/YYYY-MM-DD-<topic>.md`. `references/documents.md`
-   `/init` does not run here: an empty directory has nothing yet to document, so this skill claims
-   the trigger only to hand it onward in order — `mvp` establishes what to build → `project-specs`
-   builds it → `/init` documents the result → `evidence-based-decisions` keeps it true.
+
+`/init` does not run here: an empty directory has nothing yet to document, so this skill claims
+the trigger only to hand it onward in order — `mvp` establishes what to build → `project-specs`
+builds it → `/init` documents the result → `evidence-based-decisions` keeps it true.
 
 ## Nothing is written unasked
 
