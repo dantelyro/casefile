@@ -1,7 +1,7 @@
 {
   "name": "devflow",
   "description": "Workflow skills for keeping a codebase understandable: orienting in an unfamiliar repo, recording decisions with the evidence behind them, and scaffolding new projects from generators rather than from memory.",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "author": {
     "name": "dantelyro"
   },
