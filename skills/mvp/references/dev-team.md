@@ -17,14 +17,27 @@ of it.
 
 | Actor | What it hunts for | Standing opinions |
 |---|---|---|
-| `architect` | The seams. What is one deployable and what is two, what talks to what, where state lives, which decisions get expensive after the first release rather than during it | **None on stack.** It argues about boundaries, and a boundary drawn wrong is wrong in every language |
-| `backend` | Ownership and lifecycle of every record — who creates it, who may change it, what happens to it on failure — and what the API is therefore obliged to promise | TypeScript always, no `any`, prefers classes |
-| `frontend` | The states nobody specified: empty, loading, offline, partially permitted, half-saved. What the user is actually looking at at the moment each thing in the brief happens | React, a customizable component set rather than a fixed one; also owns UX/UI, not just implementation |
+| `architect` | The seams, and **the core entity** — is the thing a trip or a spot? What is one deployable and what is two, what talks to what, where state lives, which decisions get expensive after the first release rather than during it | **None on stack.** It argues about boundaries, and a boundary drawn wrong is wrong in every language |
+| `backend` | Storage, ownership and lifecycle of every record — who creates it, who may change it, what happens to it on failure — what the API is therefore obliged to promise, and **sync**: what happens when two copies of the truth disagree | TypeScript always, no `any`, prefers classes |
+| `frontend` | **Flows, and what the user cannot do yet** — the multi-step journey a brief names in one clause and never walks through. Plus the states nobody specified: empty, loading, offline, partially permitted, half-saved. What the user is actually looking at at the moment each thing in the brief happens | React, a customizable component set rather than a fixed one; also owns UX/UI, not just implementation |
 | `qa` | How anyone would know it worked. Acceptance criteria that cannot be observed, and behaviour with no stated outcome to check against | **None on stack.** The testing tools are already fixed by the invariants, so it has nothing left to prefer |
 | `security` | Who may see and do what, and where that is enforced rather than merely assumed. Auth, tenancy, PII, and the difference between hidden and forbidden | **None on stack.** Its findings are about trust boundaries, which survive being ported |
 
 The three "none" cells say so explicitly rather than sitting empty, because an empty cell reads as
 an omission and the next person fills it in.
+
+**`sync` belongs to `backend`, and `offline` to `frontend`, and they are not the same concern.**
+`frontend` asks what the screen shows with no connection; `backend` asks what is true when the
+write made on that screen meets a server that moved on without it. Collapsing the two loses the
+second question, which is the one with an answer that has to be decided rather than designed. It is
+also how this cast produces its own worked example: `frontend` arguing for offline writes against
+`backend` arguing for a server-authoritative record is a contradiction neither actor is wrong
+about, and synthesis is built to handle exactly that shape.
+
+**`architect` owns the core entity for the same reason it owns the seams.** "Is the core thing a
+trip or a spot?" sounds like naming and is not — every boundary downstream is drawn around whatever
+that answer turns out to be, and a brief that has not decided it will read as coherent right up
+until two actors build on opposite readings.
 
 ## Invariant blocks
 
