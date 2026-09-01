@@ -102,6 +102,6 @@ decision entry** — recorded with the new grade the confirmation earned, so the
 carrying the tag and the reason it stopped is on the record. That entry is written under the other
 skill's rules; this one only says when it is owed.
 
-The hand-off forward is `scaffolding`: this skill ends with documents and no project, so once
+The hand-off forward is `project-specs`: this skill ends with documents and no project, so once
 purpose and requirements exist in a directory that still holds no code, that is the skill which
 builds the project from them.

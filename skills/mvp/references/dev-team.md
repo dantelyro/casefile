@@ -42,16 +42,13 @@ until two actors build on opposite readings.
 ## Invariant blocks
 
 Every dev actor carries the **Everywhere** block from
-`skills/scaffolding/references/invariants.md`. `backend` additionally carries **Backend only**;
+`skills/project-specs/references/invariants.md`. `backend` additionally carries **Backend only**;
 `frontend` additionally carries **Frontend only**. They are pasted into the `{invariant blocks}`
 slot of the prompt below, read from that file at dispatch.
 
 **Point at the file; do not copy it here.** A copy is a second statement of the same rule that
 nothing keeps in sync, and the first time the two disagree neither one is trustworthy — the failure
 mode this repo already warns about (D-008). The cost of pointing is one file read per dispatch.
-
-> Stage 2 moves that file to `skills/project-specs/references/invariants.md`. Update this path in
-> the same change, so the reference is corrected rather than rediscovered later as a broken link.
 
 ## The frontend actor and the design system
 

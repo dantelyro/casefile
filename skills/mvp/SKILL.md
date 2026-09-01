@@ -4,8 +4,9 @@ description: >
   Use when an idea for a new project needs to become something buildable — deciding what is worth
   building first, what the project is for, and what it must do. Triggers on: "what should I build
   first", "what am I missing", a feature list nobody has challenged, an idea about to be scoped, a
-  project with no `docs/requirements.md`, or a brief that needs cutting to a defensible MVP. Not
-  for adding a feature to a project whose requirements already exist.
+  project with no `docs/requirements.md`, a brief that needs cutting to a defensible MVP, or
+  `/init` run in a directory that holds no project yet. Not for adding a feature to a project
+  whose requirements already exist.
 ---
 
 # MVP

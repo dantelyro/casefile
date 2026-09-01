@@ -1,15 +1,15 @@
 ---
-name: scaffolding
+name: project-specs
 description: >
-  Use when creating a new project from nothing — a monolith, an API, a microservice, or a
-  separated backend and frontend — and when `/init` is run in a directory that holds no project
-  yet. Triggers on: "create a new project", "scaffold a backend", "start a new API", "set up a
-  new repo", an empty directory about to become a project, or adding a frontend or backend
+  Use when a project's purpose and requirements exist but the repository does not — turning those
+  documents into a real project, whether a monolith, an API, a microservice, or a separated
+  backend and frontend. Triggers on: "scaffold this", "set up the repo", "build it", a
+  `docs/requirements.md` that exists with no code beside it, or adding a frontend or backend
   beside an existing one. Not for adding features, modules or entities to a project that already
   exists.
 ---
 
-# Scaffolding
+# Project specs
 
 ## Overview
 
@@ -24,18 +24,21 @@ write; manifests you never hand-edit.
 
 That line is the whole skill. Everything below is what it takes to hold it.
 
-## Precedence over `/init`
+## `mvp` runs first
 
-`/init` documents what exists. In a directory with no project in it, there is nothing to
-document, so **scaffolding runs first** and `/init` runs in phase 4, once there is a repo to
-describe. If the directory already holds a project, this skill does not apply and `/init`
-proceeds normally.
+`mvp` turns an idea into `docs/purpose.md` and `docs/requirements.md`; this skill builds the
+project **from** them. Arriving here without them means choosing the shape — framework, ORM, auth
+model, the boundaries everything else is drawn around — before deciding what the product is, and
+those choices are the expensive ones to undo. If the documents are missing, run `mvp` first.
+`/init` still runs in phase 4, once there is a repo to describe.
 
 ## Four phases
 
-**1. Interrogate.** Every question asked up front, nothing written to disk. The set, its order
-and what each answer changes: `references/questions.md`. What is never asked, because it is
-already decided: `references/invariants.md`.
+**1. Interrogate.** Read `docs/purpose.md` and `docs/requirements.md` before asking anything, and
+**never re-ask what they already settle** — a second answer to a settled question is a document
+that can disagree with itself. Every remaining question asked up front, nothing written to disk.
+The set, its order and what each answer changes: `references/questions.md`. What is never asked,
+because it is already decided: `references/invariants.md`.
 
 **2. Plan.** Write `scaffold.plan.md` — the answers, then every command in execution order with
 its exact flags, then every file the skill will write and why no generator emits it. **Stop.**
@@ -46,7 +49,9 @@ generator run after hand-written files overwrites them without asking. Add every
 name.
 
 **4. Verify.** Run the build, the test suite, and `predev` for real — boot the containers, apply
-the migrations. Then `/init`, then propose the doc set through `evidence-based-decisions`.
+the migrations. Then `/init`, then hand back to `evidence-based-decisions` to **reconcile** the doc set against
+what was built — purpose and requirements were written before the repo existed, and the build is
+the first evidence of whether they hold.
 
 ## Built is not verified
 
