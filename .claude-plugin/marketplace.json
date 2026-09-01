@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "devflow",
-      "description": "Workflow skills for keeping a codebase understandable: orienting in an unfamiliar repo, recording decisions with the evidence behind them, and scaffolding new projects from generators rather than from memory.",
+      "description": "Workflow skills for keeping a codebase understandable: turning an idea into a written brief before code exists, building the project from a framework's own generators rather than from memory, orienting in an unfamiliar repo, and recording decisions with the evidence behind them.",
       "author": {
         "name": "dantelyro"
       },

@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `19d9e44` — 2026-08-30
+**Docs reconciled through:** `69a6274` — 2026-08-31
 
 ## What this repo is
 
@@ -58,22 +58,26 @@ user message states. `hooks/session-start` injects that trigger — as a **point
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 See D-003 and D-004.
 
-**The three skills compose:** `scaffolding` *creates* a project, `repo-discovery` answers what a
-project *is*, `evidence-based-decisions` answers *why* and keeps that answer honest as the code
-moves. None of them creates documents in a project that has not asked for them — they propose and
-wait for an answer.
+**The four skills compose in one direction**, and the seam between each pair is a document rather
+than a call: `mvp` decides *what* to build and emits `docs/purpose.md` and `docs/requirements.md`;
+`project-specs` builds a repo *from* those; `repo-discovery` reads a project that already exists;
+`evidence-based-decisions` records *why* and keeps it honest. When editing, the thing to hold is
+that `mvp` and `project-specs` both sit at the greenfield end — only their `description` fields
+keep the right one firing, so narrowing one means checking the other still claims what it lost
+(D-022). None of the four writes a document into a project that has not agreed to it.
 
-**`scaffolding` runs before `/init`, not after.** `/init` documents what exists; in a directory
-with no project in it there is nothing to document. So the skill claims `/init` as a trigger, does
-its four phases, and hands off to `/init` and the doc set in its last phase. That precedence is
-stated once, in `skills/scaffolding/SKILL.md` — do not restate it in `evidence-based-decisions`
-(D-008). See D-013.
+**`/init` on an empty directory belongs to `mvp`, not to the builder.** `/init` documents what
+exists, so in an empty directory it has nothing to read. `mvp` claims that trigger in its
+`description`; `project-specs` runs `/init` in its phase 4, once there is a repo to describe. Each
+half is stated once, in the skill that owns it — do not restate either in
+`evidence-based-decisions` (D-008). See D-022, which supersedes D-013.
 
-**A scaffold is planned on disk before any command runs.** The skill writes `scaffold.plan.md`
+**A build is planned on disk before any command runs.** `project-specs` writes `scaffold.plan.md`
 listing every command with its flags and stops for approval. The point is not ceremony: it is that
 a plan can be rejected before anything exists, and that a half-failed run resumes by reading a file.
-See D-014. Commands in `references/generators.md` carry a verification state, because a flag set
-written from memory is a hypothesis about a CLI — D-015.
+See D-014. Commands in `skills/project-specs/references/generators.md` carry a verification state,
+because a flag set written from memory is a hypothesis about a CLI — D-015. That is also why the
+cast in `mvp` never emits build commands of its own (D-022).
 
 ## Hook gotchas
 
