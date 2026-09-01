@@ -84,12 +84,15 @@ confidence as the original. Sorting at the source is the only place the sort is 
 
 ## Model note
 
-**Client actors run on Sonnet, set on the `Agent` call at dispatch — never in frontmatter.**
+**Client actors run on Sonnet, set on the `Agent` call at dispatch — not in any frontmatter.**
 
-Reference files carry no frontmatter to put it in, and `SKILL.md` is the wrong place for it: a
-`model` there applies for the rest of the turn and not just while the skill runs, so it would
-silently downgrade whatever the user opened the session to do (D-012 has the reasoning and the
-trade-off). Per-dispatch, the override lives and dies inside the subagent.
+Reference files carry no frontmatter to put it in, and a `model` key in `SKILL.md` cannot express
+this rule at all: it names one model for the whole skill, so a mixed cast collapses to a single
+choice. It also reaches further than the skill — **D-012** records the mechanism, that the override
+applies for the rest of the turn and not just while the skill runs, and accepts that cost
+deliberately for `evidence-based-decisions`, whose work is uniformly mechanical. Here it would
+silently downgrade whatever the user opened the session to do while still not giving the cast
+per-actor models. Per-dispatch, the override lives and dies inside the subagent.
 
 Sonnet is enough because arguing a stated success criterion against a feature list is judgement
 applied to two documents that are both in front of the actor. It is not the kind of work the dev

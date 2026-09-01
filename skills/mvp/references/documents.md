@@ -17,8 +17,9 @@ duplication is deliberate rather than a missed consolidation:
   pain was described one layer too high, that a named party has no stake after all, or that
   something assumed in-scope was never wanted by anyone.
 
-The refined version replaces the draft in place. Its content rule — what belongs in purpose and
-what does not — is D-011's, and is not restated here.
+The refined version replaces the draft in place. The line above is the headline only; the content
+rule it comes from — what belongs in purpose and what does not — is **D-011**'s, and is not
+reproduced here.
 
 ## `docs/requirements.md`
 
@@ -63,8 +64,11 @@ from scratch.
 ## `docs/discovery/YYYY-MM-DD-<topic>.md`
 
 The session record. Sections: the brief verbatim · the cast and why each actor was in it · what
-clashed and how round 2 resolved it (or that it is still held) · what is still undecided ·
-unverified claims.
+clashed and how round 2 resolved it (or that it is still held) · what is still undecided.
+
+Unverified claims are **not** among them. They are quarantined in `docs/requirements.md`, in the
+section above, because that is the file they are being kept out of — a second copy here would be
+the one still asserting a claim after the first was confirmed and promoted.
 
 **Distilled, not dumped.** A full cast's raw round-1 prose is thousands of lines that get read
 once. What belongs here is the positions and the reasons, not the transcripts that carried them.
@@ -97,3 +101,7 @@ One loop crosses the boundary and is worth naming so it is not left to chance. P
 decision entry** — recorded with the new grade the confirmation earned, so the requirement stops
 carrying the tag and the reason it stopped is on the record. That entry is written under the other
 skill's rules; this one only says when it is owed.
+
+The hand-off forward is `scaffolding`: this skill ends with documents and no project, so once
+purpose and requirements exist in a directory that still holds no code, that is the skill which
+builds the project from them.
