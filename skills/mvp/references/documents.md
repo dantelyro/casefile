@@ -23,9 +23,19 @@ reproduced here.
 
 ## `docs/requirements.md`
 
-Functional `F-NN` and non-functional `N-NN` per **D-011**, including the rule about a number on
-every non-functional requirement. This skill adds two things to that format and changes nothing
-else:
+Two sections, stable ids so decisions and tests can cite them:
+
+- **Functional (`F-NN`)** — what it must do, phrased so a test can fail. "Users can reset a
+  password without support" is a requirement; "good password handling" is not.
+- **Non-functional (`N-NN`)** — what it must hold true under: latency, availability, data
+  residency, budget, compliance. **Each carries a number.** "Fast" is not a requirement, and an
+  unnumbered one cannot be violated, only disappointed.
+
+Mark each `must` or `should`, and say which are unverified. Non-functional requirements are the
+ones most often asserted and never measured.
+
+That format is this skill's to state — **D-011b**, superseded by **D-023**, moved it here when
+`evidence-based-decisions` stopped claiming the document. On top of it this skill adds two things:
 
 - **Every line is attributed** to the actor that raised it, and carries its claim tag.
 - **The file splits into `In the MVP` and `Cut`**, and a cut line keeps both its reason and its

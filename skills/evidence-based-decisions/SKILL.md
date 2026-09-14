@@ -77,9 +77,13 @@ one, which is the mistake this entire skill exists to prevent.
 
 **Run `/init` first.** Project instructions come before the rest of the set: they are the only
 document every session loads, so a log created without them is a log nothing points at. Then
-`docs/purpose.md` and `docs/requirements.md` — what the project is for, and what it must do —
-before the architecture document, which describes a shape that only makes sense once those are
-settled.
+`docs/purpose.md` — what the project is for — before the architecture document, which describes a
+shape that only makes sense once that is settled.
+
+**`docs/requirements.md` is never seeded here**, on either branch. Layout, stack and entry points
+are observable on disk; a `must` is not. Code shows what a system does, never what it is obliged to
+do, so reading a requirement off an implementation is Grade 4. `mvp` owns that document, with the
+tagging and quarantine discipline an unsourced requirement needs.
 
 Once accepted, seed from what the repo already shows — layout, stack, entry points — set the
 initial watermark to `HEAD`, and start the log as `docs/decisions/NNNN-slug.md`, one decision

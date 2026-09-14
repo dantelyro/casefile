@@ -9,7 +9,6 @@ true.
 |---|---|---|
 | Project instructions (`CLAUDE.md`, `AGENTS.md`) | How to run, build, test; the gotchas that cost real time | Always — it is loaded for you |
 | Purpose (`docs/purpose.md`) | What pain this solves, for whom, and what it deliberately is not | Before scoping anything, and whenever a request seems out of scope |
-| Requirements (`docs/requirements.md`) | What it must do, and what it must hold true under | Before building a feature, and before calling one done |
 | Discovery record (`docs/discovery/`) | Why a requirement exists and who wanted it | Before deleting or renegotiating a requirement, and when a cut decision resurfaces |
 | Architecture / mental model | What exists, where it lives, module boundaries, per-module state | Before designing or building anything |
 | Decision log | Why it is this way, and what was given up | Scan for entries your approach would contradict |
@@ -26,20 +25,6 @@ it deliberately does **not** do. A purpose document with no non-goals cannot set
 which is the only reason to have one.
 
 Short, and stable. It changes rarely; when it does, that is a decision and gets an entry.
-
-## Requirements
-
-Two sections, stable ids so decisions and tests can cite them:
-
-- **Functional (`F-NN`)** — what it must do, phrased so a test can fail. "Users can reset a
-  password without support" is a requirement; "good password handling" is not.
-- **Non-functional (`N-NN`)** — what it must hold true under: latency, availability, data
-  residency, budget, compliance. **Each carries a number.** "Fast" is not a requirement, and an
-  unnumbered one cannot be violated, only disappointed.
-
-Mark each `must` or `should`, and say which are unverified. Non-functional requirements are the
-ones most often asserted and never measured — the same built-versus-verified split as the rest of
-this skill.
 
 ## What belongs in project instructions
 

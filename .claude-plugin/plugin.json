@@ -1,7 +1,7 @@
 {
   "name": "devflow",
   "description": "Workflow skills for keeping a codebase understandable: turning an idea into a written brief before code exists, building the project from a framework's own generators rather than from memory, orienting in an unfamiliar repo, and recording decisions with the evidence behind them.",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "author": {
     "name": "dantelyro"
   },

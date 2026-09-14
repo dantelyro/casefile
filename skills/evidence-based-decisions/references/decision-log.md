@@ -12,7 +12,6 @@ the log is about. Layout is not a judgement call: one decision per file, from en
 ```
 docs/
 ├── purpose.md               # what pain this solves, and what it is not
-├── requirements.md          # functional (F-NN) and non-functional (N-NN)
 ├── architecture/
 │   └── mental-model.md      # what exists, where it lives, module state
 └── decisions/               # sibling of architecture/
