@@ -71,8 +71,8 @@ costs the round.
 ## Not asked
 
 Stack, framework, database, hosting, repo shape, component library — none of it. Those are build
-parameters, not product questions, and they belong to `project-specs`, a skill that doesn't exist
-yet. Asking them here invites deciding the build before deciding the product: a framework choice
+parameters, not product questions, and they belong to `project-specs`, the skill that builds from
+this one's output. Asking them here invites deciding the build before deciding the product: a framework choice
 made in the same breath as "who is it for" outlives the reasoning that produced it, and the next
 person to read the brief inherits a decision with no argument attached.
 
