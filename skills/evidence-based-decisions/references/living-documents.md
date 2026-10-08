@@ -116,7 +116,7 @@ Keep the **date** next to the SHA precisely because SHAs are rewritable and date
 is exact when it works; the date always works and is approximately right.
 
 Decision entries carry the same link in the other direction — `Implemented by`, and the same date
-caveat. See "Linking a decision to its code" in `decision-log.md`.
+caveat.
 
 ## Keeping status current
 

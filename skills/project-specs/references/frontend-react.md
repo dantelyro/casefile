@@ -1,6 +1,6 @@
 # Frontend — React
 
-The greenfield stack. New things are allowed here; `frontend-vue.md` is where they are not.
+The greenfield stack. New things are allowed here, unlike the frozen Quasar stack.
 
 ## Structure
 

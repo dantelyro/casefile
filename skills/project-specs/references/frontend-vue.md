@@ -34,12 +34,15 @@ blank screen.
 
 ## Everything else is shared
 
-The invariants in `invariants.md` apply here unchanged: TypeScript, ESLint, Prettier, Husky,
-Vitest with globals and a setup file loading `.env.test`, `src/test` for configuration only,
-Sentry, semantic-release, the GitLab pipeline, and the same origin topology rules as
-`frontend-react.md`.
+The invariants apply here unchanged: TypeScript, ESLint, Prettier, Husky, Vitest with globals and
+a setup file loading `.env.test`, `src/test` for configuration only, Sentry, semantic-release, the
+GitLab pipeline.
+
+Origin topology follows the shape, as on React: **monolith** proxies `/api` to the backend in
+development and is served by the backend in production; **separated** points `VITE_API_URL`
+straight at the backend, in development too, so a broken CORS configuration surfaces locally.
 
 ## Generator
 
-`npm init quasar@latest` is a wizard. It is the most likely command in the whole skill to hang a
-session — see the recorded answer sequence and the warning in `generators.md`.
+`npm init quasar@latest` is a wizard and the most likely command in the whole skill to hang a
+session. Drive it only with its recorded answer sequence.

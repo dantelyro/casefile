@@ -1,7 +1,7 @@
 # The question set
 
 Closed, ordered, asked in one pass before anything is written. Nothing outside this file is
-asked at all — `invariants.md` holds what is already decided, backend and frontend alike.
+asked at all; everything else is an invariant, backend and frontend alike.
 
 Order is not cosmetic: later questions are skipped or constrained by earlier answers.
 
@@ -87,8 +87,8 @@ do what without a deploy.
 
 **None · Vue/Quasar · React.**
 
-Not equivalent postures. Quasar is the legacy stack and stays frozen (`frontend-vue.md`). React
-is where new things are allowed (`frontend-react.md`).
+Not equivalent postures. Quasar is the legacy stack and stays frozen. React is where new things
+are allowed.
 
 ## 8. Components — *React only*
 
@@ -122,6 +122,6 @@ pages it is ceremony for its own sake.
 - **Package manager** — npm.
 - **Architecture** — layered on the backend, feature folders plus a shared layer on the
   frontend, unless the project's purpose contradicts it.
-- Everything in `invariants.md`.
+- Any invariant.
 
 Adding a question to this file is a decision. Record it.

@@ -87,9 +87,8 @@ only the session record gets only the session record.
 ## Handing off
 
 Setting the initial reconciliation watermark to `HEAD` and seeding `docs/decisions/` belong to
-`evidence-based-decisions`, not to this skill. Its
-`references/decision-log.md` carries the log format and the entry template; use it there, and do
-not restate either here (D-008).
+`evidence-based-decisions`, not to this skill, which owns the log format and the entry template;
+neither is restated here (D-008).
 
 One loop crosses the boundary and is worth naming so it is not left to chance. Promoting a
 `[claimed — UNVERIFIED]` line into a requirement, once a real person has confirmed it, **is a

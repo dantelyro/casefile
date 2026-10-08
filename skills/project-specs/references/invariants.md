@@ -25,7 +25,7 @@ pinned string typed from memory.
 | Env files | `.env`, `.env.test`, `.env.example`, all created; `.env*` ignored except `.env.example` |
 | Env validation | a zod schema checked at boot — a missing variable fails at startup, not at 3am |
 | Errors | Sentry, DSN from env, silent when the variable is unset |
-| Release | semantic-release — see `release.md` |
+| Release | semantic-release |
 | CI | `.gitlab-ci.yml`, test and release stages. **No deploy stage** — that belongs to whoever owns deployment |
 | VCS | `.gitignore` present before the first commit |
 
@@ -38,13 +38,13 @@ commit that ignores the convention is a release that does not happen.
 - **docker-compose with two Postgres services**: development and test, on different ports
 - Database tests are fully isolated and **truncate between every test**
 - helmet, rate limiting
-- CORS **only where the shape requires it** — see `backend.md`
+- CORS **only where the shape requires it** — separated, or an API a browser on another origin calls
 - zod for all input validation
 - Swagger/OpenAPI generated, **mounted only outside production**
 - Structured logging with a request/correlation id on every line
 - Health endpoint
 - API versioning from day one — `/v1`
-- The error class hierarchy and the single global handler — see `backend.md`
+- The error class hierarchy and the single global handler
 - `predev` brings up the containers and applies migrations before `dev` runs
 
 ## Frontend only

@@ -41,14 +41,16 @@ because it is already decided: `references/invariants.md`.
 
 **2. Plan.** Write `scaffold.plan.md` — the answers, then every command in execution order with
 its exact flags, then every file the skill will write and why no generator emits it. **Stop.**
-The user reads it, edits it, approves it. Format: `references/plan-format.md`.
+The user reads it, edits it, approves it. Format: `references/plan-format.md`; commands and their
+verification states: `references/generators.md`.
 
 **3. Execute.** Run the plan top to bottom. **Generators first, written config second** — a
 generator run after hand-written files overwrites them without asking. Add every dependency by
-name.
+name. What to write, per part: `references/backend.md`, `references/frontend-react.md` or
+`references/frontend-vue.md`, `references/release.md`.
 
 **4. Verify.** Run the build, the test suite, and `predev` for real — boot the containers, apply
-the migrations. Then `/init`, then hand back to `evidence-based-decisions` to **reconcile** the doc set against
+the migrations. Tell the user which CI token to create (`references/release.md`). Then `/init`, then hand back to `evidence-based-decisions` to **reconcile** the doc set against
 what was built — purpose and requirements were written before the repo existed, and the build is
 the first evidence of whether they hold.
 

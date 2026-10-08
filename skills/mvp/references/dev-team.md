@@ -25,10 +25,10 @@ until two actors build on opposite readings.
 
 ## Invariant blocks
 
-Every dev actor carries the **Everywhere** block from
-`skills/project-specs/references/invariants.md`. `backend` additionally carries **Backend only**;
-`frontend` additionally carries **Frontend only**. They are pasted into the `{invariant blocks}`
-slot of the prompt below, read from that file at dispatch.
+Every dev actor carries the **Everywhere** invariant block. `backend` additionally carries
+**Backend only**; `frontend` additionally carries **Frontend only**. They are pasted into the
+`{invariant blocks}` slot of the prompt below, read at dispatch from the file `SKILL.md` names in
+phase 4.
 
 ## The frontend actor and the design system
 

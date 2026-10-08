@@ -18,7 +18,7 @@ both paths.
 ### 3. Commands
 
 Every command, in execution order, with its exact flags, grouped by repo. Each carries its
-verification state from `generators.md`.
+recorded verification state.
 
 ```
 UNVERIFIED  npx @nestjs/cli new api --package-manager npm --skip-git --strict

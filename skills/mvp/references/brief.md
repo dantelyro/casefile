@@ -23,7 +23,7 @@ idea is not yet a sentence — it is still a feeling about a sentence.
 
 | Question | What it changes |
 |---|---|
-| Who is it for? Name the people, not a market segment. | The domain cast (`references/domain-actors.md`). |
+| Who is it for? Name the people, not a market segment. | The domain cast. |
 
 "Small businesses" is a market segment; "the person who closes out the till at night" is a person.
 The domain cast is derived from whoever gets named here, so a segment produces actors with nothing

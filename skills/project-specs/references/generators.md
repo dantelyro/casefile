@@ -122,8 +122,8 @@ npm i radix-ui
 ```
 
 One unified package that re-exports the primitives — not the twenty-five separate
-`@radix-ui/react-*` packages older projects list. The primitive components themselves are written;
-see `frontend-react.md`.
+`@radix-ui/react-*` packages older projects list. The primitive components themselves are authored,
+not generated.
 
 ### Mantine — `UNVERIFIED`
 
@@ -151,8 +151,6 @@ written config.
 ```bash
 npm i -D semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/gitlab
 ```
-
-See `release.md` for configuration and the token that the pipeline needs.
 
 ### Sentry
 

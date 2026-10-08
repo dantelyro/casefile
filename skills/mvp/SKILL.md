@@ -61,7 +61,8 @@ by speaker discards the distinction the tags exist to draw.
 3. **Propose the roster and wait.** Names, classes, counts, and the reason for each. A stop.
 4. **Round 1 — parallel and blind.** Each actor answers without seeing another's answer. Shared
    context makes them converge, and convergence reads as agreement.
-   `references/clients.md` · `references/dev-team.md` · `references/domain-actors.md`
+   `references/clients.md` · `references/dev-team.md` · `references/domain-actors.md` · the dev
+   team's invariant blocks: `${CLAUDE_PLUGIN_ROOT}/skills/project-specs/references/invariants.md`
 5. **Synthesize.** Group the answers, surface the conflicts, keep them intact. `references/synthesis.md`
 6. **Round 2 — targeted.** Put each conflict back to the actors who caused it. `references/synthesis.md`
 7. **Cut to an MVP**, refine `docs/purpose.md`, write the documents — `docs/requirements.md` and
