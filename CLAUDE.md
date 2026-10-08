@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `69a6274` — 2026-08-31
+**Docs reconciled through:** `8aa1a0e` — 2026-10-08
 
 ## What this repo is
 
@@ -99,17 +99,46 @@ Each of these is load-bearing; the comments in the files say so too.
   `hookSpecificOutput.additionalContext` without deduplicating, so the script branches on
   `CLAUDE_PLUGIN_ROOT` and emits the nested form under Claude Code, the top-level form elsewhere.
 
+## Skill-authoring baseline
+
+What Anthropic documents about skills — loading, frontmatter, references, compaction — is kept in
+`docs/skill-authoring.md`, imported here so it is read at every session start:
+
+@docs/skill-authoring.md
+
+That file is watermarked with the Claude Code version it was verified against. **At the start of
+every session, run `claude --version` and compare it with the file's `Verified against` line.** If
+the running version is newer:
+
+1. Read the changelog entries between the two versions, and re-fetch the pages the file cites.
+2. Update `docs/skill-authoring.md` with whatever changed, and move its watermark to the running
+   version and today's date — even when nothing changed, so the same range is not checked twice.
+3. Check the four skills against what changed and tell the user, before starting the session's
+   task, about anything that could change how they trigger, load or read their references. Do not
+   edit the skills without approval.
+
+The check exists because skill behaviour is set by a CLI that ships several releases a week; a rule
+verified once and never re-checked becomes a belief about an old version (D-024).
+
 ## Editing skills
 
 - The YAML `description` is the entire trigger surface — it is what the model matches a situation
   against. Editing it changes when the skill fires; editing the body only changes what it then
   does. `name` must match the directory name.
+- **Never nest references.** A file under `references/` must not send the reader to another
+  reference file — in its own skill or another one. Every reference is linked directly from its
+  skill's `SKILL.md`, at the step that needs it. Anthropic documents that a file reached through
+  another reference may be previewed with `head -100` instead of read, so a nested reference is a
+  rule that can silently go unread (D-024).
 - **State each rule once, in the place it applies** (D-008). The skills warn against documents
   that can disagree with each other; the same applies to this repo's own files. If a rule belongs
   in a `references/` file, do not also summarise it in `SKILL.md` or the README.
 - Skill prose carries its **reasons**, not just its rules — the "Rationalizations" and "Red flags"
   tables exist because a rule without its reason gets optimised away. Match that register when
-  adding to them.
+  adding to them. **A reason earns its place only if it carries project knowledge the model cannot
+  infer** — a failure seen here, a constraint of this repo, a vendor behaviour. Cut prose that
+  explains general concepts or repeats a reason already given; Anthropic's guidance is to state what
+  to do, not narrate how or why, and every loaded line is a recurring cost (D-024).
 
 ## Where the reasoning lives
 
