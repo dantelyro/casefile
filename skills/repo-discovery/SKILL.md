@@ -98,9 +98,6 @@ ls Dockerfile docker-compose.y*ml Makefile Taskfile.y*ml .nvmrc .tool-versions 2
 ls .github/workflows/ 2>/dev/null            # CI is the honest "how to build"
 ```
 
-The manifest tells you the stack in twenty lines. Inferring it from source costs hundreds and
-gets it wrong.
-
 **CI config is the most reliable "how to run"** — it is the version that actually has to work,
 kept current by breaking when it is not. A README's setup section is under no such pressure, so
 verify anything you take from it.
@@ -114,12 +111,7 @@ git ls-files | head -50                       # tracked only: no build output, n
 git ls-files | sed 's|/[^/]*$||' | sort | uniq -c | sort -rn | head -20   # where the code is
 ```
 
-`git ls-files` beats `find` — it respects `.gitignore`, so `node_modules`, `dist` and
-`coverage` never appear. The directory histogram shows where the mass of the project sits,
-which is usually more informative than any single file.
-
-**Never read `node_modules`, `vendor`, `dist`, `.venv`, or lockfiles.** They are enormous,
-generated, and answer nothing the manifest does not.
+**Never read `node_modules`, `vendor`, `dist`, `.venv`, or lockfiles.**
 
 ## Step 5: Recent activity, if you are picking up work
 

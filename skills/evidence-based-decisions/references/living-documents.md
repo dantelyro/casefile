@@ -65,9 +65,6 @@ as they were; correct only what is presented as currently true.
 
 ## The watermark: knowing what changed while you were away
 
-Docs describe the code as of the last reconciliation, not as of now. People commit without an
-agent, so the gap is real and invisible unless you record where you stopped.
-
 **Record the commit each reconciliation was made through**, in the architecture document's header:
 
 ```markdown

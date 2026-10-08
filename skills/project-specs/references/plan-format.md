@@ -3,9 +3,6 @@
 Written at the end of phase 1, before anything touches disk. The user reads it, edits it,
 approves it. **Nothing runs until they do.**
 
-The plan exists to be rejected cheaply. Written afterwards it is a changelog, and a changelog
-cannot prevent anything.
-
 ## Sections, in order
 
 ### 1. Answers

@@ -20,8 +20,7 @@ after the first release and its unnecessary half after the second.
 
 **Core principle: dispatch a cast, then cut.** A client, a dev team and people who live in the
 domain are given the idea separately and asked what they need from it. The output is the smallest
-thing that still serves the purpose, plus the record of what was cut and who wanted it — a cut
-with an advocate attached can be reopened later, an anonymous one is just an absence.
+thing that still serves the purpose, plus the record of what was cut and who wanted it.
 
 ## The three actor classes
 
@@ -94,7 +93,7 @@ kept true, and it will not be kept true.
 |---|---|
 | "The actors all agreed, so it must be true" | They share one model and one brief. Agreement among fabrications is not evidence of anything; a round that produced no conflict produced no information. |
 | "I'll attribute the requirements later" | By then the advocate is gone and the line reads as fact. Attribution is what makes a requirement arguable instead of inherited. |
-| "The client actor is basically the user" | The client owns the product; the domain actor lives in the world it is for. Their conflict is the most useful thing this skill produces, and merging them deletes it. |
+| "The client actor is basically the user" | They are different classes, and merging them deletes the conflict the cut needs. |
 | "This one is obviously true, it doesn't need a tag" | Obvious is how an unsourced claim gets into the requirement list. The tag costs a word. |
 | "The list is already small, there is nothing to cut" | Then say what was considered and rejected. An MVP with no cuts recorded is an unexamined feature list with a new name. |
 

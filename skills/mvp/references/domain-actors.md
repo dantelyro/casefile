@@ -84,23 +84,8 @@ Speak only from your own experience. Do not speak for other kinds of {domain}
 whose situation you do not share.
 ```
 
-**That last line is load-bearing.** Without it a single actor answers on behalf of the whole
-domain — "well, some hunters would want X, though others prefer Y" — and every actor returns the
-same balanced survey. The divergence the cast exists to surface disappears, and it disappears
-quietly, into three answers that all look reasonable.
+Every line of the template is fixed wording; why each one is there is recorded in D-025.
 
-**"Do not be agreeable"** is the second load-bearing line, for the same structural reason: asked to
-react to a proposal, a model will find the good in it. A domain actor that likes everything has
-confirmed the brief without testing it.
+## Model
 
-**"Say what you actually do today and what you use to do it"** earns its place by producing the
-incumbent. What someone already uses — a notebook, a spreadsheet, a rival app, nothing at all — is
-the thing the project has to beat, and it is almost never in the brief.
-
-## Model note
-
-**Domain actors run on Sonnet, set on the `Agent` call at dispatch, never in frontmatter** — see
-the reasoning in `clients.md`, which applies here unchanged.
-
-Role-play is cheaper work than architectural critique. The actor is describing conditions and
-reacting to a paragraph, not tracing consequences through a system that does not exist yet.
+**Domain actors run on Sonnet, set on the `Agent` call at dispatch, never in frontmatter** (D-025).

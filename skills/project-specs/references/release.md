@@ -2,8 +2,7 @@
 
 ## semantic-release
 
-Fully automatic. The version is derived from conventional commit prefixes — nobody chooses a
-number, and nobody forgets to cut a release.
+Fully automatic, versioned from conventional commit prefixes.
 
 ```bash
 npm i -D semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/gitlab
@@ -11,21 +10,16 @@ npm i -D semantic-release @semantic-release/changelog @semantic-release/git @sem
 
 Plugins, in order:
 
-| Plugin | Job |
-|---|---|
-| `@semantic-release/commit-analyzer` | Decides patch / minor / major from the commits |
-| `@semantic-release/release-notes-generator` | Writes the notes |
-| `@semantic-release/changelog` | Maintains `CHANGELOG.md` |
-| `@semantic-release/npm` with `npmPublish: false` | Bumps the manifest. These are applications — set `"private": true` |
-| `@semantic-release/gitlab` | Creates the GitLab release against the tag |
-| `@semantic-release/git` | Commits the bumped manifest and changelog back to `main` |
+1. `@semantic-release/commit-analyzer`
+2. `@semantic-release/release-notes-generator`
+3. `@semantic-release/changelog`
+4. `@semantic-release/npm` with `npmPublish: false` — these are applications; set `"private": true`
+5. `@semantic-release/gitlab`
+6. `@semantic-release/git` — commits the bumped manifest and changelog back to `main`
 
 **`@semantic-release/git` is not optional here.** Without it, semantic-release deliberately does
 not commit the version back, so `package.json` sits at its seed value forever while tags move on.
 The manifest stops describing what shipped, and it is discovered months later.
-
-**Conventional commits are load-bearing, not stylistic.** A commit that ignores the convention is
-a release that does not happen. That is why commitlint is an invariant.
 
 ## `.gitlab-ci.yml`
 

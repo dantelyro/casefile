@@ -5,8 +5,7 @@ asked at all — `invariants.md` holds what is already decided, backend and fron
 
 Order is not cosmetic: later questions are skipped or constrained by earlier answers.
 
-A question `docs/requirements.md` already settles is recorded from that document, not asked
-again — a second answer to a settled question is a document that can disagree with itself. The
+A question `docs/requirements.md` already settles is recorded from that document, not asked. The
 set still stays closed: this reads an existing answer, it does not add a new question.
 
 ---
@@ -122,8 +121,7 @@ pages it is ceremony for its own sake.
 - **Database engine** — Postgres.
 - **Package manager** — npm.
 - **Architecture** — layered on the backend, feature folders plus a shared layer on the
-  frontend, unless the project's purpose contradicts it. An event-driven notification service is
-  the standing example: forcing layers onto it produces a layer that exists to be traversed.
+  frontend, unless the project's purpose contradicts it.
 - Everything in `invariants.md`.
 
 Adding a question to this file is a decision. Record it.

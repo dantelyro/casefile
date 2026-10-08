@@ -14,8 +14,7 @@ src/
 
 Enforced by `eslint-plugin-boundaries`: `app` may import anything, `features` may import
 `shared` and their own internals but **not sibling features**, `shared` may import only
-`shared`, and production code may not import test helpers. A structure that is only a convention
-is one people drift out of; as a lint rule it is a build failure.
+`shared`, and production code may not import test helpers.
 
 ## Stack
 
@@ -38,9 +37,7 @@ invalidation.
 
 ## Component branches
 
-**Radix + own primitives.** Radix ships behaviour with no appearance — focus trapping, keyboard
-navigation, ARIA, collision-aware positioning — and you write every line of the styling. The
-primitive set lives in `shared/ui`, each one a `.tsx` + `.module.scss` + a colocated test,
+**Radix + own primitives.** The primitive set lives in `shared/ui`, each one a `.tsx` + `.module.scss` + a colocated test,
 reading from the theme tokens: button, input, label, textarea, select, card, badge, dialog,
 sheet, toast, skeleton, spinner.
 
@@ -48,13 +45,10 @@ Those primitives are **authored**, not generated. That is consistent with the co
 the principle governs versions, not who writes a component — but it is the branch with the most
 code to produce, and the plan must say so before the user approves it.
 
-**Mantine.** Components, hooks, notifications and a modals manager already built. Theme through
-its CSS variables, extend with `.module.scss`. Fastest to a working screen; you are theming
-someone else's design rather than authoring your own.
+**Mantine.** Theme through its CSS variables, extend with `.module.scss`.
 
-**shadcn/ui + Tailwind.** Its CLI copies component source into the repo, so you own it — but the
-styling is utility classes in the markup, which is the whole objection people have to Tailwind.
-Only offer it having said that.
+**shadcn/ui + Tailwind.** The CLI copies component source into the repo; theme through
+`tailwind.config` and CSS variables.
 
 ## Origin topology follows the shape
 

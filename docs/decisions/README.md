@@ -41,6 +41,7 @@ so.
 | [D-022](0022-the-cast-replaces-the-scaffolder.md) | The cast replaces the scaffolder | Accepted, supersedes D-013 |
 | [D-023](0023-requirements-leaves-the-evidence-skills-doc-set.md) | Requirements leaves the evidence skill's doc set | Accepted, supersedes D-011b |
 | [D-024](0024-skill-authoring-follows-a-version-watermarked-vendor-digest.md) | Skill authoring follows a version-watermarked vendor digest, and references never nest | Accepted |
+| [D-025](0025-the-casts-prompts-are-fixed-templates-and-actor-models.md) | The cast's prompts are fixed templates, and actor models are set per dispatch | Accepted |
 
 ## Conventions
 

@@ -91,16 +91,7 @@ opposite positions for stated reasons is the most honest input a cut can have �
 that has to be made by a person, and hands them the argument already assembled instead of making
 them reconstruct it.
 
-## The limitation, stated so it is not rediscovered as a bug
+## The known limitation
 
-Blind actors find gaps **in the brief** only.
-
-A gap that exists only once `backend` has proposed permission inheritance — the kind `security`
-would catch instantly on seeing that proposal, and cannot catch otherwise, because in round 1 the
-proposal does not exist yet — is missed. Round 2 recovers some of these, but only along the lines
-synthesis already spotted a contradiction to chase; it cannot surface an interaction nobody
-collided over.
-
-This is the accepted cost of not running a round table, taken deliberately in exchange for the
-independence that makes round 1 worth reading at all. The reasoning and the rejected alternative
-are in decision D-019.
+Blind actors find gaps **in the brief** only. A gap that exists only once one actor has proposed
+something is missed unless round 2 chases it — an accepted cost, not a bug (D-019).

@@ -23,8 +23,7 @@ trip, or a live environment — and it diffs when the vendor changes it.
 
 ## Probe before designing
 
-One live call answers what an hour of reading guesses at. Design the probe to *distinguish*
-outcomes rather than merely to succeed:
+Design the probe to *distinguish* outcomes rather than merely to succeed:
 
 - **Include a control** — a route you know exists. Probe and control failing identically teaches
   you nothing about the probe.
@@ -96,6 +95,4 @@ is a distinct class from "not yet checked", and it recurs.
 
 ## Reporting status honestly
 
-Report **built** and **verified** as separate axes, in the same sentence: a piece that has only run
-against a mock says so where it says it is merged. An intermittently red suite gets said too —
-"green" from one run is luck, not a result.
+An intermittently red suite gets reported as such — "green" from one run is luck, not a result.

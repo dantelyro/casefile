@@ -7,19 +7,10 @@ the record of how those two were arrived at. Each is offered and each can be dec
 
 The pain, who has it, and the non-goals.
 
-It is written **twice** — drafted in phase 2 from the brief, refined here in phase 7 — and the
-duplication is deliberate rather than a missed consolidation:
-
-- **Early**, because the client cast is derived from it and every actor needs something to argue
-  against. A purpose written after the round is a summary of what the actors said, which makes it
-  unfalsifiable: nothing in the round could ever have contradicted it.
-- **Late**, because that argument is what sharpens it. The round routinely establishes that the
-  pain was described one layer too high, that a named party has no stake after all, or that
-  something assumed in-scope was never wanted by anyone.
-
-The refined version replaces the draft in place. The line above is the headline only; the content
-rule it comes from — what belongs in purpose and what does not — is **D-011**'s, and is not
-reproduced here.
+It is written **twice** (D-025): drafted in phase 2 from the brief, and refined here in phase 7
+against what the round established — a pain described one layer too high, a named party with no
+stake after all, something assumed in scope that nobody wanted. The refined version replaces the
+draft in place. What belongs in purpose and what does not is **D-011**'s rule.
 
 ## `docs/requirements.md`
 
@@ -34,8 +25,7 @@ Two sections, stable ids so decisions and tests can cite them:
 Mark each `must` or `should`, and say which are unverified. Non-functional requirements are the
 ones most often asserted and never measured.
 
-That format is this skill's to state — **D-011b**, superseded by **D-023**, moved it here when
-`evidence-based-decisions` stopped claiming the document. On top of it this skill adds two things:
+On top of that format, this skill adds two things:
 
 - **Every line is attributed** to the actor that raised it, and carries its claim tag.
 - **The file splits into `In the MVP` and `Cut`**, and a cut line keeps both its reason and its
@@ -83,15 +73,10 @@ the one still asserting a claim after the first was confirmed and promoted.
 **Distilled, not dumped.** A full cast's raw round-1 prose is thousands of lines that get read
 once. What belongs here is the positions and the reasons, not the transcripts that carried them.
 
-Its job is distinct from the other two, which is why it is a third file rather than an appendix to
-either: it is the only document that says **why a requirement exists and who wanted it**. That is
-exactly what a future reader needs before deleting one — `requirements.md` tells them the line is
-there, and only the discovery record tells them whether removing it costs anyone anything.
+It is the only document that says **why a requirement exists and who wanted it**.
 
-Dated and topic-named because a project runs this skill more than once. A second discovery session
-is a new file beside the first, not an edit to it; the first record stayed true about the day it
-was written, and overwriting it destroys the only account of a decision that has since been
-reversed.
+A second discovery session is a new file beside the first, never an edit to it: the first record
+stays true about the day it was written.
 
 ## Nothing is written unasked
 

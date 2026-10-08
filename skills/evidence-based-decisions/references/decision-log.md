@@ -99,7 +99,7 @@ git log -L '/functionOrConstant/',+20:src/path/to/file.ts \
   | grep -E '\|(feat|fix)(\(.+\))?!?:' | head -1
 ```
 
-`git log -L` returns the history of just those lines, newest first. Filter to `feat` and `fix`:
+Filter to `feat` and `fix`:
 decisions live there, while `docs`, `chore`, `style`, `test`, `ci` and `build` touch lines
 without deciding anything — letting them through is how blame ends up naming whoever ran the
 formatter. Read `refactor` as a second pass when `feat`/`fix` returns nothing for those lines: a

@@ -54,9 +54,8 @@ Which format is chosen matters far less than there being exactly one, and no han
 inventing a second. The frontend parses this shape and rebuilds the error classes from `code`, so
 a component catches a `ConflictError` rather than inspecting `err.response.status === 409`.
 
-If a consumer ever demands RFC 9457 problem+json — the IETF standard for error bodies, served as
-`application/problem+json` — that is a change inside the global handler and nowhere else. Having
-one handler is what makes it a small change.
+If a consumer ever demands RFC 9457 problem+json, that is a change inside the global handler and
+nowhere else.
 
 ### Unmatched routes
 

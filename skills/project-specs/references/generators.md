@@ -1,11 +1,6 @@
 # Generators
 
-Every command that creates something, with its **verification state**. A command here that has
-never been run is Grade 3 evidence — prose about a CLI, not a fact about it. Generators rename
-flags, add prompts and change defaults between minor versions.
-
-**When a command fails or stops on a prompt, fix it in this file in the same change.** A flag
-set that has been run is worth more than one that reads correctly.
+Every command that creates something, with its **verification state**.
 
 | State | Meaning |
 |---|---|
@@ -14,16 +9,6 @@ set that has been run is worth more than one that reads correctly.
 | `INTERACTIVE` | Prompts. Either drive the recorded answer sequence, or do not use it |
 
 **No command in this file carries a version number.** `npm i <pkg>` resolves what current means.
-
----
-
-## The two rules that make this work
-
-**Generators first, written config second.** A generator run after hand-written files overwrites
-them silently. Order is load-bearing, not stylistic.
-
-**Nothing interactive.** A prompt hangs the session — there is no TUI to answer. Every command
-must be non-interactive, or its answer sequence must be recorded here.
 
 ---
 

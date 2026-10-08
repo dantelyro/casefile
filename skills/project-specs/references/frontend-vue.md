@@ -16,10 +16,8 @@ appears in. Adding to it costs more than it returns.
 
 ## What does not go here
 
-**No TanStack Query.** Not because it would not work — `@tanstack/vue-query` exists — but
-because introducing a second data-fetching philosophy into the stack whose whole purpose is
-predictability defeats the purpose. Server data goes through axios, into Pinia or component
-state.
+**No TanStack Query**, though `@tanstack/vue-query` exists. Server data goes through axios, into
+Pinia or component state.
 
 **No new state library, no new router, no new component set.** Quasar brings vue-router and its
 own components; that is the arrangement.
