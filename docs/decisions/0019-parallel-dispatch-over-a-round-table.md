@@ -1,6 +1,6 @@
 # D-019 — Parallel dispatch over a round table
 
-**Status:** Accepted (2026-08-31).
+**Status:** **SUPERSEDED by D-026 (2026-10-14).** mvp, whose cast this entry dispatches, is removed. Accepted (2026-08-31).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session.
 
 **Implemented by:** `4a28363` — 2026-08-31.
@@ -35,3 +35,6 @@ recovers some of these, but only along the lines synthesis already spotted a con
 chase; it cannot surface an interaction nobody collided over. That is the accepted cost of not
 running a round table, taken deliberately in exchange for the independence that makes round 1 worth
 reading at all.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — superseded by D-026; mvp removed.

@@ -1,6 +1,6 @@
 # D-021 — The frontend actor drafts the design direction
 
-**Status:** Accepted (2026-08-31).
+**Status:** **SUPERSEDED by D-026 (2026-10-14).** mvp and its frontend actor are removed. Accepted (2026-08-31).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session.
 
 **Implemented by:** `56b69f8` — 2026-08-31.
@@ -30,3 +30,6 @@ something to start from instead of nothing.
 until the design-system skill runs, same as D-016 already accepted. What `frontend` adds is a
 written direction instead of a blank theme file — closer to a real starting point, but still not a
 seen one, and the gap between the two is exactly the gap D-016 drew the line at.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — superseded by D-026; mvp and its frontend actor removed.

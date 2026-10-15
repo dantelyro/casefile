@@ -1,6 +1,6 @@
 # D-015 — Generator commands carry their verification state
 
-**Status:** Accepted (2026-08-30).
+**Status:** **SUPERSEDED by D-026 (2026-10-14).** references/generators.md was removed with project-specs; no devflow skill ships generator commands. Accepted (2026-08-30). The developer's rule behind it — never type a package version by hand, use the package manager's command — passes to the implementer agent (D-026).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: stated the rule the skill exists to
 enforce ("i dont want is package version manually built. always run npm command as much as
 possible").
@@ -29,3 +29,6 @@ rather than mysterious.
 
 **Consequence:** `npm init quasar@latest` is marked `INTERACTIVE` with its answer sequence recorded,
 because it is the command most likely to hang a session.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — superseded by D-026; project-specs and generators.md removed; the no-hand-typed-versions rule passes to the implementer agent.

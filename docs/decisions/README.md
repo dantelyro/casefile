@@ -30,18 +30,19 @@ so.
 | [D-011b](0011b-the-doc-set-gains-a-requirements-document.md) | The doc set gains a requirements document | SUPERSEDED by D-023 |
 | [D-012](0012-the-skill-runs-on-sonnet-not-opus.md) | The skill runs on Sonnet, not Opus | Accepted |
 | [D-013](0013-scaffolding-runs-before-init.md) | Scaffolding runs before `/init` | SUPERSEDED by D-022 |
-| [D-014](0014-a-scaffold-is-planned-on-disk-before-any.md) | A scaffold is planned on disk before any command runs | Accepted |
-| [D-015](0015-generator-commands-carry-their-verification-state.md) | Generator commands carry their verification state | Accepted |
+| [D-014](0014-a-scaffold-is-planned-on-disk-before-any.md) | A scaffold is planned on disk before any command runs | SUPERSEDED by D-026 |
+| [D-015](0015-generator-commands-carry-their-verification-state.md) | Generator commands carry their verification state | SUPERSEDED by D-026 |
 | [D-016](0016-the-design-system-is-a-separate-skill.md) | The design system is a separate skill | Accepted |
-| [D-017](0017-the-radix-branch-authors-its-primitives-rather-than.md) | The Radix branch authors its primitives rather than shipping them | Accepted |
-| [D-018](0018-three-actor-classes-and-a-derived-client-count.md) | Three actor classes, and a derived client count | Accepted |
-| [D-019](0019-parallel-dispatch-over-a-round-table.md) | Parallel dispatch over a round table | Accepted |
+| [D-017](0017-the-radix-branch-authors-its-primitives-rather-than.md) | The Radix branch authors its primitives rather than shipping them | SUPERSEDED by D-026 |
+| [D-018](0018-three-actor-classes-and-a-derived-client-count.md) | Three actor classes, and a derived client count | SUPERSEDED by D-026 |
+| [D-019](0019-parallel-dispatch-over-a-round-table.md) | Parallel dispatch over a round table | SUPERSEDED by D-026 |
 | [D-020](0020-the-seeding-path-splits-by-evidence-grade.md) | The seeding path splits by evidence grade | Accepted |
-| [D-021](0021-the-frontend-actor-drafts-the-design-direction.md) | The frontend actor drafts the design direction | Accepted |
-| [D-022](0022-the-cast-replaces-the-scaffolder.md) | The cast replaces the scaffolder | Accepted, supersedes D-013 |
+| [D-021](0021-the-frontend-actor-drafts-the-design-direction.md) | The frontend actor drafts the design direction | SUPERSEDED by D-026 |
+| [D-022](0022-the-cast-replaces-the-scaffolder.md) | The cast replaces the scaffolder | SUPERSEDED by D-026 |
 | [D-023](0023-requirements-leaves-the-evidence-skills-doc-set.md) | Requirements leaves the evidence skill's doc set | Accepted, supersedes D-011b |
 | [D-024](0024-skill-authoring-follows-a-version-watermarked-vendor-digest.md) | Skill authoring follows a version-watermarked vendor digest, and references never nest | Accepted |
-| [D-025](0025-the-casts-prompts-are-fixed-templates-and-actor-models.md) | The cast's prompts are fixed templates, and actor models are set per dispatch | Accepted |
+| [D-025](0025-the-casts-prompts-are-fixed-templates-and-actor-models.md) | The cast's prompts are fixed templates, and actor models are set per dispatch | SUPERSEDED by D-026 |
+| [D-026](0026-mvp-and-project-specs-are-removed.md) | `mvp` and `project-specs` are removed | Accepted, supersedes D-014, D-015, D-017, D-018, D-019, D-021, D-022, D-025 |
 
 ## Conventions
 

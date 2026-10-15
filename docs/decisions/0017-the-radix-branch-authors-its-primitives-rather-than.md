@@ -1,6 +1,6 @@
 # D-017 — The Radix branch authors its primitives rather than shipping them
 
-**Status:** Accepted (2026-08-30).
+**Status:** **SUPERSEDED by D-026 (2026-10-14).** project-specs and its Radix branch are removed; no skill authors primitives. Accepted (2026-08-30).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 2: implied by the branch being offered at
 all ("let the user choose radix - manitine - or shacn/ui + tailwind") together with the standing
 rule that only versions may not be written by hand. Not asked about directly.
@@ -31,3 +31,6 @@ manually built").
 obvious fix and needs only a source the repo may publish. Until then the plan file must list every
 primitive by name, so the user approves the largest block of authored code in any branch before it
 is written, not after.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — superseded by D-026; project-specs and its Radix branch removed.

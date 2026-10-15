@@ -28,3 +28,6 @@ skill cannot be — so separating it makes it better, not merely smaller.
 **Consequence:** each component branch's theme seam is named in `references/frontend-react.md` and
 `frontend-vue.md` — `shared/theme/tokens.scss`, Mantine's CSS variables, `quasar.variables.scss`,
 or `tailwind.config`. Those are the addresses the second skill writes to.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — scaffolding/project-specs removed by D-026; the design-phase split and the theme seams in references/frontend-*.md no longer govern anything. Still in force: the permanent ban on depending on another plugin's files ("i dont want cross skill dependency").

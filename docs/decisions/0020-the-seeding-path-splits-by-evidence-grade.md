@@ -29,3 +29,6 @@ favor of dispatching a cast to guess at it.
 to be legible in both `description` fields or the wrong one fires on a given project. The two
 descriptions are the only thing keeping the split from becoming two silently competing paths to the
 same files.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — mvp removed by D-026. The has-code path stays with evidence-based-decisions as decided here; the no-code path has no owner, and the evidence skill now says no devflow skill writes a new project's specs yet.

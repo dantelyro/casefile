@@ -57,3 +57,6 @@ the seeding trigger proves to fire on `docs/discovery/` in practice, that row co
 **The wider lesson, which outlives this entry:** a rule that splits a *path* by evidence grade has
 to be re-run against every *document* on that path. D-020 got the split right and left one document
 standing on the wrong side of it, because splitting the path felt like finishing the job.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — mvp removed by D-026 with nothing migrated. The evidence skill still never seeds or reconciles docs/requirements.md; the format that moved to mvp is deleted, no skill owns the document, and the docs/discovery/ row is dropped from the doc set (its only producer was mvp).

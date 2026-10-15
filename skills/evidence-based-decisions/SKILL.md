@@ -68,12 +68,12 @@ for an answer — files nobody wanted are worse than no files.
 - **Code exists, docs do not.** This path, unchanged. Seed from what the repo shows — layout,
   stack, entry points. That is Grade 1 and 2 evidence, and it beats any actor's account of what
   the project probably is.
-- **No code, no docs.** Hand to `mvp`. There is nothing to read, so a cast of actors is the best
-  available source — and everything it produces is unsourced until a person confirms it, which is
-  why that skill tags every line it emits.
+- **No code, no docs.** There is nothing to read, so nothing here can be seeded with evidence. Say
+  that no devflow skill writes a new project's specs yet, and ask the developer what the project is
+  before creating anything.
 
-Seeding an empty directory from this skill would replace the better-evidenced path with the worse
-one, which is the mistake this entire skill exists to prevent.
+Seeding an empty directory from this skill would describe a project from nothing, which is the
+mistake this entire skill exists to prevent.
 
 **Run `/init` first.** Project instructions come before the rest of the set: they are the only
 document every session loads, so a log created without them is a log nothing points at. Then
@@ -82,8 +82,8 @@ shape that only makes sense once that is settled.
 
 **`docs/requirements.md` is never seeded here**, on either branch. Layout, stack and entry points
 are observable on disk; a `must` is not. Code shows what a system does, never what it is obliged to
-do, so reading a requirement off an implementation is Grade 4. `mvp` owns that document, with the
-tagging and quarantine discipline an unsourced requirement needs.
+do, so reading a requirement off an implementation is Grade 4. Requirements come from the people
+who decide them, never from this skill.
 
 Once accepted, seed from what the repo already shows — layout, stack, entry points — set the
 initial watermark to `HEAD`, and start the log as `docs/decisions/NNNN-slug.md`, one decision

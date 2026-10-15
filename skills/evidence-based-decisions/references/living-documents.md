@@ -9,7 +9,6 @@ true.
 |---|---|---|
 | Project instructions (`CLAUDE.md`, `AGENTS.md`) | How to run, build, test; the gotchas that cost real time | Always — it is loaded for you |
 | Purpose (`docs/purpose.md`) | What pain this solves, for whom, and what it deliberately is not | Before scoping anything, and whenever a request seems out of scope |
-| Discovery record (`docs/discovery/`) | Why a requirement exists and who wanted it | Before deleting or renegotiating a requirement, and when a cut decision resurfaces |
 | Architecture / mental model | What exists, where it lives, module boundaries, per-module state | Before designing or building anything |
 | Decision log | Why it is this way, and what was given up | Scan for entries your approach would contradict |
 | Roadmap / phase spec | What to build next, and in what order | Before picking up work |

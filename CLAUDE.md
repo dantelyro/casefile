@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `8aa1a0e` — 2026-10-08
+**Docs reconciled through:** `f6e4595` — 2026-10-14
 
 ## What this repo is
 
@@ -58,26 +58,12 @@ user message states. `hooks/session-start` injects that trigger — as a **point
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 See D-003 and D-004.
 
-**The four skills compose in one direction**, and the seam between each pair is a document rather
-than a call: `mvp` decides *what* to build and emits `docs/purpose.md` and `docs/requirements.md`;
-`project-specs` builds a repo *from* those; `repo-discovery` reads a project that already exists;
-`evidence-based-decisions` records *why* and keeps it honest. When editing, the thing to hold is
-that `mvp` and `project-specs` both sit at the greenfield end — only their `description` fields
-keep the right one firing, so narrowing one means checking the other still claims what it lost
-(D-022). None of the four writes a document into a project that has not agreed to it.
-
-**`/init` on an empty directory belongs to `mvp`, not to the builder.** `/init` documents what
-exists, so in an empty directory it has nothing to read. `mvp` claims that trigger in its
-`description`; `project-specs` runs `/init` in its phase 4, once there is a repo to describe. Each
-half is stated once, in the skill that owns it — do not restate either in
-`evidence-based-decisions` (D-008). See D-022, which supersedes D-013.
-
-**A build is planned on disk before any command runs.** `project-specs` writes `scaffold.plan.md`
-listing every command with its flags and stops for approval. The point is not ceremony: it is that
-a plan can be rejected before anything exists, and that a half-failed run resumes by reading a file.
-See D-014. Commands in `skills/project-specs/references/generators.md` carry a verification state,
-because a flag set written from memory is a hypothesis about a CLI — D-015. That is also why the
-cast in `mvp` never emits build commands of its own (D-022).
+**Two skills, each with its own moment.** `repo-discovery` reads a project that already exists;
+`evidence-based-decisions` records *why* and keeps it honest. Neither writes a document into a
+project that has not agreed to it. The two greenfield skills were removed in 0.12.0 (D-026); the
+agent workflows that replace them are designed in `docs/specs/2026-10-14-*` and land one release at
+a time. Until `write-specs` ships, no devflow skill writes a new project's specs or claims `/init`
+in an empty directory.
 
 ## Hook gotchas
 
@@ -113,7 +99,7 @@ the running version is newer:
 1. Read the changelog entries between the two versions, and re-fetch the pages the file cites.
 2. Update `docs/skill-authoring.md` with whatever changed, and move its watermark to the running
    version and today's date — even when nothing changed, so the same range is not checked twice.
-3. Check the four skills against what changed and tell the user, before starting the session's
+3. Check the skills against what changed and tell the user, before starting the session's
    task, about anything that could change how they trigger, load or read their references. Do not
    edit the skills without approval.
 

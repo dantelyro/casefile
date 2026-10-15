@@ -1,6 +1,6 @@
 # D-018 — Three actor classes, and a derived client count
 
-**Status:** Accepted (2026-08-31).
+**Status:** **SUPERSEDED by D-026 (2026-10-14).** mvp, whose cast this entry shapes, is removed. Accepted (2026-08-31).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session.
 
 **Implemented by:** `33de657` — 2026-08-31.
@@ -30,3 +30,6 @@ client count needs one every run. Getting the derivation wrong is invisible at p
 purpose that is actually two-sided but reads as one produces a plausible single-client roster, and
 the gap does not surface as an error, it surfaces as an MVP that serves one side of a two-sided
 product and ships anyway.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — superseded by D-026; mvp removed.

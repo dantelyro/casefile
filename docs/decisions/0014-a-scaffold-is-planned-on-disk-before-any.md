@@ -1,6 +1,6 @@
 # D-014 — A scaffold is planned on disk before any command runs
 
-**Status:** Accepted (2026-08-30).
+**Status:** **SUPERSEDED by D-026 (2026-10-14).** project-specs, the skill that wrote scaffold.plan.md, is removed; no devflow skill plans or runs a scaffold. Accepted (2026-08-30).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: chose it from three proposed skill
 shapes in session ("the skill will ask all questions first and then write the plan").
 
@@ -25,3 +25,6 @@ reading a file instead of reconstructing what already happened.
 
 **Consequence:** the plan is not deleted after execution. It stays in the repo as the record of what
 was generated and why.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — superseded by D-026; project-specs removed; the scaffold plan it wrote no longer exists.

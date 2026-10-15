@@ -42,3 +42,6 @@ right at the source, which is why every line cites its page and the check re-rea
 the file. At the time of this entry the repo still violates the no-nesting rule in about
 eighteen places — three in `skills/mvp/references/`, one in `living-documents.md`, and the rest
 among `project-specs`' references, which name each other by bare filename.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — D-026 removed mvp and project-specs; of the ~18 nesting violations counted here, only the one in living-documents.md remains.

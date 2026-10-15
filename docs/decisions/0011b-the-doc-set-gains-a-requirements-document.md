@@ -3,7 +3,9 @@
 **Status:** **SUPERSEDED by D-023 (2026-09-14).** `docs/requirements.md` is not something
 `evidence-based-decisions` can source from a repo, so it is no longer part of the set this skill
 proposes, seeds or reconciles. The document itself survives — `mvp` owns it, and the `F-NN`/`N-NN`
-format below moved to `skills/mvp/references/documents.md` intact. Accepted (2026-08-27).
+format below moved to `skills/mvp/references/documents.md` intact. Accepted (2026-08-27). Since
+D-026 (2026-10-14) `mvp` is removed with nothing migrated: no skill owns `docs/requirements.md`, and
+the format below survives only in this entry.
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: requested directly in session.
 **Implemented by:** `b2f8cd5` — 2026-08-27.
 
@@ -31,3 +33,4 @@ violated, only disappointed. "Fast" is not a requirement. This survives the supe
 - 2026-09-14 · dantelyro — superseded by **D-023**. The entry assumed a document could be seeded
   from the same evidence as the rest of the set. It cannot: layout and stack are on disk, a `must`
   is not.
+- 2026-10-14 · dantelyro — mvp removed by D-026; the Status line's claim that mvp owns the document and its format no longer holds.

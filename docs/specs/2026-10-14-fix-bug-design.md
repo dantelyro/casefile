@@ -93,6 +93,8 @@ library only, tested in the 0.13.0 suite):
 - **Bugs elsewhere are reported, not fixed:** in `NOTES`, with enough detail to file an issue.
 - **Never** edits the protected paths, `.claude/` or other worktrees; never merges or pushes
   (enforced by hooks, stated so the agent does not waste attempts).
+- **Dependencies are added with the package manager's command** (`npm install x`, `uv add x`), never by
+  typing a version into a manifest — the developer's rule, carried over from `project-specs` (D-026).
 - A fresh database or service for a check is a **throwaway** one (own container, own port), removed
   afterwards; never the developer's.
 - Report block: `STATUS`, `TASK`, `BRANCH`, `COMMIT`, `RULES`, `TESTS` (per app: files and counts,

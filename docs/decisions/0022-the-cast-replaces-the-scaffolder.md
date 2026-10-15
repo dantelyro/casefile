@@ -1,6 +1,6 @@
 # D-022 — The cast replaces the scaffolder
 
-**Status:** Accepted (2026-08-31). Supersedes D-013.
+**Status:** **SUPERSEDED by D-026 (2026-10-14).** Both skills this entry split scaffolding into, mvp and project-specs, are removed; no skill claims /init in an empty directory. Accepted (2026-08-31). Supersedes D-013.
 
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session.
 
@@ -32,3 +32,6 @@ legible in both `description` fields or the wrong one fires. A real residual is 
 `references/questions.md` still asks its question set as though building from nothing, while
 phase 1 of `project-specs` now reads `docs/requirements.md` first — auth and RBAC in particular
 could already be settled there and get asked again here.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — superseded by D-026; mvp and project-specs removed; /init in an empty directory belongs to no skill.

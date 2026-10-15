@@ -1,5 +1,7 @@
 # `mvp` and `project-specs` — design
 
+> **Historical.** The `mvp` and `project-specs` skills this document describes were removed in 0.12.0 (D-026). Kept as the record of what was built and why.
+
 **Date:** 2026-08-31.
 **Status:** Design approved in session; not yet implemented.
 **Scope:** two new skills, one skill removed. This is a plugin redesign, not an addition.

@@ -47,6 +47,8 @@ first means no later release has to keep their triggers apart from the new skill
 ## Accepted when
 
 - No file outside `docs/decisions/`, `docs/specs/` and `docs/plans/` mentions `mvp` or `project-specs`.
-- `claude plugin validate --strict` passes on the repository.
+- `claude plugin validate` passes on the repository. (`--strict` fails before and after this change on
+  one known warning — `CLAUDE.md` at the plugin root is not loaded as context — which is by design:
+  the root is the plugin, D-002, and `CLAUDE.md` is for maintainers.)
 - A fresh session in an empty directory with `/init` gets no devflow skill firing, and the evidence
   skill, triggered there, says no devflow skill writes specs yet instead of naming `mvp`.

@@ -5,7 +5,7 @@
 > 2026-10-08, when D-024's over-explaining rule moved maintainer-facing reasons out of the skills.
 > The wording is carried over; only its location changed.
 
-**Status:** Accepted (2026-08-31).
+**Status:** **SUPERSEDED by D-026 (2026-10-14).** mvp, whose cast prompts and actor models this records, is removed. Accepted (2026-08-31).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 2: blame on the implementing `feat`
 commits above.
 **Implemented by:** `ea6c78a`, `56b69f8`, `9c4d678`, `a1d6433` — 2026-08-31.
@@ -54,3 +54,6 @@ template per class with marked substitution points, and a model chosen per class
 **Trade-offs:** Fixed wording means a better prompt needs a deliberate edit to the template rather
 than improvising per run. Sonnet actors are cheaper and may miss what the session model would
 catch — accepted for roles whose input is two documents in front of them, refused for the dev team.
+
+**Changed by:**
+- 2026-10-14 · dantelyro — superseded by D-026; mvp removed.
