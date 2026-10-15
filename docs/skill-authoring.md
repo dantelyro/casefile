@@ -1,6 +1,6 @@
 # Skill authoring — what Anthropic documents
 
-**Verified against:** Claude Code `2.1.295` — 2026-10-08
+**Verified against:** Claude Code `2.1.300` — 2026-10-15
 
 Facts about how skills load and behave, taken from Anthropic's own pages. This file records what
 the vendor says; the rules devflow layers on top live in `CLAUDE.md`. Each fact cites its page so a
@@ -9,6 +9,9 @@ version bump can be checked against the source rather than against this summary.
 - **[CC]** Claude Code — Extend Claude with skills: https://code.claude.com/docs/en/skills
 - **[BP]** Platform — Skill authoring best practices: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
 - **[CL]** Claude Code changelog: https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md
+- **[HK]** Claude Code — Hooks reference: https://code.claude.com/docs/en/hooks
+- **[PL]** Claude Code — Plugin components and manifest reference: https://code.claude.com/docs/en/plugins/components, https://code.claude.com/docs/en/plugins-reference
+- **[CLI]** Claude Code — CLI reference: https://code.claude.com/docs/en/cli-reference
 
 ## Contents
 - Loading and the trigger surface
@@ -16,6 +19,7 @@ version bump can be checked against the source rather than against this summary.
 - Progressive disclosure and references
 - Body content and its lifetime
 - Plugin skills
+- Plugin hooks and agents
 - Dynamic context and forks
 - Testing
 - Where the sources disagree
@@ -33,6 +37,11 @@ version bump can be checked against the source rather than against this summary.
   with the key terms a user would say. [BP]
 - A skill that triggers too often needs a more specific description, or
   `disable-model-invocation: true`. [CC]
+- The listing budget can be raised (`skillListingBudgetFraction`, `SLASH_COMMAND_TOOL_CHAR_BUDGET`),
+  and low-priority skills set to `"name-only"` in `skillOverrides` to free it. `/skill-doctor`
+  (v2.1.252+) finds unused skills. [CC]
+- A skill whose file or folder name holds hidden, direction-changing or blank-like characters, `<` or
+  `>`, is not offered until renamed (v2.1.299). [CL]
 
 ## Frontmatter
 
@@ -93,6 +102,47 @@ version bump can be checked against the source rather than against this summary.
   declared in the repo's `.claude/settings.json`. [CC]
 - Subagents preload at most 32 skills from their `skills` field (v2.1.295). [CL]
 
+## Plugin hooks and agents
+
+Facts behind devflow's hooks and agents (0.13.0 spec). Quotes were taken through a summarising fetch
+on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a live session.
+
+- `hooks/hooks.json` at the plugin root is merged with whatever the manifest declares; plugin hooks
+  merge with user and project hooks. [PL][HK] Two enabled plugins with the same name: one's hooks are
+  left out, and `/plugin` notes it (v2.1.296). [CL]
+- **Plugin hooks also run inside subagents**, and tool events there carry `agent_id` and `agent_type`.
+  [HK]
+- `agent_type` is present "when the session uses `--agent` or the hook fires inside a subagent". For
+  a plugin's agent it is the plugin-scoped name, `my-plugin:reviewer`, not the bare frontmatter name.
+  `agent_id`'s presence in the main session is not documented. [HK]
+- PreToolUse `permissionDecision`: `allow`, `deny`, `ask`, `defer` (`defer` is ignored with a warning in
+  interactive sessions). Whether `ask` works for a subagent's call is not documented. [HK]
+- **Exec form** when `args` is set: `command` resolved on `PATH`, no shell. On Windows it must be a real
+  `.exe` — `.cmd`/`.bat` shims cannot be spawned. **Shell form** otherwise: `sh -c` on macOS/Linux, Git
+  Bash on Windows, PowerShell when Git Bash is missing; `shell` (`bash`/`powershell`) is ignored in exec
+  form. [HK]
+- **A failing hook lets the action through by default:** an exit code other than 0 or 2 is a
+  non-blocking error, and a timed-out hook does not block. `onFailure: "block"` (v2.1.295+) refuses
+  the action instead. [HK] 2.1.299 fixed Windows PreToolUse hooks with no `shell` failing open when Git
+  for Windows is missing, and made actions a plugin hook can block refused when the hook cannot be
+  handed them or cannot answer. [CL]
+- `if` takes exactly one permission rule, runs only on tool events, and is best-effort: when Claude
+  Code cannot tell which commands a Bash input runs, the hook runs regardless. The page says to use
+  the permission system, not a hook, for a hard allow or deny. [HK]
+- `updatedInput` from PreToolUse is validated like Claude's own input: unknown keys dropped, input the
+  tool rejects denies the call (v2.1.300). [CL]
+- `UserPromptSubmit` hooks run before a skill or slash command expands, so blocking the prompt also
+  stops the skill's embedded commands (v2.1.299). [CL]
+- **Plugin agents** live under `agents/`, loaded recursively; subfolders join the name
+  (`agents/review/security.md` → `my-plugin:review:security`). Supported frontmatter: `name`,
+  `description`, `model`, `effort`, `maxTurns`, `autoCompactWindow` (v2.1.296), `tools`,
+  `disallowedTools`, `skills`, `memory`, `background`, `omitClaudeMd`, `isolation` (only
+  `"worktree"`), `color`. **Ignored:** `permissionMode`, `hooks`, `mcpServers`, `initialPrompt` — an
+  agent's rules have to be plugin hooks. Malformed frontmatter loads the agent with every field
+  ignored. [PL] Which branch a plugin agent's worktree starts from is not documented.
+- `claude --plugin-dir <path>` loads a plugin for one session without installing it; the plugin is
+  named after the directory. [CLI][PL]
+
 ## Dynamic context and forks
 
 - `` !`command` `` and ```` ```! ```` blocks run before Claude sees the skill; **any failure aborts the
@@ -110,7 +160,9 @@ version bump can be checked against the source rather than against this summary.
 - Seeing a skill trigger proves it was found, not that it worked. Compare each realistic prompt in a
   fresh session with and without the skill. [CC]
 - For a plugin, `claude plugin eval` runs each prompt with and without the plugin and can gate CI;
-  a `tool_used: Skill` grader measures triggering across prompts. [CC]
+  a `tool_used: Skill` grader measures triggering across prompts. [CC] `--disallow-tools` and a
+  `disallowed_tools` case field keep built-in tools (such as Agent) out of a run; a run that ends on
+  an API error now scores 0 and fails the suite (v2.1.299). [CL]
 - Build at least three evaluations before writing extensive content, and test on every model the
   skill will run on — what suffices for Opus may be too thin for Haiku. [BP]
 
@@ -118,3 +170,5 @@ version bump can be checked against the source rather than against this summary.
 
 - **Description length:** [BP] caps `description` at **1,024** characters; [CC] truncates
   `description` + `when_to_use` at **1,536**. Staying under 1,024 satisfies both.
+- **Evaluations:** [BP] says there is no built-in way to run skill evaluations; [CC] documents
+  `claude plugin eval`. [CC] is the newer and more specific source.

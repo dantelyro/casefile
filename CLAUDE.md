@@ -15,7 +15,7 @@ this repo.
 
 ```bash
 # Register the working copy as a marketplace, to test changes before pushing
-/plugin marketplace add D:\projects\personal\devflow
+/plugin marketplace add C:\Users\beyon\projects\devflow
 
 # Install from GitHub (what users run)
 /plugin marketplace add dantelyro/devflow
