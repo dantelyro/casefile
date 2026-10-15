@@ -108,6 +108,7 @@ _DEFAULTS = {
     "default_branch": "main",
     "protected_paths": [],
     "apps": {},
+    "allow_skip_markers_in": [],
     "rule_id_pattern": r"[A-Z]+-\d{3}",
     "specs_dir": "docs/specs",
     "plans_dir": "docs/plans",
@@ -122,7 +123,7 @@ _DEFAULTS = {
 }
 
 _TYPES = {
-    "default_branch": str, "protected_paths": list, "apps": dict, "rule_id_pattern": str,
+    "default_branch": str, "protected_paths": list, "apps": dict, "allow_skip_markers_in": list, "rule_id_pattern": str,
     "specs_dir": str, "plans_dir": str, "design": dict,
     "design.tokens": str, "design.ui_paths": list, "design.components_dir": (str, type(None)),
     "design.classes": (str, type(None)), "design.raw_values_allowed": list,

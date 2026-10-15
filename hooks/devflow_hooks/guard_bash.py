@@ -20,9 +20,14 @@ _GIT_VALUE_OPTS = {"-c", "-C", "--git-dir", "--work-tree", "--namespace", "--con
 
 
 class Statement:
-    def __init__(self, words: list[str]):
+    def __init__(self, words: list[str], quoted: list[str]):
         self.name = re.sub(r"\.exe$", "", words[0].replace("\\", "/").rsplit("/", 1)[-1].lower())
         self.args = words[1:]
+        self._quoted = quoted
+
+    def value(self, word: str) -> str:
+        """A word with its quoted text put back (rules never see it; a path after -C needs it)."""
+        return re.sub(r"\x00(\d+)\x00", lambda m: self._quoted[int(m.group(1))], word)
 
     def git(self) -> tuple[str | None, list[str]]:
         """(subcommand, its arguments) when this is a git statement."""
@@ -41,14 +46,20 @@ class Statement:
 
 
 def statements(command: str) -> list[Statement]:
-    blanked = _QUOTED.sub(" Q ", command)
+    quoted: list[str] = []
+
+    def hide(m: re.Match) -> str:
+        quoted.append(m.group(0)[1:-1])
+        return f"\x00{len(quoted) - 1}\x00"
+
+    blanked = _QUOTED.sub(hide, command)
     found = []
     for part in _SPLIT.split(blanked):
         words = part.split()
         while words and (_ASSIGN.match(words[0]) or words[0].lower() in _PREFIXES):
             words = words[1:]
         if words:
-            found.append(Statement(words))
+            found.append(Statement(words, quoted))
     return found
 
 
