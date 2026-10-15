@@ -20,7 +20,7 @@ so.
 | [D-002](0002-the-repository-root-is-the-plugin.md) | The repository root is the plugin | Accepted |
 | [D-003](0003-a-sessionstart-hook-injects-the-trigger.md) | A SessionStart hook injects the trigger a description cannot match | Accepted |
 | [D-004](0004-the-hook-injects-a-pointer-not-the-skill-body.md) | The hook injects a pointer, not the skill body | Accepted |
-| [D-005](0005-hook-scripts-are-extensionless-behind-a-polyglot-wrapper.md) | Hook scripts are extensionless, behind a cmd/bash polyglot wrapper | Accepted |
+| [D-005](0005-hook-scripts-are-extensionless-behind-a-polyglot-wrapper.md) | Hook scripts are extensionless, behind a cmd/bash polyglot wrapper | SUPERSEDED by D-028 |
 | [D-006](0006-the-decision-log-is-one-decision-per-file.md) | The decision log is one decision per file, from entry one | Accepted |
 | [D-007](0007-decided-by-is-resolved-from-blame.md) | `Decided by` is resolved from blame, never from `git config` | Accepted |
 | [D-008](0008-each-rule-is-stated-once-in-the-place-it.md) | Each rule is stated once, in the place it applies | Accepted |
@@ -43,6 +43,10 @@ so.
 | [D-024](0024-skill-authoring-follows-a-version-watermarked-vendor-digest.md) | Skill authoring follows a version-watermarked vendor digest, and references never nest | Accepted |
 | [D-025](0025-the-casts-prompts-are-fixed-templates-and-actor-models.md) | The cast's prompts are fixed templates, and actor models are set per dispatch | SUPERSEDED by D-026 |
 | [D-026](0026-mvp-and-project-specs-are-removed.md) | `mvp` and `project-specs` are removed | Accepted, supersedes D-014, D-015, D-017, D-018, D-019, D-021, D-022, D-025 |
+| [D-027](0027-hooks-are-standard-library-python-310-tested-with-unittest.md) | Hooks are standard-library Python ≥ 3.10, tested with unittest | Accepted |
+| [D-028](0028-enforcement-hooks-fail-closed-and-are-plugin-wide.md) | Enforcement hooks fail closed and are plugin-wide | Accepted, supersedes D-005 |
+| [D-029](0029-git-push-asks-the-developer-and-is-denied.md) | `git push` asks the developer and is denied to every agent | Accepted |
+| [D-030](0030-workflows-ship-as-plugin-agents-plus-skills-one.md) | Workflows ship as plugin agents plus skills, one spec and one release each | Accepted |
 
 ## Conventions
 

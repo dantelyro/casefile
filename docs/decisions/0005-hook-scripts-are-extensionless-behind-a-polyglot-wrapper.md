@@ -5,7 +5,7 @@
 > naming rule. The failure that prompted it is **not** recorded anywhere in the repo, so
 > "otherwise the hook does not run on Windows" is inference from the workaround's shape.
 
-**Status:** Accepted (2026-08-19).
+**Status:** **SUPERSEDED by D-028 (2026-10-15)** — hooks now run under `sh` with Git for Windows required; a guard must fail closed, not exit silently.
 **Decided by:** dantelyro <beyondmind9@gmail.com> — resolved by blaming `2a2476b`, the `feat`
 commit that added `hooks/run-hook.cmd`.
 **Implemented by:** `2a2476b` — 2026-08-19.
@@ -29,3 +29,6 @@ first line breaks both interpreters — so it carries more comment than code. Si
 genuinely broken hook looks exactly like a machine without bash: the plugin degrades quietly to
 no context injection rather than failing loudly. That was the right trade for optional context
 and would be the wrong one for anything load-bearing.
+
+**Changed by:**
+- 2026-10-15 · dantelyro — superseded by D-028; the polyglot served a cmd.exe devflow no longer runs under, and silent exit cannot guard anything.
