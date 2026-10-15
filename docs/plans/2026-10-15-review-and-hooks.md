@@ -65,7 +65,7 @@ This release depends on hook behaviour, so it goes first.
 - [ ] `claude --version`; read the changelog entries from 2.1.296 to the running version (2.1.297 and
       2.1.298 were missing from the copy read on 2026-10-14; fetch them).
 - [ ] Re-fetch the hooks and plugins pages the file cites. Record anything about plugin hooks,
-      `agent_type`, `permissionDecision: "ask"`, exec-form commands, failing hooks (2.1.299).
+      `agent_type`, `permissionDecision: "ask"`, exec-form commands, failing hooks (`onFailure`).
 - [ ] Update the file and move its watermark, even if nothing changed.
 - [ ] Tell the developer anything that changes this plan before starting task 1.
 - [ ] Also fix the stale path in `CLAUDE.md` (`D:\projects\personal\devflow` →
@@ -80,18 +80,18 @@ Everything marked `[VERIFY]` in the spec is answered by watching a real session,
       one SessionStart hook and one agent (`probe/agents/prober.md`). The hook appends the raw event
       JSON and its environment (`CLAUDE_PLUGIN_ROOT`, `PATH`) to a log file outside the repo, and
       returns `ask` for any command containing `probe-ask`.
-- [ ] Load it in a fresh session (`claude --plugin-dir probe` `[VERIFY]` the flag; else a local
-      marketplace). The developer runs these, and Claude records what happens:
+- [ ] Load it in a fresh session with `claude --plugin-dir probe` (documented in the CLI reference). The developer runs these, and Claude records what happens:
 
   | # | Question | How |
   |---|---|---|
-  | 1 | Which launch form works on Windows: `run-hook.cmd` through cmd, exec form (`command` + `args`, no shell), or both? | Register both, see which logs |
+  | 1 | Does `run-hook.cmd` in shell form run under Git Bash, and under PowerShell with Git Bash hidden from `PATH`? (Exec form cannot spawn a `.cmd` on Windows, per the docs.) | Log the shell and `sys.argv` |
   | 2 | Which Python command is found (`py -3`, `python3`, `python`) and its version | The hook logs `sys.executable` |
   | 3 | Does `CLAUDE_PLUGIN_ROOT` reach the hook? | Logged env |
   | 4 | What is `agent_type` in the main session? In `probe:prober`? In a built-in agent (`Explore`)? | Run one command from each |
   | 5 | Does `ask` reach the developer in the main session? What happens in a subagent? | `echo probe-ask` from each |
   | 6 | What `tool_name` and `tool_input` do Bash and PowerShell send? Edit and Write? | Logged events |
   | 7 | Does the SessionStart hook fire on `startup`, `clear` and `compact`? | Logged events |
+  | 8 | With `onFailure: "block"`, is the call refused when the hook crashes (exit 1) and when it times out? Without it, does the call go through? | A command containing `probe-crash` / `probe-sleep` |
 
 - [ ] Save one event per case as `tests/fixtures/<case>.json` (strip anything personal: paths become
       `<root>`). Write the answers into the spec's `[VERIFY]` spots, and resolve its open question 1.
@@ -201,7 +201,8 @@ Port of Inverso's `pre_commit.py`.
 
 - [ ] `hooks/hooks.json`: SessionStart (`startup|clear|compact`) → `session-start`; PreToolUse
       `Bash|PowerShell` → `guard_bash`, `pre_commit` (timeout 900, status message); PreToolUse
-      `Edit|Write|NotebookEdit` → `guard_paths`, `design_check`. No `if`.
+      `Edit|Write|NotebookEdit` → `guard_paths`, `design_check`. No `if`. Every guard and `pre_commit`
+      registered with `onFailure: "block"`; `session-start` without it, since it never blocks.
 - [ ] Test: every registered name has a module, and every module is registered.
 - [ ] `claude plugin validate` passes.
 - [ ] Smoke test in a live session with the working copy loaded: a push asks, `down -v` is denied.

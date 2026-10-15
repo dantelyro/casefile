@@ -102,12 +102,15 @@ devflow requires **Python ≥ 3.10** (a floor, not an exact version: 3.11–3.14
 
 ### Launch
 
-`[VERIFY]` Claude Code can spawn a hook with no shell (`command` resolved on `PATH`, `args` passed
-directly). Which Python command exists differs per machine: `py` (Windows launcher), `python3`
-(macOS/Linux), `python`. The docs say nothing about this.
+What the hooks page documents (`docs/skill-authoring.md`, *Plugin hooks and agents*, checked against
+2.1.300): with `args` set a hook runs in **exec form**, no shell, but on Windows only a real `.exe` can
+be spawned that way — not a `.cmd`. Without `args` it runs in **shell form**: Git Bash on Windows, or
+PowerShell when Git Bash is missing. Which Python command exists differs per machine: `py` (Windows
+launcher), `python3` (macOS/Linux), `python`; the docs say nothing about that.
 
 Design: every hook entry runs one launcher, `hooks/run.py`, through the interpreter found by a
-small polyglot wrapper (the D-005 technique kept, retargeted from bash to Python):
+small polyglot wrapper in shell form (the D-005 technique kept, retargeted from bash to Python). The
+polyglot is what lets one file work under both of Windows' shell-form shells:
 
 1. The wrapper tries `py -3`, then `python3`, then `python`, and requires ≥ 3.10.
 2. It runs `hooks/run.py <hook-name>`, which imports the hook module and calls it.
@@ -115,11 +118,18 @@ small polyglot wrapper (the D-005 technique kept, retargeted from bash to Python
    (exit 2). For the session-start hook, emit the *detect → ask* context above instead of its normal
    pointer. D-005's silent exit 0 is gone from both: it was right for optional context and wrong for
    anything load-bearing, and a missing requirement is now something the developer is told about.
-   Claude Code 2.1.299 also changed failing guard hooks to block.
+4. **A hook that fails still blocks.** By default Claude Code lets the action through when a hook
+   exits with a code other than 0 or 2, or times out. Every guard is registered with
+   `onFailure: "block"` (documented from 2.1.295), so a crash or a timeout refuses the call instead.
+   (2.1.299 fixed only a narrower case: Windows hooks with no `shell` set failing open when Git for
+   Windows is missing. An earlier draft of this spec overstated it as "failing guards block".)
 
 **Probe before building (task 1):** on Windows (Git Bash present, and absent), macOS and Linux,
 confirm which form Claude Code actually spawns, that `CLAUDE_PLUGIN_ROOT` reaches the hook, what
-`agent_type` holds in the main session and in a plugin agent, and that `ask` reaches the user.
+`agent_type` holds in the main session and in a plugin agent (documented: absent unless the session
+uses `--agent` or runs in a subagent; `<plugin>:<name>` for a plugin agent), that `ask` reaches the
+user (undocumented for subagents), and that `onFailure: "block"` refuses the call on a crash and on a
+timeout.
 Record the results as fixtures; the hook tests replay them.
 
 ### Layout
@@ -325,7 +335,9 @@ This ends the "no test suite" property stated in `CLAUDE.md`; that line changes 
 
 ## Open questions
 
-1. **`ask` in the main session only.** If the probe shows `agent_type` is present in the main session
-   in some modes, the push rule needs another signal. Answer comes from the probe.
+1. **`ask` in the main session only.** The hooks page says `agent_type` is present in the main session
+   when it was started with `--agent`. Such a session is treated as that agent: a push started there
+   is denied, not asked. The probe confirms; if that proves too strict, the push rule needs another
+   signal (`agent_id` is documented only for subagents).
 2. **Hooks in other projects.** Every devflow project gets the guard rules, including `.claude/`
    being read-only to agents. Confirmed as intended (2026-10-14), recorded here so D-028 cites it.
