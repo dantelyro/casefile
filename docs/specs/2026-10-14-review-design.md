@@ -17,6 +17,7 @@ devflow gains its first agent and its first enforcement:
 | `review` skill | Runs the reviewer on a branch, commit range or PR, and reports the verdict. |
 | Python hook runtime | One launcher, one shared library, a `unittest` suite. Replaces the bash-only path for every hook. |
 | Guard hooks | Plugin-wide rules that hold in every session where devflow is enabled. |
+| Design check | UI code may use only what the project's design system defines. On in a project once it has a design system. |
 | `.claude/devflow.json` | Per-project settings the hooks and agents read. |
 
 This spec carries the foundation because the reviewer is the smallest workflow that needs all of
@@ -30,13 +31,18 @@ next change to the skill — before devflow decides what it keeps.
 
 | Release | Accepted when, on Inverso |
 |---|---|
-| 0.13.0 `review` | it reviews the next Inverso task and its verdict matches the project reviewer's on the same commit; every guard rule has fired at least once in a real session |
+| 0.13.0 `review` | it reviews the next Inverso task and its verdict matches the project reviewer's on the same commit; every guard rule and the design check have fired at least once in a real session; each devflow hook blocks what the Inverso hook it replaces blocked |
 | 0.14.0 `fix-bug` | an Inverso bug goes from `docs/issues/` to merged through it |
 | 0.15.0 `implement` | an Inverso milestone (M2) is built with it instead of the project's own `build-milestone` |
 | 0.16.0 `write-specs` | a real brainstorm for an Inverso feature becomes specs that `implement` builds |
 
-Inverso's own `.claude/` agents, skill and hooks stay in place until the release that replaces them
-has passed; then they are removed from Inverso in one commit. While both run, Inverso's
+Inverso's own `.claude/` agents and skill stay in place until the release that replaces them has
+passed; then they are removed from Inverso in one commit. Its hooks are replaced **one at a time**:
+Inverso turns one of its hooks off, devflow's equivalent must block the same things, and only then is
+the Inverso hook deleted. Every Inverso hook has a devflow equivalent in this release (`block_push.py`
+and `guard_bash.py` → `guard_bash.py`; `guard_paths.py`; `pre_commit.py`; `design_lint.py` and
+`design_rules.py` → `design_check.py`), except its "no AI search in the MVP" rule, an Inverso product
+rule that stays in Inverso. While both run, Inverso's
 `.claude/devflow.json` lists no `apps`, so its test suites are not run twice on every commit (Inverso's
 own pre-commit hook still runs them).
 
@@ -128,7 +134,8 @@ hooks/
     session_start.py    port of hooks/session-start; same output, now tested
     guard_bash.py       command rules
     guard_paths.py      file-write rules
-    pre_commit.py       skipped-test check + configured test suites
+    pre_commit.py       skipped-test check, design check on added lines, configured test suites
+    design_check.py     design-system rules for UI code
 tests/
   test_hooks.py         unittest; feeds each hook a JSON event, checks the decision
   fixtures/             events captured in the probe
@@ -188,28 +195,63 @@ On `git commit`, in every session:
 
 1. No skipped or focused tests in the added lines (`.skip`, `.only`, `xit`, `@pytest.mark.skip`,
    `xfail`, `@unittest.skip`, …).
-2. For each configured app folder the commit touches, its test command passes.
+2. The design check, on the added lines of every UI file — so a file written outside Claude Code's
+   tools is caught too.
+3. For each configured app folder the commit touches, its test command passes.
 
-No `apps` in the config → only check 1 runs. Projects opt into the slow part.
+No `apps` in the config → check 3 does not run. Projects opt into the slow part.
+
+## Design check
+
+From Inverso's `design_lint.py` and `design_rules.py` (UI-009). **Adding a token to the design system
+is the only way to make a new value usable in code.**
+
+- **When:** on every Edit or Write of a UI file, in every session including the main one, and again in
+  the pre-commit gate. Off when the project has no `tokens.json` at the configured path.
+- **Vocabulary:** read from the design system's `tokens.json` — the format of a claude.ai Design System
+  artifact, which `write-specs` copies to `docs/product/design-system/` — and its `components/` folder.
+  Colours, spacing, radii, shadows, type styles and font families come from there; nothing is
+  hard-coded per project.
+- **Blocks:** raw colours (hex, `rgb()`/`hsl()`/`oklch()`…, named colours), raw lengths (except `1px`),
+  raw `font-family`; arbitrary Tailwind values (`p-[13px]`); colour, spacing, radius, shadow, text-size,
+  weight and family classes not in the vocabulary; imports from forbidden libraries; a file in the
+  components folder whose name is not a design-system component.
+- **The reason names the fix:** the token or class to use instead, and "if the design system lacks it,
+  report it so the design system is extended first" (agents: `STATUS: blocked`).
+- **Class rules are Tailwind's** (Inverso's stack). `classes: "tailwind"` turns them on; without it only
+  the raw-value, import and component rules run. Other class systems are added when a project needs
+  one.
+- **Product rules stay in the project.** Inverso's "no AI search in the MVP" is an Inverso rule, not a
+  design rule, and is not shipped.
 
 ## `.claude/devflow.json`
 
 ```json
 {
   "default_branch": "main",
-  "protected_paths": ["docs/specs/", "docs/plans/", "docs/issues/", "docs/design/"],
+  "protected_paths": ["docs/specs/", "docs/plans/", "docs/issues/", "docs/product/"],
   "apps": {
     "web":    { "test": "npm test",          "install": "npm ci" },
     "worker": { "test": "uv run pytest -q",  "install": "uv sync" }
   },
   "rule_id_pattern": "[A-Z]+-\\d{3}",
   "specs_dir": "docs/specs",
+  "design": {
+    "tokens": "docs/product/design-system/tokens.json",
+    "ui_paths": ["web/"],
+    "components_dir": "web/components/ui/",
+    "classes": "tailwind",
+    "raw_values_allowed": ["web/styles/tokens.css"],
+    "forbidden_imports": ["react-icons", "@heroicons/*"]
+  },
   "plans_dir": "docs/plans"
 }
 ```
 
 - Lives under `.claude/`, so the "agents never edit `.claude/`" rule protects it.
-- Every key optional; missing file = defaults (`main`, no protected paths, no apps).
+- Every key optional; missing file = defaults (`main`, no protected paths, no apps; the design check
+  on only if `docs/product/design-system/tokens.json` exists, with no `ui_paths` or `components_dir`
+  set, so it does nothing until they are).
 - devflow never creates it unasked: `review` proposes it on first use and waits (the plugin rule:
   nothing written into a project that has not agreed to it).
 
@@ -228,8 +270,9 @@ No `apps` in the config → only check 1 runs. Projects opt into the slow part.
 - **Output:** the fixed `VERDICT` block.
 - `model: opus`, `isolation: worktree`, `tools: Read, Grep, Glob, Bash`.
 
-Project-specific checks (Inverso's design-system and privacy rows) do not ship. A project adds them
-in its own instructions; the reviewer reads `CLAUDE.md` like any session.
+The design system is enforced by the design check, not the reviewer. Project-specific review checks
+(Inverso's privacy row) do not ship; a project adds them in its own instructions, and the reviewer
+reads `CLAUDE.md` like any session.
 
 ## The `review` skill
 
@@ -248,7 +291,9 @@ an isolated agent that re-runs the tests — or the two compete. Covered by an e
 ## Testing and CI
 
 - `python -m unittest discover -s tests` — every hook: one test that it blocks, one that it allows,
-  for the main session and for agents; fixtures from the probe.
+  for the main session and for agents; fixtures from the probe. The design check runs against a
+  small `tokens.json` fixture in the claude.ai Design System format, and against Inverso's blocked and
+  allowed examples.
 - `claude plugin validate --strict` — manifests, agent and skill frontmatter.
 - `claude plugin eval` — trigger cases for `review` vs the built-in `code-review`. Billed, so run on
   demand, not on every push.
@@ -262,7 +307,7 @@ This ends the "no test suite" property stated in `CLAUDE.md`; that line changes 
 - **D-027** — Hooks are Python ≥ 3.10, standard library only (enforced by a test), with a
   `unittest` suite; Python is detected at session start and installed only after the developer
   agrees. *Amends the "no test suite" property.*
-- **D-028** — Enforcement hooks fail closed and are plugin-wide. *Supersedes D-005* for anything
+- **D-028** — Enforcement hooks fail closed and are plugin-wide, the design check included. *Supersedes D-005* for anything
   load-bearing; the polyglot wrapper survives, retargeted to Python.
 - **D-029** — `git push` asks the developer and is denied to every agent.
 - **D-030** — Workflows ship as plugin agents plus skills, one spec and one release each.

@@ -33,7 +33,7 @@ writes specs: it starts from rules that already exist.
 guess; `[MANUAL]` is checked in review, not by a test. Every test is named after its rule ID, which is
 what lets the reviewer check rule by rule and the finish report list each rule with or without a
 passing test. The default layout is Inverso's, written by `write-specs`: `docs/specs/NN-area.md` and
-milestones in the "Build order" section of `docs/blueprint.html`. `specs_dir` in
+milestones in the "Build order" section of `docs/product/blueprint.html`. `specs_dir` in
 `.claude/devflow.json` can point elsewhere; the heading format is the only hard requirement. The scope
 is always a milestone in the build order — a feature gets its own milestone there.
 
