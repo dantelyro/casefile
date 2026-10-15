@@ -10,6 +10,8 @@ import re
 
 from devflow_hooks import lib
 
+ISSUES = "docs/issues/"  # always protected from devflow agents (0.14.0 spec, Issues)
+
 
 def _in_a_claude_folder(path: str, rel: str | None) -> bool:
     if rel is not None:
@@ -47,6 +49,11 @@ def main(event: dict) -> None:
         if not (rel.startswith(plans) and rel.endswith(".md") and "/" not in rel[len(plans):]):
             lib.deny(f"the planner only writes its plan file, `{plans}<scope>.md`, not `{rel}`.")
         lib.allow()
+
+    if rel.startswith(ISSUES):
+        lib.deny(f"devflow agents do not write issues (`{rel}`). Report the bug in your NOTES, with what "
+                 "happens, what should happen and how to see it; the main session files it after the "
+                 "developer agrees.")
 
     for protected in cfg["protected_paths"]:
         prefix = protected.strip("/") + "/"

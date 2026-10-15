@@ -138,9 +138,15 @@ class OtherAgents(Base):
 class NoConfig(Base):
     config = None
 
-    def test_defaults_protect_nothing_but_claude(self):
+    def test_defaults_protect_claude_and_issues(self):
         self.expect(["devflow:implementer"], ("docs/specs/x.md",), "allow")
-        self.expect(["devflow:implementer"], (".claude/x.json",), "deny")
+        self.expect(["devflow:implementer"], (".claude/x.json", "docs/issues/0001-x.md"), "deny")
+
+    def test_issues_are_the_main_sessions_to_write(self):
+        self.expect([MAIN], ("docs/issues/0001-x.md",), "allow")
+        self.expect(OTHER_AGENTS, ("docs/issues/0001-x.md",), "allow")  # only devflow's rules for devflow agents
+        _, reason = self.decide("devflow:implementer", "docs/issues/0001-x.md")
+        self.assertIn("NOTES", reason)
 
 
 class BrokenConfig(Base):
