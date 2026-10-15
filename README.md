@@ -62,13 +62,15 @@ Hooks, on in every project where devflow is enabled, failing closed (D-028). The
 Per-project settings the guards and agents read; every key optional, and devflow never writes it
 unasked. Each app names its own test command (whatever the project uses: `npm test`, `npx vitest
 run`, `uv run pytest -q`…) and runs in its folder — `path`, defaulting to the app's name; `"."` is
-the whole repository. The skipped-test check knows Node and Python test files only.
+the whole repository. The skipped-test check knows Node and Python test files only. `install` sets up a fresh worktree; `cleanup` runs in a
+worktree before it is removed at merge; `image` rebuilds the app's container when a merge touched it.
 
 ```json
 {
   "default_branch": "main",
   "protected_paths": ["docs/specs/", "docs/plans/", "docs/issues/", "docs/product/"],
-  "apps": { "web": { "test": "npm test", "install": "npm ci" } },
+  "apps": { "web": { "test": "npm test", "install": "npm ci",
+                     "cleanup": "npm run test:db:drop", "image": "docker compose build web" } },
   "design": { "tokens": "docs/product/design-system/tokens.json", "ui_paths": ["web/"],
               "components_dir": "web/components/ui/", "classes": "tailwind" }
 }

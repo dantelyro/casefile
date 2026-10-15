@@ -38,7 +38,7 @@ A bug inside a task's own unmerged branch is not an issue: it is a review findin
 ```
 # I-0007 — Web image fails to build with nested test files
 
-- Status: open | in-progress | fixed (<merge commit>) | wontfix: <reason>
+- Status: open | in-progress | fixed (<implementer commit>) | wontfix: <reason>
 - Found: 2026-10-14, during docs/plans/M1.md T11      (or: reported by the developer)
 - Blocks: docs/plans/M1.md T13                         (or: none)
 - Related to: docs/plans/M1.md T8                      (the work it was found in, or: none)
@@ -52,8 +52,10 @@ A bug inside a task's own unmerged branch is not an issue: it is a review findin
 
 - `Blocks` is what makes case 2 enforceable: `implement`'s `plan_status.py` reads it and keeps the
   blocked task out of every batch until the issue is `fixed`.
-- `Status` changes to `fixed (<merge commit>)` only inside that merge commit, after the tests pass on
-  the default branch — never on a branch that was not merged.
+- `Status` changes to `fixed (<implementer commit>)` only inside the merge commit, after the tests
+  pass on the default branch — never on a branch that was not merged. (Planned as the merge commit's
+  own id, which a commit cannot contain; the implementer's commit is on the default branch once
+  merged, as Inverso's plans record it.)
 
 ### `issues_status.py`
 
@@ -83,7 +85,7 @@ library only, tested in the 0.13.0 suite):
    fixes blocker and major findings in a **new** commit. At most 2 rounds, then stop and show the
    developer.
 5. **Merge** (`shared/merge.md`) after the developer says yes; the issue's status becomes
-   `fixed (<merge commit>)` in the merge commit.
+   `fixed (<implementer commit>)` in the merge commit.
 
 ## The implementer agent
 
