@@ -199,12 +199,17 @@ class Apps(Base):
         reason = self.expect("deny", path=self.path_with("npm", 0) + os.pathsep + stub_dir("uv", 1))
         self.assertIn("worker", reason)
 
+
+
+class MissingTool(Base):
+    # A tool name that exists nowhere. Trimming PATH to hide npm does not work everywhere: on
+    # macOS runners git and npm share a folder.
+    config = {"apps": {"web": {"test": "devflow-no-such-tool run"}}}
+
     def test_missing_tool_says_so_instead_of_failing_tests(self):
         self.write("web/package.json", "{}")
-        git_dir = os.path.dirname(shutil.which("git"))
-        system = [os.path.join(os.environ.get("SystemRoot", ""), "System32")] if os.name == "nt" else []
-        reason = self.expect("deny", path=os.pathsep.join([git_dir, *system]))
-        self.assertIn("npm", reason)
+        reason = self.expect("deny")
+        self.assertIn("devflow-no-such-tool", reason)
         self.assertIn("did not run", reason)
 
 
