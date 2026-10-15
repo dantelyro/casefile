@@ -57,12 +57,15 @@ A bug inside a task's own unmerged branch is not an issue: it is a review findin
 
 ### `issues_status.py`
 
-Whether an issue was really fixed is checked, not read off its status line. The script (standard
+Whether an issue was really fixed is checked, not read off its status line. `skills/fix-bug/scripts/issues_status.py` (standard
 library only, tested in the 0.13.0 suite):
 
 - lists every `open` and `in-progress` issue, and the task each one blocks;
 - for every `fixed (<commit>)` issue, checks that the commit exists on the default branch and that
-  the test named under "Test that must fail first" exists and passed in the last run;
+  the test named under "Test that must fail first" exists on it. (Planned as "and passed in the last
+  run"; devflow keeps no record of test runs, so passing is shown where it happens — the merge
+  procedure runs the suite before every merge commit.)
+- gives the next free issue id (`--next-id`) and the open issues blocking a task (`--blocks`);
 - reports a `fixed` issue that fails either check as an error, and exits non-zero.
 
 `fix-bug` runs it after each merge, and `implement` runs it before picking each batch.
