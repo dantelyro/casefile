@@ -110,7 +110,11 @@ launcher), `python3` (macOS/Linux), `python`; the docs say nothing about that.
 
 Design: every hook entry runs one launcher, `hooks/run.py`, through the interpreter found by a
 small polyglot wrapper in shell form (the D-005 technique kept, retargeted from bash to Python). The
-polyglot is what lets one file work under both of Windows' shell-form shells:
+entries set no `shell`, so they run under `sh` on macOS/Linux and Git Bash on Windows. **On Windows,
+devflow requires Git for Windows** (which brings Git Bash): the probe showed a bash-style hook command
+fails under PowerShell, and PowerShell's form (`& "<path>" <args>`) is a syntax error in bash, so no
+single command string serves both. Session start checks for Git Bash the way it checks for Python
+(detect → ask → install visibly, `winget install Git.Git`); until it is there, the guards fail closed.
 
 1. The wrapper tries `py -3`, then `python3`, then `python`, and requires ≥ 3.10.
 2. It runs `hooks/run.py <hook-name>`, which imports the hook module and calls it.
@@ -124,13 +128,26 @@ polyglot is what lets one file work under both of Windows' shell-form shells:
    (2.1.299 fixed only a narrower case: Windows hooks with no `shell` set failing open when Git for
    Windows is missing. An earlier draft of this spec overstated it as "failing guards block".)
 
-**Probe before building (task 1):** on Windows (Git Bash present, and absent), macOS and Linux,
-confirm which form Claude Code actually spawns, that `CLAUDE_PLUGIN_ROOT` reaches the hook, what
-`agent_type` holds in the main session and in a plugin agent (documented: absent unless the session
-uses `--agent` or runs in a subagent; `<plugin>:<name>` for a plugin agent), that `ask` reaches the
-user (undocumented for subagents), and that `onFailure: "block"` refuses the call on a crash and on a
-timeout.
-Record the results as fixtures; the hook tests replay them.
+**Probe results (task 1, 2026-10-15, Windows 11, Claude Code 2.1.300, Git Bash present).** Events
+are in `tests/fixtures/`; the hook tests replay them.
+
+| Question | Observed |
+|---|---|
+| Do plugin hooks fire in the main session, a plugin agent and a built-in agent? | Yes, all three; on Bash, PowerShell and Write |
+| `agent_type` | absent in the main session; `probe:prober` for a plugin agent (so `devflow:reviewer`); `Explore` for a built-in agent. `agent_id` present only in agents |
+| Shell and Python | shell form ran under Git Bash (`MSYSTEM=MINGW64`); `py -3` found Python 3.14. `python3` on this machine is the Microsoft Store stub, so the wrapper tries `py` first |
+| `CLAUDE_PLUGIN_ROOT` | reaches the hook; also substituted inside exec-form `args` |
+| Exec form (`command: "py"`, `args`) | works on Windows; not used, because `py` does not exist on macOS/Linux |
+| A bash-style command under `shell: "powershell"` | fails (parse error); with `& ` in front it works |
+| `onFailure: "block"`, hook exits 1 / times out | call refused, with the reason shown |
+| No `onFailure`, hook exits 1 / times out | **call goes through** |
+| `deny` | refused, in the main session and in agents; the agent saw the reason and did not retry |
+| `ask` in the main session | the developer is asked, also in auto mode |
+| `ask` from a plugin agent | the developer is asked |
+| `ask` in a headless run (`claude -p`) | refused: nobody to ask, so it fails safe |
+| SessionStart on `startup`, `clear` | fires; `compact` not observed (the session may have been too short to compact) |
+
+Not probed: macOS, Linux, and Windows without Git Bash (handled by the requirement above).
 
 ### Layout
 
@@ -168,7 +185,7 @@ plugin's `hooks/hooks.json` and branches on `agent_type`**:
 
 | `agent_type` | Treated as |
 |---|---|
-| absent `[VERIFY in probe]` | main session — the developer's own session |
+| absent | main session — the developer's own session (probe, task 1) |
 | `devflow:reviewer`, `devflow:implementer`, `devflow:planner` | that devflow agent |
 | anything else | an agent devflow does not own: only the rules marked *everyone* apply |
 
@@ -335,9 +352,9 @@ This ends the "no test suite" property stated in `CLAUDE.md`; that line changes 
 
 ## Open questions
 
-1. **`ask` in the main session only.** The hooks page says `agent_type` is present in the main session
-   when it was started with `--agent`. Such a session is treated as that agent: a push started there
-   is denied, not asked. The probe confirms; if that proves too strict, the push rule needs another
-   signal (`agent_id` is documented only for subagents).
+1. **`ask` in the main session only.** Resolved by the probe: `agent_type` is absent in the main
+   session and set in every agent, and `ask` reaches the developer from both. A session started with
+   `--agent` carries `agent_type` (documented, not probed) and is treated as that agent: a push there
+   is denied, not asked.
 2. **Hooks in other projects.** Every devflow project gets the guard rules, including `.claude/`
    being read-only to agents. Confirmed as intended (2026-10-14), recorded here so D-028 cites it.
