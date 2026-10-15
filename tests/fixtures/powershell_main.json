@@ -1,0 +1,17 @@
+{
+  "session_id": "af7b4952-5280-4363-95f3-3863725296aa",
+  "transcript_path": "<home>\\.claude\\projects\\<home-slug>-AppData-Local-Temp-devflow-probe-sandbox\\af7b4952-5280-4363-95f3-3863725296aa.jsonl",
+  "cwd": "<home>\\AppData\\Local\\Temp\\devflow-probe\\sandbox",
+  "prompt_id": "a0beecde-0bd1-4ca3-9376-3b9104ce53cf",
+  "permission_mode": "default",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PreToolUse",
+  "tool_name": "PowerShell",
+  "tool_input": {
+    "command": "Write-Output probe-deny",
+    "description": "Print probe-deny to output"
+  },
+  "tool_use_id": "toolu_01CCwWLVyV5tjSUpQ2pstHaT"
+}
