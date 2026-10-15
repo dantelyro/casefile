@@ -60,7 +60,9 @@ Hooks, on in every project where devflow is enabled, failing closed (D-028). The
 #### `.claude/devflow.json`
 
 Per-project settings the guards and agents read; every key optional, and devflow never writes it
-unasked:
+unasked. Each app names its own test command (whatever the project uses: `npm test`, `npx vitest
+run`, `uv run pytest -q`…) and runs in its folder — `path`, defaulting to the app's name; `"."` is
+the whole repository. The skipped-test check knows Node and Python test files only.
 
 ```json
 {

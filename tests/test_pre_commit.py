@@ -216,6 +216,29 @@ class AppPathFromConfig(Base):
         self.expect("deny", path=stub_dir("npm", 1) + os.pathsep + os.environ["PATH"])
 
 
+class WholeRepositoryApp(Base):
+    config = {"apps": {"app": {"path": ".", "test": "npm test"}}}
+
+    def test_any_file_runs_it(self):
+        self.write("src/index.ts", "x")
+        reason = self.expect("deny", path=stub_dir("npm", 1) + os.pathsep + os.environ["PATH"])
+        self.assertIn("STUB npm ran", reason)
+
+    def test_it_passes_too(self):
+        self.write("README.md", "changed")
+        self.expect("allow", path=stub_dir("npm", 0) + os.pathsep + os.environ["PATH"])
+
+
+class NodeTestFileNames(Base):
+    def test_module_extensions_are_test_files_too(self):
+        for name in ("a.test.mts", "a.spec.cts", "a.test.mjs", "a.spec.cjs"):
+            with self.subTest(name=name):
+                self.write(f"src/{name}", f"{SKIP}('x', () => {{}})\n")
+                self.expect("deny")
+                subprocess.run(["git", "reset", "-q", "--hard"], cwd=self.repo, check=True)
+                subprocess.run(["git", "clean", "-qfd"], cwd=self.repo, check=True)
+
+
 class NoApps(Base):
     config = None
 

@@ -28,7 +28,7 @@ SKIP_MARKERS = re.compile(
     r"|\bpytest\.(skip|xfail)\s*\("                  # pytest calls
     r"|@unittest\.(skip|expectedFailure)\b"          # skipIf/skipUnless: platform conditions, allowed
 )
-TEST_FILE = re.compile(r"(^|/)(tests?|e2e)/|\.(test|spec)\.[jt]sx?$|(^|/)test_[^/]*\.py$|_test\.py$")
+TEST_FILE = re.compile(r"(^|/)(tests?|e2e)/|\.(test|spec)\.([cm]?[jt]s|[jt]sx)$|(^|/)test_[^/]*\.py$|_test\.py$")
 SUITE_TIMEOUT = 840  # the hook is registered with 900 s
 
 
@@ -110,16 +110,17 @@ def main(event: dict) -> None:
                      + "\n  ".join(problems[:15]))
 
     for name, app in cfg["apps"].items():
-        folder = (app.get("path") or name).strip("/") + "/"
+        folder = (app.get("path") or name).strip("/")
+        whole_repo = folder in ("", ".")  # "path": "." — the repository is the app
         command = app.get("test")
-        if not command or not any(f.startswith(folder) for f in files):
+        if not command or not (whole_repo or any(f.startswith(folder + "/") for f in files)):
             continue
         tool = shlex.split(command, posix=os.name != "nt")[0]
         if shutil.which(tool) is None:
             lib.deny(f"`{tool}` isn't on PATH, so the {name} tests did not run (they did not fail). "
                      f"Make `{tool}` available to this session and retry the commit.")
         try:
-            code, output = _run(command, os.path.join(root, *folder.strip("/").split("/")))
+            code, output = _run(command, root if whole_repo else os.path.join(root, *folder.split("/")))
         except subprocess.TimeoutExpired:
             lib.deny(f"the {name} tests took longer than {SUITE_TIMEOUT // 60} minutes; commit refused.")
         if code != 0:

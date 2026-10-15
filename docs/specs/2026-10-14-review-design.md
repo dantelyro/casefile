@@ -233,6 +233,13 @@ On `git commit`, in every session:
 
 No `apps` in the config → check 3 does not run. Projects opt into the slow part.
 
+devflow never knows or chooses a project's test tool. Each app names its own `test` command —
+`npm test`, `npx vitest run`, `npx jest`, `uv run pytest -q`, anything that exits non-zero when tests
+fail — and it runs in the app's folder: `path`, defaulting to the app's name, where `"."` is the whole
+repository. Check 1 knows the skip and focus markers, and the test-file names, of **Node (Jest,
+Vitest, Playwright) and Python (pytest, unittest)** only, the developer's languages (2026-10-15);
+in other languages it finds nothing to refuse.
+
 ## Design check
 
 From Inverso's `design_lint.py` and `design_rules.py` (UI-009). **Adding a token to the design system
