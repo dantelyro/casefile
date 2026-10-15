@@ -62,13 +62,13 @@ Every task includes these.
 `CLAUDE.md` requires it at session start, and it is behind: watermark `2.1.295`, running `2.1.300`.
 This release depends on hook behaviour, so it goes first.
 
-- [ ] `claude --version`; read the changelog entries from 2.1.296 to the running version (2.1.297 and
+- [x] `claude --version`; read the changelog entries from 2.1.296 to the running version (2.1.297 and
       2.1.298 were missing from the copy read on 2026-10-14; fetch them).
-- [ ] Re-fetch the hooks and plugins pages the file cites. Record anything about plugin hooks,
+- [x] Re-fetch the hooks and plugins pages the file cites. Record anything about plugin hooks,
       `agent_type`, `permissionDecision: "ask"`, exec-form commands, failing hooks (`onFailure`).
-- [ ] Update the file and move its watermark, even if nothing changed.
-- [ ] Tell the developer anything that changes this plan before starting task 1.
-- [ ] Also fix the stale path in `CLAUDE.md` (`D:\projects\personal\devflow` →
+- [x] Update the file and move its watermark, even if nothing changed.
+- [x] Tell the developer anything that changes this plan before starting task 1.
+- [x] Also fix the stale path in `CLAUDE.md` (`D:\projects\personal\devflow` →
       `C:\Users\beyon\projects\devflow`).
 - Commit: `docs: verify skill-authoring against <version>`.
 
@@ -76,11 +76,11 @@ This release depends on hook behaviour, so it goes first.
 
 Everything marked `[VERIFY]` in the spec is answered by watching a real session, not by reading.
 
-- [ ] Build `probe/`: a minimal plugin with one PreToolUse hook (matcher `Bash|PowerShell|Edit|Write`),
+- [x] Build `probe/`: a minimal plugin with one PreToolUse hook (matcher `Bash|PowerShell|Edit|Write`),
       one SessionStart hook and one agent (`probe/agents/prober.md`). The hook appends the raw event
       JSON and its environment (`CLAUDE_PLUGIN_ROOT`, `PATH`) to a log file outside the repo, and
       returns `ask` for any command containing `probe-ask`.
-- [ ] Load it in a fresh session with `claude --plugin-dir probe` (documented in the CLI reference). The developer runs these, and Claude records what happens:
+- [x] Load it in a fresh session with `claude --plugin-dir probe` (documented in the CLI reference). The developer runs these, and Claude records what happens:
 
   | # | Question | How |
   |---|---|---|
@@ -93,16 +93,16 @@ Everything marked `[VERIFY]` in the spec is answered by watching a real session,
   | 7 | Does the SessionStart hook fire on `startup`, `clear` and `compact`? | Logged events |
   | 8 | With `onFailure: "block"`, is the call refused when the hook crashes (exit 1) and when it times out? Without it, does the call go through? | A command containing `probe-crash` / `probe-sleep` |
 
-- [ ] Save one event per case as `tests/fixtures/<case>.json` (strip anything personal: paths become
+- [x] Save one event per case as `tests/fixtures/<case>.json` (strip anything personal: paths become
       `<root>`). Write the answers into the spec's `[VERIFY]` spots, and resolve its open question 1.
-- [ ] Delete `probe/`.
+- [x] Delete `probe/`.
 - **If the answers change the design** (for example, `ask` does not reach the developer, or
   `agent_type` is present in the main session): stop and show the developer before task 2.
 - Commit: `test: capture hook events from a live probe`, plus `docs:` for the spec update.
 
 ## Task 2 — Python runtime and the library
 
-- [ ] Tests first (`tests/test_lib.py`, `tests/test_stdlib_only.py`):
+- [x] Tests first (`tests/test_lib.py`, `tests/test_stdlib_only.py`):
   - `read_event` on each fixture; bad JSON → the hook denies (fails closed).
   - `deny`/`ask`/`allow` print the JSON shape from task 1, exit 0.
   - `agent_of`: main session → `None`; plugin agent → `devflow:reviewer`; from fixtures.
@@ -111,23 +111,23 @@ Everything marked `[VERIFY]` in the spec is answered by watching a real session,
     named.
   - Import test: every `.py` under `hooks/`, `skills/`, `tests/` imports only
     `sys.stdlib_module_names` or devflow's own modules.
-- [ ] `hooks/devflow_hooks/lib.py`, from Inverso's `_hooklib.py` plus `ask` and `config`.
-- [ ] `hooks/run.py`: imports `devflow_hooks.<name>` and runs it; any exception → deny with the
+- [x] `hooks/devflow_hooks/lib.py`, from Inverso's `_hooklib.py` plus `ask` and `config`.
+- [x] `hooks/run.py`: imports `devflow_hooks.<name>` and runs it; any exception → deny with the
       error (fails closed), except for `session_start`, which never blocks.
-- [ ] `hooks/run-hook.cmd`: the launch form task 1 chose. Finds `py -3`, `python3`, `python`, requires
+- [x] `hooks/run-hook.cmd`: the launch form task 1 chose. Finds `py -3`, `python3`, `python`, requires
       ≥ 3.10. None found: guard hooks print the install command (`winget install Python.Python.3.14`,
       `brew install python@3.14`, the Linux package manager) and exit 2; `session-start` emits the
       *detect → ask* context instead.
-- [ ] Test the wrapper's no-Python path by running it with an empty `PATH` (both Windows cmd and sh in
+- [x] Test the wrapper's no-Python path by running it with an empty `PATH` (both Windows cmd and sh in
       CI).
 - Commit: `feat: python hook runtime, fails closed`.
 
 ## Task 3 — Session start in Python
 
-- [ ] Test: output equals today's `hooks/session-start` output, byte for byte after JSON parsing,
+- [x] Test: output equals today's `hooks/session-start` output, byte for byte after JSON parsing,
       under `CLAUDE_PLUGIN_ROOT` (nested form) and without it (top-level form); exactly one context
       field.
-- [ ] `session_start.py`; delete `hooks/session-start`. The `printf` escaping gotcha in `CLAUDE.md`
+- [x] `session_start.py`; delete `hooks/session-start`. The `printf` escaping gotcha in `CLAUDE.md`
       goes away with it.
 - Commit: `feat: session-start hook in python`.
 
@@ -135,7 +135,7 @@ Everything marked `[VERIFY]` in the spec is answered by watching a real session,
 
 Port of Inverso's `block_push.py` and `guard_bash.py`, with their tests.
 
-- [ ] Tests, for each row of the spec's guard table, main session / other agent / devflow agent:
+- [x] Tests, for each row of the spec's guard table, main session / other agent / devflow agent:
   - `git push` in every form (`git -C x push`, after `;` `&&` `|`, inside `{ }`, PowerShell) → ask in
     main, deny in agents. `git commit -m "… git push …"` → allowed.
   - `docker compose down -v`, `--volumes` → deny for everyone. `docker compose down` → allowed.
@@ -146,7 +146,7 @@ Port of Inverso's `block_push.py` and `guard_bash.py`, with their tests.
     → allowed.
   - Every reason tells the reader what to do instead ("commit locally and report back; the developer
     pushes").
-- [ ] `guard_bash.py`. The implementer and planner rows are written as data now but tested when
+- [x] `guard_bash.py`. The implementer and planner rows are written as data now but tested when
       their agents ship (0.14.0, 0.15.0).
 - Commit: `feat: command guard for push, volumes, no-verify, kills and the reviewer`.
 
@@ -154,20 +154,20 @@ Port of Inverso's `block_push.py` and `guard_bash.py`, with their tests.
 
 Port of Inverso's `guard_paths.py`.
 
-- [ ] Tests: any agent editing `.claude/…` → deny; main session → allowed. `devflow:reviewer` writing
+- [x] Tests: any agent editing `.claude/…` → deny; main session → allowed. `devflow:reviewer` writing
       any file → deny. Protected paths from config (`docs/product/x.md`) → deny for devflow agents,
       allowed in main. Paths inside a worktree resolve to the repo-relative path first.
-- [ ] `guard_paths.py`.
+- [x] `guard_paths.py`.
 - Commit: `feat: file guard for .claude, protected paths and the reviewer`.
 
 ## Task 6 — Design check
 
 Port of Inverso's `design_lint.py` + `design_rules.py`, driven by config instead of Inverso's paths.
 
-- [ ] Fixture `tests/fixtures/design/tokens.json`: a small design system in the claude.ai Design System
+- [x] Fixture `tests/fixtures/design/tokens.json`: a small design system in the claude.ai Design System
       format (a few colours, spacing steps, radii, shadows, type styles, two families), plus a
       `components/` folder with two components.
-- [ ] Tests, built from Inverso's blocked and allowed examples:
+- [x] Tests, built from Inverso's blocked and allowed examples:
   - Raw colours (hex, `rgb()`, `oklch()`, named), raw lengths except `1px`, `font-family` → deny,
     except in `raw_values_allowed` files.
   - Tailwind (with `classes: "tailwind"`): arbitrary values, colour / spacing / radius / shadow /
@@ -178,8 +178,8 @@ Port of Inverso's `design_lint.py` + `design_rules.py`, driven by config instead
   - Not a UI file, a test file, or no `tokens.json` → allowed without reading anything.
   - Main session is checked too.
   - The reason names the token to use, and says to extend the design system if it lacks one.
-- [ ] `design_check.py`, exposing `check_path` and `check_text` for task 7.
-- [ ] Run it over Inverso's `web/` with Inverso's settings (task 14's `devflow.json`): it must report
+- [x] `design_check.py`, exposing `check_path` and `check_text` for task 7.
+- [x] Run it over Inverso's `web/` with Inverso's settings (task 14's `devflow.json`): it must report
       exactly what Inverso's own `design_lint.py` reports on the same files (today: nothing).
 - Commit: `feat: design check against the project's design system`.
 
@@ -187,56 +187,56 @@ Port of Inverso's `design_lint.py` + `design_rules.py`, driven by config instead
 
 Port of Inverso's `pre_commit.py`.
 
-- [ ] Tests (in a temporary git repo built by the test):
+- [x] Tests (in a temporary git repo built by the test):
   - Added `.skip`, `.only`, `xit`, `@pytest.mark.skip`, `xfail`, `@unittest.skip` → deny; the same text
     in removed lines or in a non-test file → allowed.
   - Added UI lines that break the design check → deny.
   - A configured app touched and its test command fails → deny with the tail of its output; passes →
     allowed; app not touched → not run. No `apps` → no suite runs.
   - Only `git commit` starting a statement triggers it.
-- [ ] `pre_commit.py`.
+- [x] `pre_commit.py`.
 - Commit: `feat: pre-commit gate for skipped tests, design and app suites`.
 
 ## Task 8 — Register the hooks
 
-- [ ] `hooks/hooks.json`: SessionStart (`startup|clear|compact`) → `session-start`; PreToolUse
+- [x] `hooks/hooks.json`: SessionStart (`startup|clear|compact`) → `session-start`; PreToolUse
       `Bash|PowerShell` → `guard_bash`, `pre_commit` (timeout 900, status message); PreToolUse
       `Edit|Write|NotebookEdit` → `guard_paths`, `design_check`. No `if`. Every guard and `pre_commit`
       registered with `onFailure: "block"`; `session-start` without it, since it never blocks.
-- [ ] Test: every registered name has a module, and every module is registered.
-- [ ] `claude plugin validate` passes.
-- [ ] Smoke test in a live session with the working copy loaded: a push asks, `down -v` is denied.
+- [x] Test: every registered name has a module, and every module is registered.
+- [x] `claude plugin validate` passes.
+- [x] Smoke test in a live session with the working copy loaded: a push asks, `down -v` is denied.
 - Commit: `feat: register the guard hooks plugin-wide`.
 
 ## Task 9 — The reviewer agent
 
-- [ ] `agents/reviewer.md`, from Inverso's `.claude/agents/reviewer.md` with its M1 lessons, generalised
+- [x] `agents/reviewer.md`, from Inverso's `.claude/agents/reviewer.md` with its M1 lessons, generalised
       (no Inverso names, paths or rules): inputs (plan task, issue, or a commit range; the
       implementer's report if any); process (read the task and every rule it names, the diff; re-run
       the tests with the configured commands; never trust the report's numbers); checklist (rules
       really tested · tests can fail · whole task done, every planned item and note or `NOT DONE` ·
       tests not weakened · scope · spec match · security · quality); may not approve if it could not
       run the tests; the fixed `VERDICT` block.
-- [ ] Frontmatter: `model: opus`, `isolation: worktree`, `tools: Read, Grep, Glob, Bash`.
-- [ ] Check in a live session: `devflow:reviewer` appears, its `agent_type` is what task 1 recorded,
+- [x] Frontmatter: `model: opus`, `isolation: worktree`, `tools: Read, Grep, Glob, Bash`.
+- [x] Check in a live session: `devflow:reviewer` appears, its `agent_type` is what task 1 recorded,
       and task 4's reviewer rules block it.
 - Commit: `feat: reviewer agent`.
 
 ## Task 10 — The `review` skill
 
-- [ ] `skills/review/SKILL.md`: resolve the target to a commit range; check that the tools the test
+- [x] `skills/review/SKILL.md`: resolve the target to a commit range; check that the tools the test
       commands need are running, not just installed; dispatch `devflow:reviewer`; report the verdict as
       a short table (checked, run, findings by severity). Never merges, never fixes. First use in a
       project without `.claude/devflow.json`: propose one and wait.
-- [ ] Description names what differs from the built-in `code-review`: a verdict against a plan or spec,
+- [x] Description names what differs from the built-in `code-review`: a verdict against a plan or spec,
       from an isolated agent that re-runs the tests.
-- [ ] Eval cases in `evals/`: prompts that must trigger `review`, prompts that must trigger
+- [x] Eval cases in `evals/`: prompts that must trigger `review`, prompts that must trigger
       `code-review` instead. Run `claude plugin eval` once (billed; on demand, not in CI).
 - Commit: `feat: review skill`.
 
 ## Task 11 — CI
 
-- [ ] `.github/workflows/test.yml`: `windows-latest`, `ubuntu-latest`, `macos-latest`; Python 3.10 and
+- [x] `.github/workflows/test.yml`: `windows-latest`, `ubuntu-latest`, `macos-latest`; Python 3.10 and
       the newest; `python -m unittest discover -s tests`; `claude plugin validate` `[VERIFY]` that the
       CLI installs in CI without a login.
 - Commit: `ci: run the hook tests on three platforms`.
@@ -246,20 +246,20 @@ Port of Inverso's `pre_commit.py`.
 Per `skills/evidence-based-decisions/references/decision-log.md`, `Decided by` from the developer's
 words in the 2026-10-14 session.
 
-- [ ] D-027 Python ≥ 3.10, standard library only, `unittest`, installed only after the developer
+- [x] D-027 Python ≥ 3.10, standard library only, `unittest`, installed only after the developer
       agrees. D-028 Enforcement hooks fail closed and are plugin-wide, the design check included;
       supersedes D-005 for anything load-bearing. D-029 `git push` asks the developer and is denied to
       every agent. D-030 Workflows ship as plugin agents plus skills, one spec and one release each.
-- [ ] D-005's status line; the index.
+- [x] D-005's status line; the index.
 - Commit: `docs: record D-027 to D-030`.
 
 ## Task 13 — Docs and version
 
-- [ ] `CLAUDE.md`: the repo now has a test suite (how to run it); hooks are Python (the *Hook gotchas*
+- [x] `CLAUDE.md`: the repo now has a test suite (how to run it); hooks are Python (the *Hook gotchas*
       section rewritten for the new runtime); three skills and one agent; watermark moved.
-- [ ] `README.md`: the `review` skill, the guard rules in one line each with a pointer to the spec,
+- [x] `README.md`: the `review` skill, the guard rules in one line each with a pointer to the spec,
       `.claude/devflow.json`, the Python requirement.
-- [ ] `plugin.json` and `marketplace.json`: the same new `description`; `version` → `0.13.0`.
+- [x] `plugin.json` and `marketplace.json`: the same new `description`; `version` → `0.13.0`.
 - Commit: `feat: ship 0.13.0` (the version bump is the shipped change).
 
 ## Task 14 — Live test on Inverso

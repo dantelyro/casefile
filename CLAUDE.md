@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `f6e4595` — 2026-10-14
+**Docs reconciled through:** `8a0b30d` — 2026-10-15
 
 ## What this repo is
 
@@ -23,6 +23,9 @@ this repo.
 
 # Run the test suite (standard library only; use py -3 on Windows)
 python -m unittest discover -s tests
+
+# Trigger evals for the skills (billed, so on demand; results/ is gitignored)
+claude plugin eval . --ablation none --no-publish
 
 # Exercise a hook exactly as Claude Code invokes it, with a captured event
 CLAUDE_PLUGIN_ROOT="$PWD" sh hooks/run-hook session_start < tests/fixtures/session_start_startup.json | python -m json.tool
@@ -58,9 +61,12 @@ user message states. `hooks/devflow_hooks/session_start.py` injects that trigger
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 See D-003 and D-004.
 
-**Two skills, each with its own moment.** `repo-discovery` reads a project that already exists;
-`evidence-based-decisions` records *why* and keeps it honest. Neither writes a document into a
-project that has not agreed to it. The two greenfield skills were removed in 0.12.0 (D-026); the
+**Three skills and one agent, each with its own moment.** `repo-discovery` reads a project that
+already exists; `evidence-based-decisions` records *why* and keeps it honest; `review` dispatches
+`devflow:reviewer` (`agents/reviewer.md`) for a verdict on one change. None writes a document into
+a project that has not agreed to it. Agents live flat in `agents/` (a subfolder becomes part of the
+name), and every rule an agent must obey is a plugin hook branching on `agent_type`, because a
+plugin agent's own `hooks` and `permissionMode` are ignored (D-030). The two greenfield skills were removed in 0.12.0 (D-026); the
 agent workflows that replace them are designed in `docs/specs/2026-10-14-*` and land one release at
 a time. Until `write-specs` ships, no devflow skill writes a new project's specs or claims `/init`
 in an empty directory.

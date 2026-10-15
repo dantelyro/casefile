@@ -29,19 +29,48 @@ without bumping it and every existing install keeps the cached copy.
 
 ### `devflow`
 
-Workflow skills for keeping a codebase understandable — orienting in it, and recording why it is
-the way it is.
+Workflow skills and guards for building with agents — orienting in a codebase, recording why it
+is the way it is, reviewing changes against their specs, and hooks that hold the rules every time.
 
 | Skill | What it does |
 | --- | --- |
 | `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
+| `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `devflow:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
 | `evidence-based-decisions` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
 The two compose: `repo-discovery` answers what an existing project **is**, and
 `evidence-based-decisions` answers **why** — and keeps that answer honest as the code moves.
 
-Neither of them creates architecture documents in a project that has not asked for them. They
-propose and wait.
+None of them creates documents in a project that has not asked for them. They propose and wait —
+including `review`, which proposes `.claude/devflow.json` on first use.
+
+#### Guards
+
+Hooks, on in every project where devflow is enabled, failing closed (D-028). The full table is in
+`docs/specs/2026-10-14-review-design.md`, *Guard rules*.
+
+- `git push` asks you in your own session and is refused to every agent (D-029).
+- `docker compose down -v` and `--no-verify` are refused to everyone.
+- Agents may not kill processes by name, or change any `.claude` folder.
+- `devflow:reviewer` only reads; devflow agents stay out of the project's protected paths.
+- Every commit: no skipped or focused tests, the design check on added UI lines, and the test
+  command of every configured app it touches.
+- UI code may use only what the project's design system (`tokens.json`) defines.
+
+#### `.claude/devflow.json`
+
+Per-project settings the guards and agents read; every key optional, and devflow never writes it
+unasked:
+
+```json
+{
+  "default_branch": "main",
+  "protected_paths": ["docs/specs/", "docs/plans/", "docs/issues/", "docs/product/"],
+  "apps": { "web": { "test": "npm test", "install": "npm ci" } },
+  "design": { "tokens": "docs/product/design-system/tokens.json", "ui_paths": ["web/"],
+              "components_dir": "web/components/ui/", "classes": "tailwind" }
+}
+```
 
 #### Why there is a hook
 
@@ -71,7 +100,12 @@ hooks/
   run.py                # runs one hook; refuses the call if the hook fails
   devflow_hooks/        # the hooks, standard-library Python
 tests/                  # python -m unittest discover -s tests
+evals/                  # trigger evals, billed: claude plugin eval . --ablation none
+agents/
+  reviewer.md           # devflow:reviewer
 skills/
+  review/
+    SKILL.md
   repo-discovery/
     SKILL.md
   evidence-based-decisions/
@@ -113,7 +147,7 @@ into separate plugins is usually worth the extra manifest.
 Register the working copy as a marketplace to test changes before pushing:
 
 ```
-/plugin marketplace add D:\projects\personal\devflow
+/plugin marketplace add C:\Users\beyon\projects\devflow
 ```
 
 ## License
