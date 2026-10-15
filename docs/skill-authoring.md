@@ -1,6 +1,6 @@
 # Skill authoring — what Anthropic documents
 
-**Verified against:** Claude Code `2.1.300` — 2026-10-15
+**Verified against:** Claude Code `2.1.301` — 2026-10-15
 
 Facts about how skills load and behave, taken from Anthropic's own pages. This file records what
 the vendor says; the rules devflow layers on top live in `CLAUDE.md`. Each fact cites its page so a
@@ -40,6 +40,7 @@ version bump can be checked against the source rather than against this summary.
 - The listing budget can be raised (`skillListingBudgetFraction`, `SLASH_COMMAND_TOOL_CHAR_BUDGET`),
   and low-priority skills set to `"name-only"` in `skillOverrides` to free it. `/skill-doctor`
   (v2.1.252+) finds unused skills. [CC]
+- Skills could drop out of the model's listing after `/rewind`, fixed in v2.1.301. [CL]
 - A skill whose file or folder name holds hidden, direction-changing or blank-like characters, `<` or
   `>`, is not offered until renamed (v2.1.299). [CL]
 
@@ -116,7 +117,8 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   a plugin's agent it is the plugin-scoped name, `my-plugin:reviewer`, not the bare frontmatter name.
   `agent_id`'s presence in the main session is not documented. [HK]
 - PreToolUse `permissionDecision`: `allow`, `deny`, `ask`, `defer` (`defer` is ignored with a warning in
-  interactive sessions). Whether `ask` works for a subagent's call is not documented. [HK]
+  interactive sessions). Whether `ask` works for a subagent's call is not documented. [HK] The
+  permission prompt an `ask` raises names the plugin or skill whose hook asked (v2.1.301). [CL]
 - **Exec form** when `args` is set: `command` resolved on `PATH`, no shell. On Windows it must be a real
   `.exe` — `.cmd`/`.bat` shims cannot be spawned. **Shell form** otherwise: `sh -c` on macOS/Linux, Git
   Bash on Windows, PowerShell when Git Bash is missing; `shell` (`bash`/`powershell`) is ignored in exec
