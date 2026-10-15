@@ -87,8 +87,8 @@ Python 3.10, which is one reason 3.10 is the floor.
 
 devflow requires **Python ≥ 3.10** (a floor, not an exact version: 3.11–3.14 all qualify).
 
-1. **Detect.** The session-start hook runs in `cmd` on Windows and `sh` elsewhere (the polyglot
-   wrapper), so it needs no Python. It looks for `py -3`, `python3`, `python` and checks the version.
+1. **Detect.** The starter (`hooks/run-hook`, plain `sh`) needs no Python. It looks for `py -3`,
+   `python3`, `python` and checks the version.
 2. **Ask.** If none qualifies, its injected context tells Claude to tell the developer, at the start
    of the session, what is missing and the install command for their platform — and to wait.
 3. **Install visibly.** Only after the developer says yes, Claude runs that command as an ordinary
@@ -108,15 +108,20 @@ be spawned that way — not a `.cmd`. Without `args` it runs in **shell form**: 
 PowerShell when Git Bash is missing. Which Python command exists differs per machine: `py` (Windows
 launcher), `python3` (macOS/Linux), `python`; the docs say nothing about that.
 
-Design: every hook entry runs one launcher, `hooks/run.py`, through the interpreter found by a
-small polyglot wrapper in shell form (the D-005 technique kept, retargeted from bash to Python). The
-entries set no `shell`, so they run under `sh` on macOS/Linux and Git Bash on Windows. **On Windows,
-devflow requires Git for Windows** (which brings Git Bash): the probe showed a bash-style hook command
-fails under PowerShell, and PowerShell's form (`& "<path>" <args>`) is a syntax error in bash, so no
-single command string serves both. Session start checks for Git Bash the way it checks for Python
-(detect → ask → install visibly, `winget install Git.Git`); until it is there, the guards fail closed.
+Design: every hook entry is `sh "${CLAUDE_PLUGIN_ROOT}/hooks/run-hook" <hook-name>`. The entries set
+no `shell`, so they run under `sh` on macOS/Linux and Git Bash on Windows. **On Windows, devflow
+requires Git for Windows** (which brings Git Bash): the probe showed a bash-style hook command fails
+under PowerShell, and PowerShell's form (`& "<path>" <args>`) is a syntax error in bash, so no single
+command string serves both. That also means nothing of devflow's runs on a Windows machine without
+Git Bash, so it cannot detect that case itself: the requirement is stated in the README's install
+section, and without Git Bash the guards still fail closed (Claude Code refuses a guarded call whose
+hook cannot run, 2.1.299, and `onFailure: "block"`).
 
-1. The wrapper tries `py -3`, then `python3`, then `python`, and requires ≥ 3.10.
+Because every entry now runs under a POSIX shell, the starter is a plain `sh` script. D-005's
+cmd/bash polyglot existed for a cmd.exe that devflow no longer runs under, and is retired with the
+bash hook it was written for.
+
+1. The starter tries `py -3`, then `python3`, then `python`, and requires ≥ 3.10.
 2. It runs `hooks/run.py <hook-name>`, which imports the hook module and calls it.
 3. **No interpreter found:** for a guard hook, print the reason and the install command and **block**
    (exit 2). For the session-start hook, emit the *detect → ask* context above instead of its normal
@@ -154,18 +159,18 @@ Not probed: macOS, Linux, and Windows without Git Bash (handled by the requireme
 ```
 hooks/
   hooks.json            every registration
-  run-hook.cmd          polyglot: find Python, run run.py (replaces the bash dispatch)
+  run-hook              plain sh starter: find Python, run run.py
   run.py                entry point: run.py <hook-name>
   devflow_hooks/
     lib.py              read_event, allow, deny, ask, agent_of, git_root, repo_relative, config
-    session_start.py    port of hooks/session-start; same output, now tested
+    session_start.py    port of the bash session-start hook; same output, now tested
     guard_bash.py       command rules
     guard_paths.py      file-write rules
     pre_commit.py       skipped-test check, design check on added lines, configured test suites
     design_check.py     design-system rules for UI code
 tests/
-  test_hooks.py         unittest; feeds each hook a JSON event, checks the decision
-  fixtures/             events captured in the probe
+  test_*.py             unittest; feeds each hook a JSON event, checks the decision
+  fixtures/             events captured in the probe; outputs/ holds recorded hook output
 ```
 
 `hooks/session-start` (bash) is deleted; its behaviour moves to `session_start.py` unchanged and
@@ -335,7 +340,7 @@ This ends the "no test suite" property stated in `CLAUDE.md`; that line changes 
   `unittest` suite; Python is detected at session start and installed only after the developer
   agrees. *Amends the "no test suite" property.*
 - **D-028** — Enforcement hooks fail closed and are plugin-wide, the design check included. *Supersedes D-005* for anything
-  load-bearing; the polyglot wrapper survives, retargeted to Python.
+  load-bearing, and retires its cmd/bash polyglot: hooks run under `sh`, Git for Windows required.
 - **D-029** — `git push` asks the developer and is denied to every agent.
 - **D-030** — Workflows ship as plugin agents plus skills, one spec and one release each.
 

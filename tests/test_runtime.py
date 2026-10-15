@@ -1,4 +1,4 @@
-"""The launcher (run.py) and the polyglot wrapper (run-hook.cmd): guards fail closed."""
+"""The launcher (run.py) and the starter (run-hook): guards fail closed."""
 
 import json
 import os
@@ -70,15 +70,15 @@ class Launcher(unittest.TestCase):
         self.assertEqual(self.decision(result), "deny")
 
 
-@unittest.skipUnless(shutil.which("bash"), "needs bash")
+@unittest.skipUnless(shutil.which("sh"), "needs sh")
 class WrapperWithoutPython(unittest.TestCase):
-    """bash runs run-hook.cmd with a PATH that holds no Python."""
+    """sh runs run-hook with a PATH that holds no Python."""
 
     def run_wrapper(self, name):
         with tempfile.TemporaryDirectory() as empty:
             env = {k: v for k, v in os.environ.items() if k.upper() != "PATH"}
             env["PATH"] = empty
-            return subprocess.run([shutil.which("bash"), str(HOOKS / "run-hook.cmd"), name],
+            return subprocess.run([shutil.which("sh"), str(HOOKS / "run-hook"), name],
                                   input=FIXTURE, capture_output=True, text=True, env=env, timeout=30)
 
     def test_guard_blocks_with_the_install_command(self):
@@ -97,32 +97,13 @@ class WrapperWithoutPython(unittest.TestCase):
         self.assertIn("wait", context)
 
 
-@unittest.skipUnless(shutil.which("bash"), "needs bash")
+@unittest.skipUnless(shutil.which("sh"), "needs sh")
 class WrapperWithPython(unittest.TestCase):
     def test_runs_run_py(self):
-        proc = subprocess.run([shutil.which("bash"), str(HOOKS / "run-hook.cmd"), "no_such_hook"],
+        proc = subprocess.run([shutil.which("sh"), str(HOOKS / "run-hook"), "no_such_hook"],
                               input=FIXTURE, capture_output=True, text=True, timeout=60)
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(json.loads(proc.stdout)["hookSpecificOutput"]["permissionDecision"], "deny")
-
-
-@unittest.skipUnless(os.name == "nt", "Windows only")
-class WrapperUnderCmd(unittest.TestCase):
-    def run_cmd(self, name, path):
-        env = {k: v for k, v in os.environ.items() if k.upper() != "PATH"}
-        env["PATH"] = path
-        return subprocess.run(["cmd", "/c", str(HOOKS / "run-hook.cmd"), name],
-                              input=FIXTURE, capture_output=True, text=True, env=env, timeout=60)
-
-    def test_runs_run_py(self):
-        proc = self.run_cmd("no_such_hook", os.environ["PATH"])
-        self.assertEqual(json.loads(proc.stdout)["hookSpecificOutput"]["permissionDecision"], "deny")
-
-    def test_no_python_blocks(self):
-        system32 = os.path.join(os.environ["SystemRoot"], "System32")
-        proc = self.run_cmd("guard_bash", system32)
-        self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
-        self.assertIn("Python 3.10", proc.stderr)
 
 
 if __name__ == "__main__":

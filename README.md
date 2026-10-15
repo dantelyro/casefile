@@ -4,6 +4,10 @@ A personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
 
 ## Install
 
+**Requires** Python 3.10 or newer, and on Windows [Git for Windows](https://gitforwindows.org)
+(Claude Code runs devflow's hooks through its Git Bash). If Python is missing, devflow says so at
+the start of a session and asks before installing it; its guards refuse commands until then.
+
 ```
 /plugin marketplace add dantelyro/devflow
 /plugin install devflow@dantelyro
@@ -50,7 +54,7 @@ session**, and no first message ever says so. Its other triggers are facts about
 project keeps a decision log; the docs are behind `HEAD` — which cannot be recognised before
 reading the repo, and reading the repo is what the skill is for.
 
-So `hooks/session-start` injects the trigger the prompt cannot supply: a short directive naming
+So the session-start hook (`hooks/devflow_hooks/session_start.py`) injects the trigger the prompt cannot supply: a short directive naming
 the skill, emitted on `startup`, `clear` and `compact`. It injects a **pointer, not the skill
 body** — the `Skill` tool loads the content on demand, keeping the per-session cost to a few
 hundred tokens rather than the whole file.
@@ -63,8 +67,10 @@ hundred tokens rather than the whole file.
   plugin.json           # makes it a plugin too — source is "./"
 hooks/
   hooks.json            # auto-discovered; no plugin.json entry needed
-  run-hook.cmd          # polyglot cmd/bash wrapper, so it runs on Windows too
-  session-start         # extensionless on purpose (see the note in the wrapper)
+  run-hook              # sh starter: finds Python 3.10+, runs run.py
+  run.py                # runs one hook; refuses the call if the hook fails
+  devflow_hooks/        # the hooks, standard-library Python
+tests/                  # python -m unittest discover -s tests
 skills/
   repo-discovery/
     SKILL.md

@@ -7,8 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this repo is
 
 A Claude Code plugin marketplace **and** the single plugin it ships, in one repository. There is
-no build, no test suite and no dependencies — the product is Markdown (skills) plus one shell
-hook. Changing a file here changes how future Claude Code sessions behave, including sessions in
+no build and no dependencies — the product is Markdown (skills) plus hooks in standard-library
+Python, with a `unittest` suite. Changing a file here changes how future Claude Code sessions behave, including sessions in
 this repo.
 
 ## Commands
@@ -21,11 +21,11 @@ this repo.
 /plugin marketplace add dantelyro/devflow
 /plugin install devflow@dantelyro
 
-# Exercise the SessionStart hook exactly as Claude Code invokes it
-CLAUDE_PLUGIN_ROOT="$PWD" ./hooks/run-hook.cmd session-start
+# Run the test suite (standard library only; use py -3 on Windows)
+python -m unittest discover -s tests
 
-# Check the JSON it emits is well-formed and contains exactly one context field
-CLAUDE_PLUGIN_ROOT="$PWD" ./hooks/run-hook.cmd session-start | python -m json.tool
+# Exercise a hook exactly as Claude Code invokes it, with a captured event
+CLAUDE_PLUGIN_ROOT="$PWD" sh hooks/run-hook session_start < tests/fixtures/session_start_startup.json | python -m json.tool
 ```
 
 **Every shipped change bumps `version` in `.claude-plugin/plugin.json`.** Claude Code refreshes
@@ -54,7 +54,7 @@ growing a `SKILL.md` taxes every session that triggers it. See D-001.
 **The hook exists because a description cannot match "session start".** A skill fires when the
 model recognises its `description` in the situation in front of it. `evidence-based-decisions`
 triggers on the *start of a session* and on *facts about the repo*, neither of which any first
-user message states. `hooks/session-start` injects that trigger — as a **pointer to the skill,
+user message states. `hooks/devflow_hooks/session_start.py` injects that trigger — as a **pointer to the skill,
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 See D-003 and D-004.
 
@@ -69,21 +69,23 @@ in an empty directory.
 
 Each of these is load-bearing; the comments in the files say so too.
 
-- **Hook scripts are extensionless on purpose** (`session-start`, not `session-start.sh`). Claude
-  Code's Windows auto-detection prepends `bash` to any command containing `.sh`, and the wrapper
-  is already choosing the interpreter. See D-005 for this and the two rules below.
-- **`run-hook.cmd` is a cmd/bash polyglot.** The leading `: << 'CMDBLOCK'` line makes the batch
-  section a no-op heredoc under bash; cmd.exe ignores the trailing shell lines. Do not reorder
-  the file or add anything above that first line.
-- **When no bash is found, the wrapper exits 0 silently.** A genuinely broken hook therefore looks
-  exactly like a machine without bash — the right trade for optional context, the wrong one for
-  anything load-bearing.
-- **The `directive` string in `session-start` is spliced into a `printf` JSON template verbatim,
-  with no escaping pass.** It must contain no double quotes, backslashes or single quotes. `\n`
-  sequences stay literal in the shell and become real newlines when the JSON is parsed.
+- **Every hook goes through one starter:** `sh "${CLAUDE_PLUGIN_ROOT}/hooks/run-hook" <name>`, which
+  finds Python 3.10+ and runs `hooks/run.py <name>`, which runs `devflow_hooks/<name>.py`. Claude
+  Code runs hook commands through `sh` on macOS/Linux and Git Bash on Windows, so devflow requires
+  Git for Windows; under PowerShell the command does not even parse (probe, 0.13.0 spec).
+- **Guards fail closed.** `run.py` denies when the hook is unknown, its input is unreadable or it
+  crashes, and every guard is registered with `onFailure: "block"`, because Claude Code otherwise
+  lets the action through when a hook crashes or times out. `session_start` is the exception: it
+  only adds context, so it never blocks.
+- **Decisions are JSON on stdout, exit 0** (`permissionDecision`: `deny` or `ask`); printing nothing
+  allows. Exit 2 is only the starter's "no Python" path.
+- **The starter uses only shell builtins until Python is found**, so it still explains a missing
+  Python with an empty `PATH`. It tries `py -3` first: `python3` on Windows can be the Microsoft
+  Store stub.
 - **Emit exactly one context field.** Claude Code reads both `additionalContext` and
-  `hookSpecificOutput.additionalContext` without deduplicating, so the script branches on
-  `CLAUDE_PLUGIN_ROOT` and emits the nested form under Claude Code, the top-level form elsewhere.
+  `hookSpecificOutput.additionalContext` without deduplicating, so `session_start` emits the nested
+  form under Claude Code (`CLAUDE_PLUGIN_ROOT` set) and the top-level form elsewhere.
+- **Only the standard library.** A test fails on any import outside `sys.stdlib_module_names`.
 
 ## Skill-authoring baseline
 
