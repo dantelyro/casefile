@@ -32,7 +32,7 @@ that has not agreed to it.
 
 ## Task 1 — `plan_status.py <plan>`
 
-- [ ] Tests first, on plan files in Inverso's format (`### T3 · Title`, `- Status:`, `- Depends on:`,
+- [x] Tests first, on plan files in Inverso's format (`### T3 · Title`, `- Status:`, `- Depends on:`,
       `- Parallel-safe with:`, …) in a temporary repository:
   - statuses parsed: `todo`, `in-progress`, `done (<commit>)`, `blocked: <reason>`; anything else is
     an error naming the task;
@@ -47,7 +47,7 @@ that has not agreed to it.
 
 ## Task 2 — `rules_coverage.py <plan>`
 
-- [ ] Tests first:
+- [x] Tests first:
   - the rules in scope are the plan's `Rules covered` section, each looked up in the specs folder
     (`specs_dir`) for its tag; a rule ID missing from the specs is an error;
   - a rule **has a test** when a test file contains a test named after it: `RULE-010:` or `RULE-010 `
@@ -60,18 +60,18 @@ that has not agreed to it.
 
 ## Task 3 — The planner agent
 
-- [ ] `agents/planner.md` from Inverso's, generalised: inputs are a scope (a milestone in the build
+- [x] `agents/planner.md` from Inverso's, generalised: inputs are a scope (a milestone in the build
       order); the build order's location and the specs folder from config (`build_order`, default
       `docs/product/blueprint.html`; `specs_dir`); the plan format above; `EXISTS` when the plan is
       already there; `[VERIFY]` and spec gaps go under Blockers, never planned around; every task names
       its rules and its failing test; a task touching more than ~5 files is split; a data rule's test
       names its second user. `model: opus`. It writes only its plan file (the file guard enforces it).
-- [ ] `build_order` added to the config defaults.
-- [ ] Live check: `devflow:planner` loads; a write outside its plan file is refused.
+- [x] `build_order` added to the config defaults.
+- [x] Live check: `devflow:planner` loads; a write outside its plan file is refused.
 
 ## Task 4 — The `implement` skill
 
-- [ ] `skills/implement/SKILL.md`, from Inverso's `build-milestone` with its lessons: preconditions
+- [x] `skills/implement/SKILL.md`, from Inverso's `build-milestone` with its lessons: preconditions
       (clean tree on the default branch, tools installed *and running*); plan (the planner, the
       developer's approval of tasks and blockers, `chore(plans): plan <scope>`); the resume rule (an
       `in-progress` task's branch is checked for a finished commit, offered for review, never
@@ -80,15 +80,15 @@ that has not agreed to it.
       after the developer's yes); bugs found along the way become issues through `fix-bug`; spec gaps
       are asked, never invented; carry-over minors go into the next task's prompt; the finish report
       with `rules_coverage.py`. Never writes product code, tests or specs itself.
-- [ ] Trigger evals with small fixture repositories: fires for "build M2", "implement the saved-jobs
+- [x] Trigger evals with small fixture repositories: fires for "build M2", "implement the saved-jobs
       milestone", "continue the milestone"; does not fire for "fix this bug" (fix-bug) or "review T3"
       (review).
 
 ## Task 5 — Decisions, docs, version
 
-- [ ] D-034 rules with IDs are the unit of specification, testing and review; D-035 the orchestrator
+- [x] D-034 rules with IDs are the unit of specification, testing and review; D-035 the orchestrator
       never writes product code, tests or specs, and the plan file is the progress record.
-- [ ] README, CLAUDE.md, manifests, version `0.15.0`.
+- [x] README, CLAUDE.md, manifests, version `0.15.0`.
 
 ## Task 6 — Live test on Inverso (needs the developer)
 

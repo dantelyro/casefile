@@ -30,13 +30,14 @@ without bumping it and every existing install keeps the cached copy.
 ### `devflow`
 
 Workflow skills and guards for building with agents — orienting in a codebase, recording why it
-is the way it is, fixing bugs test-first, reviewing changes against their specs, and hooks that hold the rules every
-time.
+is the way it is, building a milestone of spec rules with agents, fixing bugs test-first, reviewing
+changes against their specs, and hooks that hold the rules every time.
 
 | Skill | What it does |
 | --- | --- |
 | `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
 | `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `devflow:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
+| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title  [MVP]` headings): `devflow:planner` writes its plan in `docs/plans/` — small test-first tasks tied to rule IDs — and after your approval each task is built by `devflow:implementer` in its own worktree, several in parallel when they touch different files, reviewed by `devflow:reviewer` and merged after your yes. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` lists every rule with or without a test named after it. Never writes code, tests or specs itself. |
 | `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `devflow:implementer` reproduces it with a failing test and fixes it on its own branch, `devflow:reviewer` checks it, and it is merged after your yes ([`shared/merge.md`](shared/merge.md)). `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
 | `evidence-based-decisions` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
@@ -54,7 +55,7 @@ Hooks, on in every project where devflow is enabled, failing closed (D-028). The
 - `git push` asks you in your own session and is refused to every agent (D-029).
 - `docker compose down -v` and `--no-verify` are refused to everyone.
 - Agents may not kill processes by name, or change any `.claude` folder.
-- `devflow:reviewer` only reads; devflow agents stay out of the project's protected paths and never
+- `devflow:reviewer` only reads; `devflow:planner` writes only its plan file; devflow agents stay out of the project's protected paths and never
   write `docs/issues/`; `devflow:implementer` may not merge, rebase or switch to the default branch.
 - Every commit: no skipped or focused tests, the design check on added UI lines, and the test
   command of every configured app it touches.
@@ -67,11 +68,14 @@ unasked. Each app names its own test command (whatever the project uses: `npm te
 run`, `uv run pytest -q`…) and runs in its folder — `path`, defaulting to the app's name; `"."` is
 the whole repository. The skipped-test check knows Node and Python test files only. `install` sets up a fresh worktree; `cleanup` runs in a
 worktree before it is removed at merge; `image` rebuilds the app's container when a merge touched it.
+`specs_dir`, `plans_dir` and `build_order` (the page whose "Build order" section lists the
+milestones) tell `implement` and the planner where things are; the values shown are the defaults.
 
 ```json
 {
   "default_branch": "main",
   "protected_paths": ["docs/specs/", "docs/plans/", "docs/issues/", "docs/product/"],
+  "specs_dir": "docs/specs", "plans_dir": "docs/plans", "build_order": "docs/product/blueprint.html",
   "apps": { "web": { "test": "npm test", "install": "npm ci",
                      "cleanup": "npm run test:db:drop", "image": "docker compose build web" } },
   "design": { "tokens": "docs/product/design-system/tokens.json", "ui_paths": ["web/"],
@@ -110,6 +114,7 @@ tests/                  # python -m unittest discover -s tests
 evals/                  # trigger evals, billed: claude plugin eval . --ablation none --scaffold
 agents/
   implementer.md        # devflow:implementer: one task or issue, test-first, in its own worktree
+  planner.md            # devflow:planner: one milestone into test-first tasks; writes only its plan
   reviewer.md           # devflow:reviewer
 shared/
   merge.md              # the merge procedure, linked from every skill that merges
@@ -117,6 +122,10 @@ skills/
   fix-bug/
     SKILL.md
     scripts/issues_status.py
+  implement/
+    SKILL.md
+    scripts/plan_status.py      # the next batch, stuck tasks, tasks waiting on an issue
+    scripts/rules_coverage.py   # every rule in a plan's scope, with or without a named test
   review/
     SKILL.md
   repo-discovery/

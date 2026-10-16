@@ -50,6 +50,8 @@ so.
 | [D-031](0031-merging-is-the-main-sessions-job-after-the.md) | Merging is the main session's job, after the developer's yes for each change | Accepted |
 | [D-032](0032-instructions-used-by-more-than-one-skill-live.md) | Instructions used by more than one skill live in `shared/` | Accepted |
 | [D-033](0033-bugs-are-issues-fixed-on-their-own-branch.md) | Bugs are issues in `docs/issues/`, fixed on their own branch; a blocking bug blocks by reference | Accepted |
+| [D-034](0034-rules-with-ids-are-the-unit-of-specification.md) | Rules with IDs are the unit of specification, testing and review | Accepted |
+| [D-035](0035-the-orchestrator-never-writes-product-code-tests-or.md) | The orchestrator never writes product code, tests or specs; the plan file is the progress record | Accepted |
 
 ## Conventions
 

@@ -1,7 +1,7 @@
 {
   "name": "devflow",
-  "description": "Workflow skills and guards for building with agents: orienting in an unfamiliar repo, recording decisions with the evidence behind them, fixing bugs test-first from docs/issues/ and reviewing changes against their specs with isolated agents, and hooks that hold the rules every time.",
-  "version": "0.14.1",
+  "description": "Workflow skills and guards for building with agents: orienting in an unfamiliar repo, recording decisions with the evidence behind them, building a milestone of spec rules task by task with planner, implementer and reviewer agents, fixing bugs test-first from docs/issues/, reviewing changes against their specs, and hooks that hold the rules every time.",
+  "version": "0.15.0",
   "author": {
     "name": "dantelyro"
   },
@@ -21,6 +21,7 @@
     "hooks",
     "guardrails",
     "bug-fixing",
-    "tdd"
+    "tdd",
+    "orchestration"
   ]
 }
