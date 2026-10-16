@@ -15,9 +15,12 @@ several changes at once; merge them one by one all the same.
 1. **Clean and current.** `git status --porcelain` is empty and the current branch is the default
    branch (`.claude/devflow.json`, else `main`). Otherwise stop and say what is in the way.
 2. **Merge without committing.** `git merge --no-ff --no-commit <branch>`. A conflict → `git merge
-   --abort`, tell the developer, and stop: resolving it is a change of its own, reviewed like any
-   other.
+   --abort`, tell the developer which files conflict, and stop. With their yes, the change is redone
+   by a new implementer starting from the current default branch, and reviewed again (`implement` says
+   how). Never resolve it yourself, and never inside an agent's worktree.
 3. **Prove it on the default branch.**
+   - Install first: each touched app's `install` command, run on the default branch, so the tests
+     run against the merged lock files.
    - Tests: every app the change touches runs its `test` command. With `apps` configured, the commit
      in step 4 runs them through the pre-commit gate; without, run them yourself now. Before running
      them, check that nothing else holds the services the tests use (`docker ps`: an agent's test

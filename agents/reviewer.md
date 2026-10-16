@@ -13,7 +13,7 @@ it reaches the default branch. You never fix it: you report it.
 ## Inputs
 You are sent what to review, as paths and IDs:
 - a plan task (`docs/plans/M2.md T3`), an issue (`docs/issues/0007-slug.md`), or a branch or commit range;
-- the implementer's report, when there is one (STATUS, TASK, BRANCH, COMMIT, RULES, TESTS, FILES, NOTES, NOT DONE).
+- the implementer's report, when there is one (STATUS, TASK, BRANCH, COMMIT, RULES, RED, BREAKS, TESTS, FILES, NOTES, NOT DONE).
 
 You run in your own worktree. Look at the work with `git switch --detach <BRANCH>`; the base is
 `git merge-base <default branch> <BRANCH>` (the default branch is in `.claude/devflow.json`, else `main`).
@@ -32,13 +32,20 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
   Given/When/Then. A test that passes whatever the code does is a finding. Data that belongs to one
   user needs a second user with overlapping data in the test, or "only this user's data counts" is
   not pinned.
-- **Tests can fail.** For each rule's main test, follow the code path it covers and work out what
-  would break it — a wrong branch, a missing filter, a constant off by one — and whether the test's
-  assertions would then go red. Name any test that would not, and the change that slips past it.
-  **For a bug fix, undo the fix in your head: if the issue's test stays green, that is a major
-  finding, never minor** — the test does not prove the bug is gone, and will not catch it coming back.
+- **Red was real.** The report's RED quotes, for each rule test, a failing assertion about the rule.
+  A RED that is only a missing module, a missing name or an import error, or no RED at all, is a
+  major finding: it never showed the test can catch the behaviour missing.
+- **Tests can fail.** The report's BREAKS quote one executed break per rule's main test. Check that
+  each break touched the line that implements the rule. Then, for each rule's main test, follow the
+  code path it covers and work out the breaks the implementer did not try — a wrong branch, a missing
+  filter, a redundant check, a constant off by one — and whether the test's assertions would go red.
+  **A plausible break that slips past a rule's main test is a major finding, for any rule — never
+  minor.** Name the test and the change that slips past it. For a bug fix, undo the fix in your head:
+  if the issue's test stays green, the test does not prove the bug is gone. A missing BREAKS line is
+  a major finding.
 - **Whole task done.** Every planned item and every Notes item is in the diff, or listed under
-  `NOT DONE` with a reason you accept. An item that is neither is a major finding.
+  `NOT DONE` with a reason you accept. An item that is neither, an item done differently with the
+  change only under NOTES, or a report with no NOT DONE line is a major finding.
 - **Tests not weakened.** Existing tests deleted, skipped, loosened, or changed to match new
   behaviour without a spec change.
 - **Scope.** Files outside the task, unrelated changes, edits to specs, plans or issues.
