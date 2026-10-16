@@ -113,7 +113,7 @@ class Issues(Base):
         self.write("docs/issues/0001-broken.md", ISSUE.format(status="open", blocks="docs/plans/M2.md T1"))
         out = self.status()[1]
         self.assertEqual(out["ready"], ["T2"])
-        self.assertEqual(out["waiting"], [{"task": "T1", "issues": ["I-0001"]}])
+        self.assertEqual(out["waiting"], [{"task": "T1", "issues": ["I-0001"], "blockers": []}])
 
     def test_a_fixed_or_wontfix_issue_does_not(self):
         self.write("docs/plans/M2.md", plan(task(1)))
@@ -140,6 +140,42 @@ class OtherTaskLetters(Base):
         self.write("docs/plans/M2.md", plan(task(1, depends="none (MATCH-010 is covered elsewhere)")))
         code, out, err = self.status()
         self.assertEqual((code, out["ready"]), (0, ["T1"]), err)
+
+
+class PlanBlockers(Base):
+    """A task may depend on an entry of the plan's Blockers (Inverso M2: `needs Gabriel (B18)`)."""
+
+    BLOCKERS = "## Blockers\n- B18 (needs Gabriel, blocks T2 only): exports from Google Docs.\n"
+
+    def with_blockers(self, text):
+        return text.replace("## Blockers\nnone\n", self.BLOCKERS)
+
+    def test_a_blocker_holds_the_task_and_is_not_an_error(self):
+        self.write("docs/plans/M2.md", self.with_blockers(
+            plan(task(1, "done (abc1234)"), task(2, depends="T1; needs Gabriel (B18)"))))
+        code, out, err = self.status()
+        self.assertEqual((code, out["errors"]), (0, []), err)
+        self.assertEqual((out["ready"], out["batch"]), ([], []))
+        self.assertEqual(out["waiting"], [{"task": "T2", "issues": [], "blockers": ["B18"]}])
+
+    def test_a_blocked_task_still_waits_for_its_task_dependencies_first(self):
+        self.write("docs/plans/M2.md", self.with_blockers(
+            plan(task(1), task(2, depends="T1, B18"))))
+        code, out, err = self.status()
+        self.assertEqual((code, out["ready"], out["waiting"]), (0, ["T1"], []), err)
+
+    def test_once_the_blocker_is_gone_from_the_list_the_task_is_ready(self):
+        self.write("docs/plans/M2.md", plan(task(1, "done (abc1234)"), task(2, depends="T1, B18")))
+        code, out, _ = self.status()
+        self.assertEqual(code, 1)
+        self.assertIn("B18", out["errors"][0])  # not a task and no longer a blocker: an error
+
+    def test_text_output_names_the_blocker(self):
+        self.write("docs/plans/M2.md", self.with_blockers(
+            plan(task(1, "done (abc1234)"), task(2, depends="T1 (B18)"))))
+        proc = subprocess.run([sys.executable, str(SCRIPT), "docs/plans/M2.md"], cwd=self.repo,
+                              capture_output=True, text=True, encoding="utf-8")
+        self.assertIn("waiting: T2 on B18 (Blockers)", proc.stdout)
 
 
 class Errors(Base):

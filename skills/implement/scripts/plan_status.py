@@ -3,7 +3,8 @@
   ready        todo tasks whose dependencies are all done and that no open issue blocks
   batch        the first ready task plus the ready tasks it lists as parallel-safe (--max, default 3)
   in_progress  tasks an earlier session left in progress (the resume rule looks at their branches)
-  waiting      todo tasks held by an open issue in docs/issues/ (Blocks: <plan> <task>)
+  waiting      todo tasks held by an open issue in docs/issues/ (Blocks: <plan> <task>), or by an
+               entry of the plan's Blockers named in their Depends on (`needs Gabriel (B18)`)
   blocked      tasks marked `blocked: <reason>`
 add --json for machine-readable output. Exit 1 when the plan cannot be read or has errors.
 
@@ -30,12 +31,20 @@ def task_ids(text: str) -> list[str]:
     return re.findall(r"(?<![\w-])[A-Z]\d+[a-z]?(?![\w-])", text)
 
 
+def plan_blockers(plan_text: str) -> set[str]:
+    """IDs that open an item of the `## Blockers` section: `- B18 (needs Gabriel): ...`."""
+    m = re.search(r"^## Blockers\s*$(.*?)(?=^## |\Z)", plan_text, re.M | re.S)
+    if not m:
+        return set()
+    return set(re.findall(r"^\s*[-*]\s+\**([A-Z]\d+[a-z]?)(?![\w-])", m.group(1), re.M))
+
+
 def parse(plan_text: str) -> tuple[list[dict], list[str]]:
     tasks, errors, current = [], [], None
     for line in plan_text.splitlines():
         m = TASK.match(line)
         if m:
-            current = {"id": m.group(1), "title": m.group(2), "status": None, "depends": [], "parallel": []}
+            current = {"id": m.group(1), "title": m.group(2), "status": None, "depends": [], "parallel": [], "blockers": []}
             tasks.append(current)
         elif line.startswith("## "):
             current = None
@@ -48,6 +57,7 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
             elif f:
                 current["parallel"] = task_ids(f.group(2))
     known = {t["id"] for t in tasks}
+    blockers = plan_blockers(plan_text)
     for t in tasks:
         s = STATUS.match(t.get("status_text", ""))
         if not s:
@@ -56,6 +66,8 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
             continue
         t["status"] = s.group(1) or ("done" if s.group(2) else "blocked")
         t["reason"] = s.group(3)
+        t["blockers"] = [d for d in t["depends"] if d in blockers and d not in known]
+        t["depends"] = [d for d in t["depends"] if d not in t["blockers"]]
         for dep in t["depends"]:
             if dep not in known:
                 errors.append(f"{t['id']}: depends on {dep}, which is not in the plan")
@@ -94,8 +106,8 @@ def main() -> None:
         if t["status"] != "todo" or any(by_id.get(d, {}).get("status") != "done" for d in t["depends"]):
             continue
         held = blocking_issues(plan, t["id"])
-        if held:
-            waiting.append({"task": t["id"], "issues": held})
+        if held or t["blockers"]:
+            waiting.append({"task": t["id"], "issues": held, "blockers": t["blockers"]})
         else:
             ready.append(t["id"])
     batch = []
@@ -119,7 +131,7 @@ def main() -> None:
         print("ready: " + (", ".join(ready) or "none"))
         print("in progress: " + (", ".join(out["in_progress"]) or "none"))
         for w in waiting:
-            print(f"waiting: {w['task']} on {', '.join(w['issues'])}")
+            print(f"waiting: {w['task']} on " + ", ".join(w["issues"] + [f"{b} (Blockers)" for b in w["blockers"]]))
         for b in out["blocked"]:
             print(f"blocked: {b['task']} — {b['reason']}")
         print(f"done: {len(out['done'])} of {len(tasks)}")

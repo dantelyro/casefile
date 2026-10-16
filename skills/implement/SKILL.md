@@ -45,7 +45,7 @@ redo by hand what they report.
 ## 2. Loop until every task is done or blocked
 
 1. **Batch.** Run `implement/scripts/plan_status.py <plan>`. Its `batch` is the next batch; `waiting`
-   tasks are held by open issues and stay out.
+   tasks are held by an open issue or by an entry of the plan's Blockers, and stay out.
 2. **Implement.** Set each batch task to `Status: in-progress` in the plan, then dispatch one
    `devflow:implementer` per task **in one message**: `Implement <plan> <task>.` Add the minor
    findings carried over from earlier tasks that touch the same files. Keep each agent's id.
