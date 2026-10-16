@@ -94,3 +94,20 @@ that has not agreed to it.
 
 The spec's test is building Inverso's M2 with `implement` instead of `build-milestone`. The developer's
 own session is already building M2 with `build-milestone`; how to test 0.15.0 is theirs to decide.
+
+- [x] Ran on 2026-10-16, with the developer's yes, in a throwaway clone of Inverso at `95ca736` with
+      its own Postgres on port 55432, headless (`claude -p --plugin-dir`), with a blanket yes for
+      merges. "Continue building M2" resumed the plan: T12, stuck in progress with nothing on its
+      branch, went back to todo; one batch (T2, T12, T20) ran in parallel, was reviewed, fixed and
+      merged; `plan_status.py` then gave T3, T21. Merged suites green (worker 87, web 47); 8 of 10
+      breaks we made by hand were caught.
+- [x] Found and fixed in `961a067`: a task depending on a plan Blocker (`needs Gabriel (B18)`) was an
+      error; it now waits.
+- [x] Found and fixed in `6c2bbf8`: every red failed on a missing module, never an assertion; two
+      of three reviewers only reasoned about breaks (the two surviving breaks are T2's redundant
+      `word/document.xml` check and T20's empty PDF type); a privacy test a plausible break slips
+      past was rated minor; the orchestrator started a merge inside T2's worktree to resolve a
+      conflict and told T12's implementer to merge main; it wrote "developer approved" for choices
+      never asked; tests on `main` ran without installing web dependencies; one report had no NOT
+      DONE line and another left a changed Notes item under NOTES only. The conflict path is the
+      developer's ruling (D-036).

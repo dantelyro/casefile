@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `2d64684` — 2026-10-16
+**Docs reconciled through:** `6c2bbf8` — 2026-10-16
 
 ## What this repo is
 
@@ -67,7 +67,7 @@ already exists; `evidence-based-decisions` records *why* and keeps it honest; `r
 `devflow:reviewer` for a verdict on one change; `fix-bug` takes one issue from `docs/issues/` through
 `devflow:implementer`, the reviewer and a merge; `implement` builds a milestone of spec rules from
 a `devflow:planner` plan, task by task through the same implementer, reviewer and merge, and never
-writes code, tests or specs itself — the plan file is the progress record (D-034, D-035). Instructions more than one skill uses live in
+writes code, tests or specs itself — the plan file is the progress record (D-034, D-035); a task that conflicts at merge is redone from the default branch (D-036). Instructions more than one skill uses live in
 `shared/` and are linked directly from each `SKILL.md` (D-032). None writes a document into
 a project that has not agreed to it. Agents live flat in `agents/` (a subfolder becomes part of the
 name), and every rule an agent must obey is a plugin hook branching on `agent_type`, because a
