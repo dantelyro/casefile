@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "devflow",
-      "description": "Workflow skills and guards for building with agents: orienting in an unfamiliar repo, recording decisions with the evidence behind them, reviewing a change against its spec with an isolated agent, and hooks that hold the rules every time.",
+      "description": "Workflow skills and guards for building with agents: orienting in an unfamiliar repo, recording decisions with the evidence behind them, fixing bugs test-first from docs/issues/ and reviewing changes against their specs with isolated agents, and hooks that hold the rules every time.",
       "author": {
         "name": "dantelyro"
       },

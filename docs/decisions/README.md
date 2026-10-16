@@ -47,6 +47,9 @@ so.
 | [D-028](0028-enforcement-hooks-fail-closed-and-are-plugin-wide.md) | Enforcement hooks fail closed and are plugin-wide | Accepted, supersedes D-005 |
 | [D-029](0029-git-push-asks-the-developer-and-is-denied.md) | `git push` asks the developer and is denied to every agent | Accepted |
 | [D-030](0030-workflows-ship-as-plugin-agents-plus-skills-one.md) | Workflows ship as plugin agents plus skills, one spec and one release each | Accepted |
+| [D-031](0031-merging-is-the-main-sessions-job-after-the.md) | Merging is the main session's job, after the developer's yes for each change | Accepted |
+| [D-032](0032-instructions-used-by-more-than-one-skill-live.md) | Instructions used by more than one skill live in `shared/` | Accepted |
+| [D-033](0033-bugs-are-issues-fixed-on-their-own-branch.md) | Bugs are issues in `docs/issues/`, fixed on their own branch; a blocking bug blocks by reference | Accepted |
 
 ## Conventions
 

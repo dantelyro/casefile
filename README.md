@@ -30,12 +30,14 @@ without bumping it and every existing install keeps the cached copy.
 ### `devflow`
 
 Workflow skills and guards for building with agents — orienting in a codebase, recording why it
-is the way it is, reviewing changes against their specs, and hooks that hold the rules every time.
+is the way it is, fixing bugs test-first, reviewing changes against their specs, and hooks that hold the rules every
+time.
 
 | Skill | What it does |
 | --- | --- |
 | `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
 | `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `devflow:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
+| `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `devflow:implementer` reproduces it with a failing test and fixes it on its own branch, `devflow:reviewer` checks it, and it is merged after your yes ([`shared/merge.md`](shared/merge.md)). `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
 | `evidence-based-decisions` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
 The two compose: `repo-discovery` answers what an existing project **is**, and
@@ -52,7 +54,8 @@ Hooks, on in every project where devflow is enabled, failing closed (D-028). The
 - `git push` asks you in your own session and is refused to every agent (D-029).
 - `docker compose down -v` and `--no-verify` are refused to everyone.
 - Agents may not kill processes by name, or change any `.claude` folder.
-- `devflow:reviewer` only reads; devflow agents stay out of the project's protected paths.
+- `devflow:reviewer` only reads; devflow agents stay out of the project's protected paths and never
+  write `docs/issues/`; `devflow:implementer` may not merge, rebase or switch to the default branch.
 - Every commit: no skipped or focused tests, the design check on added UI lines, and the test
   command of every configured app it touches.
 - UI code may use only what the project's design system (`tokens.json`) defines.
@@ -104,10 +107,16 @@ hooks/
   run.py                # runs one hook; refuses the call if the hook fails
   devflow_hooks/        # the hooks, standard-library Python
 tests/                  # python -m unittest discover -s tests
-evals/                  # trigger evals, billed: claude plugin eval . --ablation none
+evals/                  # trigger evals, billed: claude plugin eval . --ablation none --scaffold
 agents/
+  implementer.md        # devflow:implementer: one task or issue, test-first, in its own worktree
   reviewer.md           # devflow:reviewer
+shared/
+  merge.md              # the merge procedure, linked from every skill that merges
 skills/
+  fix-bug/
+    SKILL.md
+    scripts/issues_status.py
   review/
     SKILL.md
   repo-discovery/
