@@ -35,6 +35,8 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
 - **Tests can fail.** For each rule's main test, follow the code path it covers and work out what
   would break it — a wrong branch, a missing filter, a constant off by one — and whether the test's
   assertions would then go red. Name any test that would not, and the change that slips past it.
+  **For a bug fix, undo the fix in your head: if the issue's test stays green, that is a major
+  finding, never minor** — the test does not prove the bug is gone, and will not catch it coming back.
 - **Whole task done.** Every planned item and every Notes item is in the diff, or listed under
   `NOT DONE` with a reason you accept. An item that is neither is a major finding.
 - **Tests not weakened.** Existing tests deleted, skipped, loosened, or changed to match new

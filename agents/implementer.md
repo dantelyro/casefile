@@ -30,6 +30,10 @@ You are sent a path and an ID, nothing more. Read:
    `test_MATCH_010_…`); for an issue, the test named under "Test that must fail first". Run them and
    confirm they **fail for the right reason** — the behaviour is missing or wrong, not a typo or an
    import error. A test about one user's data has a second user whose data overlaps.
+   **For an issue, the failing test reproduces the reported behaviour through the code the bug is
+   in**, as "How to see it" describes, so that undoing the fix turns it red again. A test of a helper
+   you are about to write fails only because the helper does not exist yet — that is the wrong reason,
+   and it stays green if the bug comes back.
 3. **Green.** The least code that makes them pass.
 4. **Refactor.** Clean names and duplication without changing behaviour; run the tests again.
 5. **Check.** The task's "Done when" check, then the test command of every app you touched.
