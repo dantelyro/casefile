@@ -179,6 +179,7 @@ class Config(unittest.TestCase):
         self.assertEqual(cfg["apps"], {})
         self.assertEqual(cfg["design"]["tokens"], "docs/product/design-system/tokens.json")
         self.assertEqual(cfg["design"]["ui_paths"], [])
+        self.assertEqual(cfg["build_order"], "docs/product/blueprint.html")
 
     def test_partial_file_keeps_other_defaults(self):
         self.write('{"protected_paths": ["docs/specs/"], "design": {"ui_paths": ["web/"]}}')

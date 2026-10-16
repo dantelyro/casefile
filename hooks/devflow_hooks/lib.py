@@ -112,6 +112,7 @@ _DEFAULTS = {
     "rule_id_pattern": r"[A-Z]+-\d{3}",
     "specs_dir": "docs/specs",
     "plans_dir": "docs/plans",
+    "build_order": "docs/product/blueprint.html",
     "design": {
         "tokens": "docs/product/design-system/tokens.json",
         "ui_paths": [],
@@ -124,7 +125,7 @@ _DEFAULTS = {
 
 _TYPES = {
     "default_branch": str, "protected_paths": list, "apps": dict, "allow_skip_markers_in": list, "rule_id_pattern": str,
-    "specs_dir": str, "plans_dir": str, "design": dict,
+    "specs_dir": str, "plans_dir": str, "build_order": str, "design": dict,
     "design.tokens": str, "design.ui_paths": list, "design.components_dir": (str, type(None)),
     "design.classes": (str, type(None)), "design.raw_values_allowed": list,
     "design.forbidden_imports": list,
