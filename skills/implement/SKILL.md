@@ -25,6 +25,8 @@ redo by hand what they report.
   else `main`).
 - The milestone has rules: its scope in the build order, and `### RULE-ID · …  [MVP]` headings in the
   specs. None → stop and say the specs come first.
+- The specs hold together: `write-specs/scripts/spec_lint.py` exits 0. Its errors are shown, and
+  the milestone waits until the specs are fixed (`write-specs`); warnings are shown and don't stop it.
 - Every tool the milestone's apps need is installed **and running** — a database the integration
   tests use means Docker answering `docker ps`, not just installed: a reviewer that cannot run the
   tests cannot approve.

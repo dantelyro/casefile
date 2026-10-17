@@ -89,7 +89,7 @@ it.
 
 ## Task 5 — `implement` lints the specs first
 
-- [ ] A precondition: `spec_lint.py` passes before planning; its errors are shown and the milestone
+- [x] A precondition: `spec_lint.py` passes before planning; its errors are shown and the milestone
       waits for the specs to be fixed.
 
 ## Task 6 — Decisions, docs, version
