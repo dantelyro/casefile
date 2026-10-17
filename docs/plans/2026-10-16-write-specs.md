@@ -101,3 +101,14 @@ it.
 
 The spec's test: the output of a real brainstorm for an Inverso feature becomes specs and a
 milestone that `implement` builds without inventing a spec gap.
+
+- [x] Ran on 2026-10-17: the developer brainstormed Pro job alerts, then asked for specs. It waited
+      for the end of the brainstorm, read the existing specs first, reworked four brainstorm ideas
+      that clashed with logged decisions, asked every question at once, turned the one unanswered
+      question (defaults) into Q14 instead of filling it in, and followed the repo's own decision
+      files on the developer's ruling. `spec_lint.py`: 155 rules, no errors.
+- [x] Found and fixed: the session started outside any repository (a Windows path given for Git
+      Bash), and the skill searched the projects folder and committed into the real Inverso
+      (unpushed; the developer chose to remove it). It now works only in the repository it runs
+      in, and asks otherwise. After the yes it split "on by default" into a rule of its own and
+      renumbered the rest; it now shows any change against the approved draft and asks again.

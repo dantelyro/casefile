@@ -25,6 +25,10 @@ they do.
 - **Brainstorming is not this skill's.** If the developer is still exploring, don't start, and
   never interrupt a brainstorm to talk about specs. Begin when they say it is over; then take all of
   it in one go.
+- **The project is the repository the session runs in** (`git rev-parse --show-toplevel`). Not in
+  a repository → ask the developer which project, and where it is; never pick one by searching
+  folders, even when only one candidate fits. A brand-new project starts only where the developer
+  says.
 - Read what exists: the specs folder (`specs_dir` in `.claude/devflow.json`, else `docs/specs`) and
   its README, `docs/product/product-decisions.md`, `docs/product/open-questions.md`, the
   `docs/decisions/` index, and the build order (`build_order`, else `docs/product/blueprint.html`,
@@ -73,6 +77,10 @@ A question still unanswered after the yes stays in `open-questions.md` with what
 that depends on it is not `[MVP]` until it is answered.
 
 ## 3. Write — only after the yes
+
+**Write what was approved, exactly.** If the answers change the draft — a new rule, a split, a
+renumbering, a different tag — show what changed against the approved draft and ask again before
+writing: the yes covered the draft as it stood.
 
 1. Spec files, the specs README's file table, the build order.
 2. `product-decisions.md` and `open-questions.md` (formats in `references/specs-layout.md`). An
