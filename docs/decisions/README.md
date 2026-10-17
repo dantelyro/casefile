@@ -56,6 +56,7 @@ so.
 | [D-037](0037-product-answers-and-logged-decisions-are-kept-apart.md) | Product answers and logged decisions are kept apart, and nothing is accepted by silence | Accepted |
 | [D-038](0038-the-decision-logs-numbering-entries-and-index-are.md) | The decision log's numbering, entries and index are scripts | Accepted |
 | [D-039](0039-designs-live-in-the-project-as-copies-of.md) | Designs live in the project as copies of their artifacts | Accepted |
+| [D-040](0040-devflow-proposes-worktree-baseref-head-with-devflow-json.md) | Devflow proposes worktree.baseRef head with devflow.json | Accepted |
 
 ## Conventions
 

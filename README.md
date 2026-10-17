@@ -70,7 +70,9 @@ run`, `uv run pytest -q`…) and runs in its folder — `path`, defaulting to th
 the whole repository. The skipped-test check knows Node and Python test files only. `install` sets up a fresh worktree; `cleanup` runs in a
 worktree before it is removed at merge; `image` rebuilds the app's container when a merge touched it.
 `specs_dir`, `plans_dir` and `build_order` (the page whose "Build order" section lists the
-milestones) tell `implement` and the planner where things are; the values shown are the defaults.
+milestones) tell `implement` and the planner where things are; the values shown are the defaults. Alongside it,
+devflow proposes `"worktree": { "baseRef": "head" }` in `.claude/settings.json`, so agent worktrees
+start from your local commits rather than the remote's (D-040).
 
 ```json
 {

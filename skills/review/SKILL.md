@@ -25,8 +25,11 @@ produced it is how a change gets approved by the reasoning that wrote it.
    when the target is ambiguous; do not guess which branch.
 2. **Project settings.** Read `.claude/devflow.json`. If it does not exist, propose one — the
    default branch, each app's folder with its `test` and `install` commands as found in the
-   project files, and the protected paths — show it, and **wait** for the developer's yes before
-   writing it. Without it, the reviewer still runs, finding test commands itself.
+   project files, and the protected paths — and with it `"worktree": { "baseRef": "head" }` in
+   `.claude/settings.json` (merged into what is there), so agent worktrees start from local HEAD
+   instead of the remote, which misses every unpushed commit (D-040). Show both, and **wait** for
+   the developer's yes before writing them. Without them, the reviewer still runs, finding test
+   commands itself.
 3. **Check the tests can run.** For every app the change touches, the tools its test command needs
    must be running, not just installed: Docker's daemon (`docker info`), a database container the
    suite expects. If one is down, tell the developer before dispatching — a reviewer that cannot

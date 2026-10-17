@@ -25,6 +25,10 @@ redo by hand what they report.
   else `main`).
 - The milestone has rules: its scope in the build order, and `### RULE-ID · …  [MVP]` headings in the
   specs. None → stop and say the specs come first.
+- `.claude/devflow.json` exists and `.claude/settings.json` has `"worktree": { "baseRef": "head" }`.
+  Either missing → propose them as `review` does (step 2), write and commit them after the
+  developer's yes. Without the setting, every agent branches from the remote and misses the specs,
+  the plan and each unpushed merge (D-040).
 - The specs hold together: `write-specs/scripts/spec_lint.py` exits 0. Its errors are shown, and
   the milestone waits until the specs are fixed (`write-specs`); warnings are shown and don't stop it.
 - Every tool the milestone's apps need is installed **and running** — a database the integration
