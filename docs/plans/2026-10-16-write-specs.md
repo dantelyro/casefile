@@ -52,7 +52,7 @@ it.
 
 ## Task 2 — The evidence skill uses the scripts
 
-- [ ] `SKILL.md` and `references/decision-log.md`: numbering, a new entry and the index come from the
+- [x] `SKILL.md` and `references/decision-log.md`: numbering, a new entry and the index come from the
       scripts, never by hand; `Proposed` joins the status table (written by `write-specs`, becomes
       `Accepted` at the developer's yes, then the index is regenerated).
 

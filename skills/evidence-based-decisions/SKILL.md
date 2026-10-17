@@ -109,7 +109,10 @@ See "Attribution" in `references/decision-log.md`.
 3. **Build, with unverified values quarantined** — named constants, one call site, a comment
    saying what they were derived from and how to confirm them.
 4. **Record the decision** with its evidence grade, as a new file in `decisions/`. See
-   `references/decision-log.md`.
+   `references/decision-log.md`. The number, the file and the index come from scripts, never by
+   hand: run `<python> "${CLAUDE_PLUGIN_ROOT}/skills/evidence-based-decisions/scripts/decision_new.py"`
+   with the entry's fields (it writes `Status: Proposed`), set `Accepted` once the call is made,
+   then run `decision_index.py` beside it (`<python>` is `py -3` on Windows, `python3` elsewhere).
 5. **Verify, and say which axis you verified.** See `references/verifying-external-systems.md`.
 6. **When a claim proves false, correct it everywhere** — immediately, as its own concern, then
    sweep for the same claim elsewhere. See `references/living-documents.md`.

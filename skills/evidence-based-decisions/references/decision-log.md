@@ -22,8 +22,10 @@ docs/
 ```
 
 `NNNN-kebab-slug.md`, four digits, slug from the first eight words of the title. The file opens
-with `# D-NNN — Title`, then the entry format below. The index is generated from the directory
-and carries id, title, status and conventions only; the moment it holds reasoning there are two
+with `# D-NNN — Title`, then the entry format below. `scripts/decision_new.py` writes a new entry
+that way and `scripts/decision_index.py` generates the index from the directory, so the numbering,
+the slug and the index come out the same whoever records the decision. The index carries id,
+title, status and conventions only; the moment it holds reasoning there are two
 places to update and they will disagree.
 
 `decisions/` is a **sibling** of `architecture/` because they answer different questions: the
@@ -174,7 +176,7 @@ Sequential `D-NNN`, matching the `NNNN-` filename, never reused. The highest fil
 `decisions/` is the pointer, so keep no `next id` anywhere:
 
 ```bash
-ls docs/decisions/ | tail -1
+python3 scripts/decision_next_id.py docs/decisions   # py -3 on Windows; ignores 0013b-style files
 ```
 
 Nothing to bump, nothing to contend over, and it cannot drift out of sync with reality.
@@ -220,6 +222,7 @@ bad evidence" is worth more to a future reader than a tidy history.
 
 | Status | Means |
 |---|---|
+| **Proposed** | Drafted, not yet confirmed by the person who decides; never read as decided |
 | **Accepted** | Decided and in force |
 | **Open** | The question is recorded, the answer is not |
 | **Superseded by D-NNN** | Wrong or overtaken. Body preserved |
