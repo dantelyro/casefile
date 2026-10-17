@@ -93,6 +93,11 @@ class NewEntry(Base):
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertTrue((self.log / "0001-implement-never-writes-code-tests-or-specs-the.md").exists())
 
+    def test_an_apostrophe_does_not_split_a_word(self):
+        r = self.new("The log’s index and the developer's yes")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertTrue((self.log / "0001-the-logs-index-and-the-developers-yes.md").exists())
+
     def test_creates_the_folder(self):
         r = self.new("First")
         self.assertEqual(r.returncode, 0, r.stderr)

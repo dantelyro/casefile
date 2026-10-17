@@ -17,7 +17,7 @@ from decision_next_id import next_id  # noqa: E402
 
 
 def slug(title: str) -> str:
-    return "-".join(re.sub(r"[^a-z0-9]+", " ", title.lower()).split()[:8])
+    return "-".join(re.sub(r"[^a-z0-9]+", " ", re.sub(r"['’]", "", title.lower())).split()[:8])
 
 
 def main() -> None:
