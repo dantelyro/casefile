@@ -85,7 +85,7 @@ it.
 - [x] `references/`: the specs README template (the five rules, the rule format, the tags, the file
       table), and the formats of `product-decisions.md` and `open-questions.md`.
 - [x] Trigger evals: a feature description, a finished brainstorm; not a request to brainstorm, not
-      "build M2". Not yet run: the account hit its weekly limit (2026-10-16).
+      "build M2". Run 2026-10-17: 4/4 cases, 8/8 runs; the full set 19/19.
 
 ## Task 5 — `implement` lints the specs first
 
