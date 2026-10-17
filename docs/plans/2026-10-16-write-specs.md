@@ -76,16 +76,16 @@ it.
 
 ## Task 4 — The `write-specs` skill
 
-- [ ] `SKILL.md`: read the input → draft → one approval step → write and commit → hand over to
+- [x] `SKILL.md`: read the input → draft → one approval step → write and commit → hand over to
       `implement`. Brainstorming is never interrupted or started by it. Open questions collected and
       asked together. Nothing accepted by silence. Product decisions, logged decisions and open
       questions kept apart per the spec's table. Designs found by name among the developer's
       artifacts and copied into `docs/product/`; more than one match or none listed → ask for the
       link. `spec_lint.py` runs before the commit.
-- [ ] `references/`: the specs README template (the five rules, the rule format, the tags, the file
+- [x] `references/`: the specs README template (the five rules, the rule format, the tags, the file
       table), and the formats of `product-decisions.md` and `open-questions.md`.
-- [ ] Trigger evals: a feature description, a finished brainstorm; not a request to brainstorm, not
-      "build M2".
+- [x] Trigger evals: a feature description, a finished brainstorm; not a request to brainstorm, not
+      "build M2". Not yet run: the account hit its weekly limit (2026-10-16).
 
 ## Task 5 — `implement` lints the specs first
 
