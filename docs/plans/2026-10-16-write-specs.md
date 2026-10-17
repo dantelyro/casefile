@@ -35,7 +35,7 @@ it.
 
 ## Task 1 — The decision-log scripts
 
-- [ ] Tests first, in a temporary repository:
+- [x] Tests first, in a temporary repository:
   - `decision_next_id.py [dir]`: `D-001` on an empty or missing folder; one past the highest
     `NNNN-` filename; letter-suffixed files (`0013b-…`) never raise the number; `README.md` and
     other files ignored.

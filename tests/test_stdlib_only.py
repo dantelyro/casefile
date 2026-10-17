@@ -25,7 +25,8 @@ class StdlibOnly(unittest.TestCase):
                     continue
                 for name in names:
                     top = name.split(".")[0]
-                    if top not in sys.stdlib_module_names and top not in OWN:
+                    sibling = (path.parent / f"{top}.py").exists()
+                    if top not in sys.stdlib_module_names and top not in OWN and not sibling:
                         bad.append(f"{path.relative_to(ROOT)}: {name}")
         self.assertEqual(bad, [])
 

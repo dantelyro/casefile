@@ -38,7 +38,7 @@ so.
 | [D-019](0019-parallel-dispatch-over-a-round-table.md) | Parallel dispatch over a round table | SUPERSEDED by D-026 |
 | [D-020](0020-the-seeding-path-splits-by-evidence-grade.md) | The seeding path splits by evidence grade | Accepted |
 | [D-021](0021-the-frontend-actor-drafts-the-design-direction.md) | The frontend actor drafts the design direction | SUPERSEDED by D-026 |
-| [D-022](0022-the-cast-replaces-the-scaffolder.md) | The cast replaces the scaffolder | SUPERSEDED by D-026 |
+| [D-022](0022-the-cast-replaces-the-scaffolder.md) | The cast replaces the scaffolder | SUPERSEDED by D-026, supersedes D-013 |
 | [D-023](0023-requirements-leaves-the-evidence-skills-doc-set.md) | Requirements leaves the evidence skill's doc set | Accepted, supersedes D-011b |
 | [D-024](0024-skill-authoring-follows-a-version-watermarked-vendor-digest.md) | Skill authoring follows a version-watermarked vendor digest, and references never nest | Accepted |
 | [D-025](0025-the-casts-prompts-are-fixed-templates-and-actor-models.md) | The cast's prompts are fixed templates, and actor models are set per dispatch | SUPERSEDED by D-026 |
