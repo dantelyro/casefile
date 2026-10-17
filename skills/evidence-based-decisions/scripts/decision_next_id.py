@@ -18,4 +18,5 @@ def next_id(folder: str) -> str:
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")  # readers decode UTF-8, whatever the console uses
     print(next_id(sys.argv[1] if len(sys.argv) > 1 else os.path.join("docs", "decisions")))

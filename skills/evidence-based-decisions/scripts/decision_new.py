@@ -47,4 +47,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf-8")  # readers decode UTF-8, whatever the console uses
     main()
