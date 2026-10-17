@@ -62,12 +62,12 @@ user message states. `hooks/devflow_hooks/session_start.py` injects that trigger
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 See D-003 and D-004.
 
-**Five skills and three agents, each with its own moment.** `repo-discovery` reads a project that
+**Six skills and three agents, each with its own moment.** `repo-discovery` reads a project that
 already exists; `evidence-based-decisions` records *why* and keeps it honest; `review` dispatches
 `devflow:reviewer` for a verdict on one change; `fix-bug` takes one issue from `docs/issues/` through
 `devflow:implementer`, the reviewer and a merge; `implement` builds a milestone of spec rules from
 a `devflow:planner` plan, task by task through the same implementer, reviewer and merge, and never
-writes code, tests or specs itself — the plan file is the progress record (D-034, D-035); a task that conflicts at merge is redone from the default branch (D-036). Instructions more than one skill uses live in
+writes code, tests or specs itself — the plan file is the progress record (D-034, D-035); a task that conflicts at merge is redone from the default branch (D-036); `write-specs` drafts specs, product decisions, decision entries and a milestone from a feature or a finished brainstorm and writes them only after the developer's yes (D-037, D-039), recording decisions through the evidence skill's scripts (D-038). Instructions more than one skill uses live in
 `shared/` and are linked directly from each `SKILL.md` (D-032). None writes a document into
 a project that has not agreed to it. Agents live flat in `agents/` (a subfolder becomes part of the
 name), and every rule an agent must obey is a plugin hook branching on `agent_type`, because a
