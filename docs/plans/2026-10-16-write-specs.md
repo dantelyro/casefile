@@ -94,8 +94,8 @@ it.
 
 ## Task 6 — Decisions, docs, version
 
-- [ ] Decision entries for the choices this release makes; README, CLAUDE.md, manifests, version
-      `0.16.0`.
+- [x] Decision entries for the choices this release makes; README, CLAUDE.md, manifests, version
+      `0.16.0`. Done: D-037 to D-039, written with `decision_new.py`; shipped in `025a2b2`.
 
 ## Task 7 — Live test on Inverso (needs the developer)
 
