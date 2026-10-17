@@ -58,7 +58,7 @@ it.
 
 ## Task 3 — `spec_lint.py`
 
-- [ ] Tests first, on an Inverso-shaped specs folder:
+- [x] Tests first, on an Inverso-shaped specs folder:
   - every heading `### <ID> …` parses as `### <ID> · <Title>  [TAG]`; a malformed one is an error
     naming file and line; other `###` headings are ignored;
   - IDs unique across files;
@@ -70,8 +70,9 @@ it.
     an entry or a rule that exists;
   - the specs README's file table lists exactly the `.md` files in the folder (README aside);
   - `--json` output; exit 1 on any error.
-- [ ] Run it on Inverso's real specs; anything it reports is checked by hand before calling it a
-      false positive.
+- [x] Run it on Inverso's real specs; anything it reports is checked by hand before calling it a
+      false positive. Done: 143 rules, no errors; it first flagged `[MVP][VERIFY]` headings, so a
+      rule may carry several tags.
 
 ## Task 4 — The `write-specs` skill
 
