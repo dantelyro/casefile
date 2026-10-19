@@ -37,7 +37,7 @@ def main(event: dict) -> None:
         lib.allow()
 
     if role == "reviewer":
-        if rel is None or not lib.in_linked_worktree(path):
+        if rel is None or not lib.in_linked_worktree(path, event.get("cwd")):
             lib.deny("the reviewer edits files only inside its own linked worktree, where it makes breaks "
                      f"and restores them; `{rel or path}` is not in one. Put the problem in your findings instead.")
         lib.allow()

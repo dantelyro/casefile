@@ -76,10 +76,11 @@ def git_root(cwd: str | None) -> str | None:
     return out.stdout.strip() or None
 
 
-def in_linked_worktree(path: str) -> bool:
-    """True when `path` lies in a linked git worktree (not the main checkout). Asked of the nearest
-    existing parent directory. Any git failure, timeout or no repository → False (fail closed)."""
-    directory = os.path.dirname(os.path.realpath(path))
+def in_linked_worktree(path: str, cwd: str | None = None) -> bool:
+    """True when `path` (relative ones resolved against `cwd`) lies in a linked git worktree (not the
+    main checkout). Asked of the nearest existing parent directory. Any git failure, timeout or no
+    repository → False (fail closed)."""
+    directory = os.path.dirname(os.path.realpath(os.path.join(cwd or os.getcwd(), path)))
     while directory and not os.path.isdir(directory):
         parent = os.path.dirname(directory)
         if parent == directory:
