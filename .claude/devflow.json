@@ -1,3 +1,11 @@
 {
-  "build_order": "docs/product/blueprint.md"
+  "build_order": "docs/product/blueprint.md",
+  "default_branch": "main",
+  "apps": {
+    "devflow": {
+      "path": ".",
+      "test": "py -3 -m unittest discover -s tests",
+      "install": ""
+    }
+  }
 }
