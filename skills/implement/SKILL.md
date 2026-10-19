@@ -50,8 +50,9 @@ developer. Commit there touching only that file (`git -C <sibling> commit -- <pl
 - No plan file yet, but a sibling has it → copy it here and commit:
   `chore(plans): plan <milestone> from <sibling>`. It was approved there; never re-plan it.
 - No plan file anywhere → dispatch `devflow:planner` with the milestone, then read the plan.
-- Show the developer the tasks (titles, rules, dependencies) and the Blockers, and **wait for their
-  approval**. A blocker that is an undecided question is answered by the developer — then the spec is
+- Show the developer the tasks (titles, rules, dependencies), the Blockers and, apart, each planner
+  choice `plan_status.py` lists under `choices`, and **wait for their approval**. Each choice is
+  accepted or cut on its own: a cut one leaves the task's Notes (D-044). A blocker that is an undecided question is answered by the developer — then the spec is
   amended first, and the task carries the exact rule; never an invented one. Commit the approved plan:
   `chore(plans): plan <milestone>`, here and in each sibling.
 - A plan already there is read, never re-planned unless the developer asks.

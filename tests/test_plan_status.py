@@ -259,5 +259,21 @@ class Siblings(Base):
         self.assertIn("`repo`", out["errors"][0])
 
 
+class PlannerChoices(Base):
+    def test_every_planner_choice_is_listed_with_its_task(self):
+        t1 = task(1).replace("- Notes: none", "- Notes: reuse the login helper. Planner choice: the wrong "
+                             "password is the real one plus `-wrong`. Planner choice: two accounts")
+        self.write("docs/plans/M2.md", plan(t1, task(2)))
+        code, out, err = self.status()
+        self.assertEqual(code, 0, err)
+        self.assertEqual(out["choices"], [
+            {"task": "T1", "choice": "the wrong password is the real one plus `-wrong`."},
+            {"task": "T1", "choice": "two accounts"}])
+
+    def test_none(self):
+        self.write("docs/plans/M2.md", plan(task(1)))
+        self.assertEqual(self.status()[1]["choices"], [])
+
+
 if __name__ == "__main__":
     unittest.main()

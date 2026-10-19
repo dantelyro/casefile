@@ -59,7 +59,8 @@ What exists already: <what the code already has that the tasks build on>
 - Done when: <one observable check, e.g. "uv run pytest -q passes in worker/">
 - Depends on: <task IDs, or none>
 - Parallel-safe with: <task IDs touching none of the same files, or none>
-- Notes: <what the implementer must not miss; part of the task, not background>
+- Notes: <what the implementer must not miss; part of the task, not background. Anything no spec
+  rule states — a test value, an extra condition, a data shape — starts with `Planner choice:`>
 
 ## Rules covered
 - <RULE-ID>, <RULE-ID> → <task IDs>
@@ -74,4 +75,7 @@ What exists already: <what the code already has that the tasks build on>
 - Every task names its rules and its failing test. A task without a test is not a task.
 - A test about one user's data names a second user whose data overlaps.
 - Use only facts from the specs and the code. Unclear or missing → Blockers, with the question and
-  the options you see; never an invented requirement or threshold.
+  the options you see; never an invented requirement or threshold. A detail you must pick for a
+  test to be writable is a `Planner choice:` in the Notes, never a rule. One planner's "overlap rule"
+  made a wrong-password test reuse a second account's real password; generated fixtures sometimes
+  gave both accounts the same one, and the test passed only by run order.
