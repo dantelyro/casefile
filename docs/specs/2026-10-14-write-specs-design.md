@@ -8,13 +8,13 @@ writes decisions through that skill's log and scripts). Produces what `implement
 ## Summary
 
 `write-specs` turns an idea that is already shaped into rules `implement` can build from, laid out
-the way Inverso's are. It **drafts, then asks for approval**: nothing is written into the project
+the way the pilot project's are. It **drafts, then asks for approval**: nothing is written into the project
 until the developer has seen the draft and said yes.
 
 | Input | Example |
 |---|---|
 | A feature description | "Users can save a job and see saved jobs on a page" |
-| The output of a brainstorming session | Inverso's specs and blueprint came from one |
+| The output of a brainstorming session | The pilot project's specs and blueprint came from one |
 
 **Brainstorming itself is not part of this skill, or of any devflow skill.** It stays free and
 unconstrained, and is never interrupted to talk about specs. Its output is rough — notes and
@@ -22,9 +22,9 @@ conversation — and `write-specs` turns all of it into specs **in one go, after
 Questions the brainstorm left open are collected and asked together at the approval step, not along
 the way.
 
-## The rules carried over from Inverso
+## The rules carried over from the pilot project
 
-Every project specced with `write-specs` gets Inverso's rules, written into its `docs/specs/README.md`:
+Every project specced with `write-specs` gets the pilot project's rules, written into its `docs/specs/README.md`:
 
 1. **Spec first.** Every feature has a file. Each rule has an ID (`MATCH-003`).
 2. **Test second.** Before any code, a failing test whose name starts with the rule ID
@@ -38,7 +38,7 @@ first); `docs/product/product-decisions.md` records what the developer settled a
 `docs/decisions/` records choices between real alternatives, why, and who made them;
 `docs/product/open-questions.md` records what is still unanswered and what it blocks. The coverage check in step 4 is `rules_coverage.py` (0.15.0 spec), standard library only.
 
-## The layout (Inverso's, as the default)
+## The layout (the pilot project's, as the default)
 
 ```
 docs/
@@ -59,7 +59,7 @@ docs/
 
 ### Product decisions and logged decisions are two different things
 
-Inverso kept `docs/specs/00-decisions.md`, one line each with ✅ / 🔵 / 🟡. Most of its lines are not
+The pilot project kept `docs/specs/00-decisions.md`, one line each with ✅ / 🔵 / 🟡. Most of its lines are not
 decisions in the evidence skill's sense: they are the owner's answers about the product ("Brazil
 first", "the top 20 matches are free") — no alternatives weighed, no evidence to grade. They are
 requirements stated by the person who owns them. A few lines are real choices between alternatives.
@@ -74,14 +74,14 @@ requirements stated by the person who owns them. A few lines are real choices be
 - **`product-decisions.md`**: one line per answer — the answer, its date, and links to the spec rules it
   produced. The reasoning, if any, is in the rule or the decision entry, never restated here (D-008).
   When an open question is answered, its line moves from `open-questions.md` to `product-decisions.md`.
-- **Nothing is accepted by silence.** Inverso's 🔵 "proposed by Claude, accepted unless changed" read as
+- **Nothing is accepted by silence.** The pilot project's 🔵 "proposed by Claude, accepted unless changed" read as
   decided. A line or entry the developer has not confirmed is shown as proposed in the draft, and is
   written only after the approval step. Decision entries are written `Status: Proposed` and become
   `Accepted` at that step.
 - A spec rule that exists because of a logged decision cites it (`see D-012`); the reasoning stays in
   the entry.
 
-Inverso's existing `00-decisions.md` is split separately, with the developer's agreement — answers to
+The pilot project's existing `00-decisions.md` is split separately, with the developer's agreement — answers to
 `docs/product/product-decisions.md`, real choices to reconstructed entries via the evidence skill's
 seeding procedure. Not part of this release.
 
@@ -89,14 +89,14 @@ seeding procedure. Not part of this release.
 
 Designs are made as claude.ai artifacts — in the Claude app or from the terminal — and the project keeps
 a copy, because a link can change or disappear without the project noticing. The copy is the source of
-truth; the artifact is a viewer of it (Inverso's `docs/design/USING.md`).
+truth; the artifact is a viewer of it (the pilot project's `docs/design/USING.md`).
 
 | Artifact type | Copied to | What it is |
 |---|---|---|
 | Design System | `docs/product/design-system/` | tokens, brand book, components |
 | Design | `docs/product/design/` | screens and mockups, one artifact per screen or flow |
 
-- **No link needed.** The developer names the artifact ("the Inverso design system", "the job list
+- **No link needed.** The developer names the artifact ("the pilot project design system", "the job list
   screen") and `write-specs` finds it in the artifacts the logged-in account can open. A name that
   matches more than one, or an artifact shared from another organization (not listed), → ask for the
   link.
@@ -130,7 +130,7 @@ The evidence skill **owns** the decision log; `write-specs` **uses** it:
 - **Reconciliation stays with the evidence skill.** Specs are context documents like any other; the
   evidence skill's watermark replay covers `docs/specs/` and `docs/decisions/` at session start.
 
-Rule format, from Inverso's `docs/specs/README.md`:
+Rule format, from the pilot project's `docs/specs/README.md`:
 
 ```
 ### MATCH-003 · Required skills weigh 70%            [MVP]
@@ -173,6 +173,6 @@ Standard library only, tested in the 0.13.0 suite, and run by `implement` too be
 
 ## Accepted when
 
-`write-specs` turns the output of a real brainstorm for an Inverso feature into specs and a milestone
-that `implement` then builds without a spec gap being invented (see *Live test on Inverso* in the
+`write-specs` turns the output of a real brainstorm for a pilot-project feature into specs and a milestone
+that `implement` then builds without a spec gap being invented (see *Live test on the pilot project* in the
 0.13.0 spec).

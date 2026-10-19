@@ -4,7 +4,7 @@
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: approved with the 0.16.0 spec (`docs/specs/2026-10-14-write-specs-design.md`) on 2026-10-14.
 **Implemented by:** `9f4bb76` — 2026-10-16 (`write-specs`).
 
-**Context:** Inverso's design system and screens were made as claude.ai artifacts. A link can change or disappear without the project noticing, and the design check and the implementer read files, not links.
+**Context:** The pilot project's design system and screens were made as claude.ai artifacts. A link can change or disappear without the project noticing, and the design check and the implementer read files, not links.
 
 **Options:** (a) specs link to the artifacts; (b) the project keeps a copy of each, under `docs/product/design-system/` and `docs/product/design/`, and the copy is the source of truth.
 

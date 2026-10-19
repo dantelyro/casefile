@@ -4,12 +4,12 @@
 **Status:** Approved 2026-10-14. Not yet implemented.
 **Release:** `0.15.0`. Needs `0.13.0` (hooks, reviewer) and `0.14.0` (implementer, issues, merge
 procedure). The specs it reads come from `write-specs` (`2026-10-14-write-specs-design.md`, 0.16.0)
-or are written by hand — Inverso's were. `mvp` and `project-specs` are already gone
+or are written by hand — the pilot project's were. `mvp` and `project-specs` are already gone
 (`2026-10-14-remove-mvp-and-project-specs-design.md`, 0.12.0).
 
 ## Summary
 
-`implement` is the Inverso milestone workflow, generalised to any **scope**: a milestone of a new
+`implement` is the pilot project milestone workflow, generalised to any **scope**: a milestone of a new
 project, or one feature in an existing one. It plans the scope as small test-first tasks, implements
 them in parallel worktrees, reviews each, and merges each after the developer says yes. It never
 writes specs: it starts from rules that already exist.
@@ -32,13 +32,13 @@ writes specs: it starts from rules that already exist.
 `[MVP]` is planned, `[LATER]` is not, `[VERIFY]` is flagged as a blocker instead of planned around a
 guess; `[MANUAL]` is checked in review, not by a test. Every test is named after its rule ID, which is
 what lets the reviewer check rule by rule and the finish report list each rule with or without a
-passing test. The default layout is Inverso's, written by `write-specs`: `docs/specs/NN-area.md` and
+passing test. The default layout is the pilot project's, written by `write-specs`: `docs/specs/NN-area.md` and
 milestones in the "Build order" section of `docs/product/blueprint.html`. `specs_dir` in
 `.claude/devflow.json` can point elsewhere; the heading format is the only hard requirement. The scope
 is always a milestone in the build order — a feature gets its own milestone there.
 
 No rules for the request → stop and point the developer to `write-specs`. **A spec gap found later
-is asked, never invented**: the builder gets an exact rule after the developer decides (Inverso M1/T3
+is asked, never invented**: the builder gets an exact rule after the developer decides (the pilot project M1/T3
 failed twice on an invented heuristic).
 
 ## The flow
@@ -52,7 +52,7 @@ approved plan is committed.
 
 ### 2. Implement, review, merge
 
-The loop from Inverso's `build-milestone`:
+The loop from the pilot project's `build-milestone`:
 
 1. **Batch:** ready tasks (todo, dependencies done, no open blocking issue), the first plus its
    parallel-safe peers, at most 3.

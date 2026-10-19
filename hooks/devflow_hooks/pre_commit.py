@@ -1,6 +1,6 @@
 """PreToolUse on Bash and PowerShell: checks before any `git commit`, in every session.
 
-Port of Inverso's pre_commit.py (TEST-001, TEST-002):
+Checks:
 1. No skipped or focused tests in the added lines of test files.
 2. The design check on the added lines of UI files, so a file written outside Claude Code's edit
    tools is caught too.

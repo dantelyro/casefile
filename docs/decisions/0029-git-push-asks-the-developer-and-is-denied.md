@@ -6,12 +6,12 @@ can change the git push rule to a promt to the developer in my devflow but never
 do it on it own".
 **Implemented by:** `65adde2` — 2026-10-15.
 
-**Context:** Inverso's `block_push.py` denied every push from every session, the developer's
+**Context:** The pilot project's `block_push.py` denied every push from every session, the developer's
 included, so the developer pushed by hand outside Claude Code. The 0.13.0 probe showed that a
 PreToolUse `ask` reaches the developer from the main session and from an agent, in auto mode too,
 and that a headless run with nobody to answer refuses it.
 
-**Options:** (a) deny every push, as Inverso did; (b) ask in the developer's own session, deny to
+**Options:** (a) deny every push, as the pilot project did; (b) ask in the developer's own session, deny to
 every agent; (c) allow in the developer's session, deny to agents.
 
 **Decision:** (b). A push starting any statement — `git -C x push`, after `;`, `&&` or `|`, inside

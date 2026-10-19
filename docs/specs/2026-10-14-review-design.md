@@ -4,7 +4,7 @@
 **Status:** Approved 2026-10-14. Not yet implemented.
 **Release:** `0.13.0`. Comes after the removal of `mvp` and `project-specs` (0.12.0); `fix-bug`
 (0.14.0), `implement` (0.15.0) and `write-specs` (0.16.0) build on it.
-**Origin:** the agent workflow used to build Inverso milestones M0–M1 (`.claude/skills/build-milestone`,
+**Origin:** the agent workflow used to build the pilot project milestones M0–M1 (`.claude/skills/build-milestone`,
 `.claude/agents/*`, `.claude/hooks/*` in that repo), generalised.
 
 ## Summary
@@ -23,34 +23,34 @@ devflow gains its first agent and its first enforcement:
 This spec carries the foundation because the reviewer is the smallest workflow that needs all of
 it: an agent, a rule it must not break (read-only), and tests proving the rule holds.
 
-## Live test on Inverso
+## Live test on the pilot project
 
-Inverso is the test bed for all four releases, the way a failing test drives code: each release is
-**accepted only when it has been used on Inverso for real**, and what goes wrong there becomes the
+The pilot project is the test bed for all four releases, the way a failing test drives code: each release is
+**accepted only when it has been used on the pilot project for real**, and what goes wrong there becomes the
 next change to the skill — before devflow decides what it keeps.
 
-| Release | Accepted when, on Inverso |
+| Release | Accepted when, on the pilot project |
 |---|---|
-| 0.13.0 `review` | it reviews the next Inverso task and its verdict matches the project reviewer's on the same commit; every guard rule and the design check have fired at least once in a real session; each devflow hook blocks what the Inverso hook it replaces blocked |
-| 0.14.0 `fix-bug` | an Inverso bug goes from `docs/issues/` to merged through it |
-| 0.15.0 `implement` | an Inverso milestone (M2) is built with it instead of the project's own `build-milestone` |
-| 0.16.0 `write-specs` | a real brainstorm for an Inverso feature becomes specs that `implement` builds |
+| 0.13.0 `review` | it reviews the next the pilot project task and its verdict matches the project reviewer's on the same commit; every guard rule and the design check have fired at least once in a real session; each devflow hook blocks what the pilot project hook it replaces blocked |
+| 0.14.0 `fix-bug` | a pilot-project bug goes from `docs/issues/` to merged through it |
+| 0.15.0 `implement` | a pilot-project milestone (M2) is built with it instead of the project's own `build-milestone` |
+| 0.16.0 `write-specs` | a real brainstorm for a pilot-project feature becomes specs that `implement` builds |
 
-Inverso's own `.claude/` agents and skill stay in place until the release that replaces them has
-passed; then they are removed from Inverso in one commit. Its hooks are replaced **one at a time**:
-Inverso turns one of its hooks off, devflow's equivalent must block the same things, and only then is
-the Inverso hook deleted. Every Inverso hook has a devflow equivalent in this release (`block_push.py`
+The pilot project's own `.claude/` agents and skill stay in place until the release that replaces them has
+passed; then they are removed from the pilot project in one commit. Its hooks are replaced **one at a time**:
+The pilot project turns one of its hooks off, devflow's equivalent must block the same things, and only then is
+The pilot project hook deleted. Every the pilot project hook has a devflow equivalent in this release (`block_push.py`
 and `guard_bash.py` → `guard_bash.py`; `guard_paths.py`; `pre_commit.py`; `design_lint.py` and
-`design_rules.py` → `design_check.py`), except its "no AI search in the MVP" rule, an Inverso product
-rule that stays in Inverso. While both run, Inverso's
-`.claude/devflow.json` lists no `apps`, so its test suites are not run twice on every commit (Inverso's
+`design_rules.py` → `design_check.py`), except its "no AI search in the MVP" rule, a pilot-project product
+rule that stays in the pilot project. While both run, the pilot project's
+`.claude/devflow.json` lists no `apps`, so its test suites are not run twice on every commit (the pilot project's
 own pre-commit hook still runs them).
 
 ## Why prose is not enough
 
 The motivating failure is the evidence skill: it sometimes reads only part of the commit range,
 sometimes creates only some of the documents, and is inconsistent between sessions. Each of those
-is a **mechanical step left to judgement**. Inverso showed the same pattern: implementers skipped
+is a **mechanical step left to judgement**. The pilot project showed the same pattern: implementers skipped
 three planned items in T13, an agent ran `taskkill /IM node.exe`, and an orchestrator nearly ran
 `docker compose down -v` on the shared database.
 
@@ -69,7 +69,7 @@ hold every time belongs in a hook, not in prose. This design applies it:
 - The current hook is bash behind a cmd/bash polyglot (D-005). Its JSON is built with `printf`
   and no escaping (`CLAUDE.md`, *Hook gotchas*), and it is not tested.
 - Enforcement hooks parse commands, resolve paths across worktrees and run test suites. That is
-  painful and untestable in bash; Inverso's equivalents are 6 Python files with a 37-test suite.
+  painful and untestable in bash; the pilot project's equivalents are 6 Python files with a 37-test suite.
 - Python's standard library covers everything needed (`json`, `re`, `shlex`, `subprocess`, `os`,
   `pathlib`, `hashlib`, `unittest`), so the repo still has **no dependencies** — only an interpreter.
 
@@ -216,7 +216,7 @@ specs but are listed here so the table is the one place the rules live):
 | `implementer` (0.14.0) | no `merge/rebase/cherry-pick`, `reset --hard`, switching to the default branch, `branch -D` | not the protected paths |
 | `planner` (0.15.0) | read-only | only its plan file |
 
-Command matching follows the lesson from Inverso's push hook: Claude Code's `if` filter is
+Command matching follows the lesson from the pilot project's push hook: Claude Code's `if` filter is
 best-effort and fires on commands it cannot split, so **the script checks the command itself**, and
 hooks register without `if`. A command counts only where it starts a statement, so a commit message
 mentioning `git push` does not trigger it.
@@ -242,7 +242,7 @@ in other languages it finds nothing to refuse.
 
 ## Design check
 
-From Inverso's `design_lint.py` and `design_rules.py` (UI-009). **Adding a token to the design system
+From the pilot project's `design_lint.py` and `design_rules.py` (UI-009). **Adding a token to the design system
 is the only way to make a new value usable in code.**
 
 - **When:** on every Edit or Write of a UI file, in every session including the main one, and again in
@@ -257,10 +257,10 @@ is the only way to make a new value usable in code.**
   components folder whose name is not a design-system component.
 - **The reason names the fix:** the token or class to use instead, and "if the design system lacks it,
   report it so the design system is extended first" (agents: `STATUS: blocked`).
-- **Class rules are Tailwind's** (Inverso's stack). `classes: "tailwind"` turns them on; without it only
+- **Class rules are Tailwind's** (the pilot project's stack). `classes: "tailwind"` turns them on; without it only
   the raw-value, import and component rules run. Other class systems are added when a project needs
   one.
-- **Product rules stay in the project.** Inverso's "no AI search in the MVP" is an Inverso rule, not a
+- **Product rules stay in the project.** The pilot project's "no AI search in the MVP" is a pilot-project rule, not a
   design rule, and is not shipped.
 
 ## `.claude/devflow.json`
@@ -296,7 +296,7 @@ is the only way to make a new value usable in code.**
 
 ## The reviewer agent
 
-`agents/reviewer.md`, from Inverso's reviewer with its M1 lessons, generalised:
+`agents/reviewer.md`, from the pilot project's reviewer with its M1 lessons, generalised:
 
 - **Inputs:** what to review (task in a plan, bug report, or just a range) and the implementer's
   report if there is one.
@@ -310,7 +310,7 @@ is the only way to make a new value usable in code.**
 - `model: opus`, `isolation: worktree`, `tools: Read, Grep, Glob, Bash`.
 
 The design system is enforced by the design check, not the reviewer. Project-specific review checks
-(Inverso's privacy row) do not ship; a project adds them in its own instructions, and the reviewer
+(the pilot project's privacy row) do not ship; a project adds them in its own instructions, and the reviewer
 reads `CLAUDE.md` like any session.
 
 ## The `review` skill
@@ -331,7 +331,7 @@ an isolated agent that re-runs the tests — or the two compete. Covered by an e
 
 - `python -m unittest discover -s tests` — every hook: one test that it blocks, one that it allows,
   for the main session and for agents; fixtures from the probe. The design check runs against a
-  small `tokens.json` fixture in the claude.ai Design System format, and against Inverso's blocked and
+  small `tokens.json` fixture in the claude.ai Design System format, and against the pilot project's blocked and
   allowed examples.
 - `claude plugin validate --strict` — manifests, agent and skill frontmatter.
 - `claude plugin eval` — trigger cases for `review` vs the built-in `code-review`. Billed, so run on
@@ -358,7 +358,7 @@ This ends the "no test suite" property stated in `CLAUDE.md`; that line changes 
   `2026-10-14-implement-design.md` (0.15.0).
 - Turning a feature description or brainstorming notes into rule-ID specs →
   `2026-10-14-write-specs-design.md` (0.16.0).
-- A QA agent and skill — designed only after `implement` has been used on Inverso.
+- A QA agent and skill — designed only after `implement` has been used on the pilot project.
 - Scripting the evidence skill's mechanical steps (commit replay, document set) → proposed as a
   fourth spec; it reuses this runtime and test suite.
 

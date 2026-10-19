@@ -7,7 +7,7 @@ approved with the 0.14.0 spec the same day.
 **Implemented by:** `311c022` — 2026-10-15 (`issues_status.py`), `3d20030` (`fix-bug`), `3da075e`
 (`docs/issues/` protected from agents).
 
-**Context:** Inverso M1 fixed bugs as `F<n>` tasks appended to the milestone's plan (F1–F3). Bugs
+**Context:** The pilot project M1 fixed bugs as `F<n>` tasks appended to the milestone's plan (F1–F3). Bugs
 found while building a feature are of two kinds: unrelated to it, or in merged work the next task
 builds on, so the task cannot proceed until the bug is fixed.
 

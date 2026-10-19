@@ -143,7 +143,7 @@ class OtherTaskLetters(Base):
 
 
 class PlanBlockers(Base):
-    """A task may depend on an entry of the plan's Blockers (Inverso M2: `needs Gabriel (B18)`)."""
+    """A task may depend on an entry of the plan's Blockers (`needs the developer (B18)`)."""
 
     BLOCKERS = "## Blockers\n- B18 (needs Gabriel, blocks T2 only): exports from Google Docs.\n"
 

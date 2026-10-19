@@ -5,7 +5,7 @@
 2026-10-16, after the 0.15.0 live run.
 **Implemented by:** `6c2bbf8` — 2026-10-16 (`shared/merge.md`, `implement`, `devflow:implementer`).
 
-**Context:** In the 0.15.0 live run on an Inverso M2 clone, T2 and T12 both changed
+**Context:** In the 0.15.0 live run on a pilot-project M2 clone, T2 and T12 both changed
 `worker/pyproject.toml` and its lock file, so T2's branch conflicted with `main` once T12 was merged.
 The skill said to stop and ask; instead the orchestrator ran `git merge --no-commit main` inside T2's
 worktree and had the implementer finish the merge, which went around the guard that keeps

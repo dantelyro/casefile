@@ -8,7 +8,7 @@
 ## Why
 
 The developer's decision, 2026-10-14: neither skill was ever used on a real project, so nothing
-depends on them, and the agent workflows replacing them were proven on Inverso instead. Removing them
+depends on them, and the agent workflows replacing them were proven on the pilot project instead. Removing them
 first means no later release has to keep their triggers apart from the new skills'.
 
 ## What is removed

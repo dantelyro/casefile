@@ -4,14 +4,14 @@
 **Starts from:** `c00c9af` on `main`, version `0.15.0` (unpushed).
 **Ships as:** `0.16.0`.
 
-**Goal:** a skill that turns a feature description or a finished brainstorm into Inverso-style specs,
+**Goal:** a skill that turns a feature description or a finished brainstorm into pilot-project-style specs,
 product decisions, decision entries, open questions and a new milestone — drafted, shown, and written
 only after the developer's yes. The mechanical parts — decision numbering, entries, the index, and
 checking the specs hold together — are scripts.
 
 **How this plan is run:** as 0.15.0's: task by task, test first, each committed when green (the
 developer's standing instruction, 2026-10-15). Task 7, the live test, needs the developer: the spec
-asks for a real brainstorm for an Inverso feature.
+asks for a real brainstorm for a pilot-project feature.
 
 ## Global constraints
 
@@ -58,7 +58,7 @@ it.
 
 ## Task 3 — `spec_lint.py`
 
-- [x] Tests first, on an Inverso-shaped specs folder:
+- [x] Tests first, on a pilot-project-shaped specs folder:
   - every heading `### <ID> …` parses as `### <ID> · <Title>  [TAG]`; a malformed one is an error
     naming file and line; other `###` headings are ignored;
   - IDs unique across files;
@@ -70,7 +70,7 @@ it.
     an entry or a rule that exists;
   - the specs README's file table lists exactly the `.md` files in the folder (README aside);
   - `--json` output; exit 1 on any error.
-- [x] Run it on Inverso's real specs; anything it reports is checked by hand before calling it a
+- [x] Run it on the pilot project's real specs; anything it reports is checked by hand before calling it a
       false positive. Done: 143 rules, no errors; it first flagged `[MVP][VERIFY]` headings, so a
       rule may carry several tags.
 
@@ -97,9 +97,9 @@ it.
 - [x] Decision entries for the choices this release makes; README, CLAUDE.md, manifests, version
       `0.16.0`. Done: D-037 to D-039, written with `decision_new.py`; shipped in `025a2b2`.
 
-## Task 7 — Live test on Inverso (needs the developer)
+## Task 7 — Live test on the pilot project (needs the developer)
 
-The spec's test: the output of a real brainstorm for an Inverso feature becomes specs and a
+The spec's test: the output of a real brainstorm for a pilot-project feature becomes specs and a
 milestone that `implement` builds without inventing a spec gap.
 
 - [x] Ran on 2026-10-17: the developer brainstormed Pro job alerts, then asked for specs. It waited
@@ -108,7 +108,7 @@ milestone that `implement` builds without inventing a spec gap.
       question (defaults) into Q14 instead of filling it in, and followed the repo's own decision
       files on the developer's ruling. `spec_lint.py`: 155 rules, no errors.
 - [x] Found and fixed: the session started outside any repository (a Windows path given for Git
-      Bash), and the skill searched the projects folder and committed into the real Inverso
+      Bash), and the skill searched the projects folder and committed into the real pilot project
       (unpushed; the developer chose to remove it). It now works only in the repository it runs
       in, and asks otherwise. After the yes it split "on by default" into a rule of its own and
       renumbered the rest; it now shows any change against the approved draft and asks again.

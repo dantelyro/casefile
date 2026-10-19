@@ -3,11 +3,11 @@
 **Status:** Accepted (2026-10-14).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: the 0.14.0 spec
 (`docs/specs/2026-10-14-fix-bug-design.md`) was approved in session on 2026-10-14; the practice is
-Inverso M0–M1's, where every merge waited for the developer's OK.
+The pilot project M0–M1's, where every merge waited for the developer's OK.
 **Implemented by:** `e2e4113` — 2026-10-15 (`shared/merge.md`), with the implementer's and
 reviewer's guard rules (`65adde2`).
 
-**Context:** In Inverso's milestone workflow an implementer works in its own worktree and a reviewer
+**Context:** In the pilot project's milestone workflow an implementer works in its own worktree and a reviewer
 approves, but neither merges: the orchestrating session showed the developer one line per change and
 merged only after a yes. M1 showed why the merge is a step of its own — a green suite once passed with
 a broken web image (M1/F1), and two suites sharing one test database failed each other at commit.

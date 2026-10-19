@@ -55,7 +55,7 @@ A bug inside a task's own unmerged branch is not an issue: it is a review findin
 - `Status` changes to `fixed (<implementer commit>)` only inside the merge commit, after the tests
   pass on the default branch — never on a branch that was not merged. (Planned as the merge commit's
   own id, which a commit cannot contain; the implementer's commit is on the default branch once
-  merged, as Inverso's plans record it.)
+  merged, as the pilot project's plans record it.)
 
 ### `issues_status.py`
 
@@ -89,7 +89,7 @@ library only, tested in the 0.13.0 suite):
 
 ## The implementer agent
 
-`agents/implementer.md`, from Inverso's with the M1 lessons, generalised. It serves both `fix-bug`
+`agents/implementer.md`, from the pilot project's with the M1 lessons, generalised. It serves both `fix-bug`
 (input: an issue) and `implement` (input: a plan task).
 
 - **Red → green → refactor.** The test fails for the right reason before any fix.
@@ -136,7 +136,7 @@ default branch, after the developer's explicit yes:
   existing commit; fixes come from a new implementer in its own worktree, or from the main session
   with the developer's yes.
 - Shared services (one database, one port) collide between worktrees. Projects should give each
-  checkout its own test database (Inverso M1/F3). `[VERIFY]` whether this can be detected generally;
+  checkout its own test database (the pilot project M1/F3). `[VERIFY]` whether this can be detected generally;
   the first version only warns from config.
 
 ## Decisions to record when implemented

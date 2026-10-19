@@ -1,6 +1,6 @@
 """PreToolUse on Edit, Write, MultiEdit and NotebookEdit: UI code uses only the design system.
 
-Port of Inverso's design_lint.py and design_rules.py (UI-009). The vocabulary — colours, spacing,
+The vocabulary — colours, spacing,
 radii, shadows, type styles, font families, components — is read from the project's `tokens.json`
 (the claude.ai Design System format) and its `components/` folder, so adding a token to the design
 system is the only way to make a new value usable in code. Applies to every session.

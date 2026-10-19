@@ -5,8 +5,8 @@
 **Ships as:** `0.13.0`.
 
 **Goal:** devflow gets its first agent (`devflow:reviewer`), its first workflow skill (`review`), and
-enforcement: every hook Inverso uses, rewritten as tested, standard-library Python that works in any
-project. Accepted only after it has worked on Inverso for real (task 14).
+enforcement: every hook the pilot project uses, rewritten as tested, standard-library Python that works in any
+project. Accepted only after it has worked on the pilot project for real (task 14).
 
 **How this plan is run:** in a devflow session, by the main session, one task at a time, test first.
 Each task ends with its tests green, a summary shown to the developer, and a commit after their yes.
@@ -24,7 +24,7 @@ Every task includes these.
   through.
 - **Every rule has a test that it blocks and a test that it allows**, for the main session and for
   agents.
-- **No `if` filters in `hooks.json`.** Each script checks the command itself (Inverso `437d754`).
+- **No `if` filters in `hooks.json`.** Each script checks the command itself (the pilot project `437d754`).
 - **Commands count only where they start a statement**, so a commit message mentioning `git push`
   does not trigger a rule.
 - **Conventional commits** (D-007): `feat:` for hooks, agent and skill; `test:`, `docs:`, `ci:`,
@@ -111,7 +111,7 @@ Everything marked `[VERIFY]` in the spec is answered by watching a real session,
     named.
   - Import test: every `.py` under `hooks/`, `skills/`, `tests/` imports only
     `sys.stdlib_module_names` or devflow's own modules.
-- [x] `hooks/devflow_hooks/lib.py`, from Inverso's `_hooklib.py` plus `ask` and `config`.
+- [x] `hooks/devflow_hooks/lib.py`, from the pilot project's `_hooklib.py` plus `ask` and `config`.
 - [x] `hooks/run.py`: imports `devflow_hooks.<name>` and runs it; any exception → deny with the
       error (fails closed), except for `session_start`, which never blocks.
 - [x] `hooks/run-hook.cmd`: the launch form task 1 chose. Finds `py -3`, `python3`, `python`, requires
@@ -133,7 +133,7 @@ Everything marked `[VERIFY]` in the spec is answered by watching a real session,
 
 ## Task 4 — Command guard
 
-Port of Inverso's `block_push.py` and `guard_bash.py`, with their tests.
+Port of the pilot project's `block_push.py` and `guard_bash.py`, with their tests.
 
 - [x] Tests, for each row of the spec's guard table, main session / other agent / devflow agent:
   - `git push` in every form (`git -C x push`, after `;` `&&` `|`, inside `{ }`, PowerShell) → ask in
@@ -152,7 +152,7 @@ Port of Inverso's `block_push.py` and `guard_bash.py`, with their tests.
 
 ## Task 5 — File guard
 
-Port of Inverso's `guard_paths.py`.
+Port of the pilot project's `guard_paths.py`.
 
 - [x] Tests: any agent editing `.claude/…` → deny; main session → allowed. `devflow:reviewer` writing
       any file → deny. Protected paths from config (`docs/product/x.md`) → deny for devflow agents,
@@ -162,12 +162,12 @@ Port of Inverso's `guard_paths.py`.
 
 ## Task 6 — Design check
 
-Port of Inverso's `design_lint.py` + `design_rules.py`, driven by config instead of Inverso's paths.
+Port of the pilot project's `design_lint.py` + `design_rules.py`, driven by config instead of the pilot project's paths.
 
 - [x] Fixture `tests/fixtures/design/tokens.json`: a small design system in the claude.ai Design System
       format (a few colours, spacing steps, radii, shadows, type styles, two families), plus a
       `components/` folder with two components.
-- [x] Tests, built from Inverso's blocked and allowed examples:
+- [x] Tests, built from the pilot project's blocked and allowed examples:
   - Raw colours (hex, `rgb()`, `oklch()`, named), raw lengths except `1px`, `font-family` → deny,
     except in `raw_values_allowed` files.
   - Tailwind (with `classes: "tailwind"`): arbitrary values, colour / spacing / radius / shadow /
@@ -179,13 +179,13 @@ Port of Inverso's `design_lint.py` + `design_rules.py`, driven by config instead
   - Main session is checked too.
   - The reason names the token to use, and says to extend the design system if it lacks one.
 - [x] `design_check.py`, exposing `check_path` and `check_text` for task 7.
-- [x] Run it over Inverso's `web/` with Inverso's settings (task 14's `devflow.json`): it must report
-      exactly what Inverso's own `design_lint.py` reports on the same files (today: nothing).
+- [x] Run it over the pilot project's `web/` with the pilot project's settings (task 14's `devflow.json`): it must report
+      exactly what the pilot project's own `design_lint.py` reports on the same files (today: nothing).
 - Commit: `feat: design check against the project's design system`.
 
 ## Task 7 — Pre-commit gate
 
-Port of Inverso's `pre_commit.py`.
+Port of the pilot project's `pre_commit.py`.
 
 - [x] Tests (in a temporary git repo built by the test):
   - Added `.skip`, `.only`, `xit`, `@pytest.mark.skip`, `xfail`, `@unittest.skip` → deny; the same text
@@ -210,8 +210,8 @@ Port of Inverso's `pre_commit.py`.
 
 ## Task 9 — The reviewer agent
 
-- [x] `agents/reviewer.md`, from Inverso's `.claude/agents/reviewer.md` with its M1 lessons, generalised
-      (no Inverso names, paths or rules): inputs (plan task, issue, or a commit range; the
+- [x] `agents/reviewer.md`, from the pilot project's `.claude/agents/reviewer.md` with its M1 lessons, generalised
+      (no the pilot project names, paths or rules): inputs (plan task, issue, or a commit range; the
       implementer's report if any); process (read the task and every rule it names, the diff; re-run
       the tests with the configured commands; never trust the report's numbers); checklist (rules
       really tested · tests can fail · whole task done, every planned item and note or `NOT DONE` ·
@@ -262,30 +262,30 @@ words in the 2026-10-14 session.
 - [x] `plugin.json` and `marketplace.json`: the same new `description`; `version` → `0.13.0`.
 - Commit: `feat: ship 0.13.0` (the version bump is the shipped change).
 
-## Task 14 — Live test on Inverso
+## Task 14 — Live test on the pilot project
 
 0.13.0 is accepted only when all of these hold. Whatever goes wrong becomes the next devflow change.
 
-- [ ] Install devflow 0.13.0 in Inverso. Add Inverso's `.claude/devflow.json` (with the developer's
-      yes): `protected_paths` as Inverso's hooks have them, **no `apps`** (Inverso's own pre-commit
+- [ ] Install devflow 0.13.0 in the pilot project. Add the pilot project's `.claude/devflow.json` (with the developer's
+      yes): `protected_paths` as the pilot project's hooks have them, **no `apps`** (the pilot project's own pre-commit
       still runs the suites), and `design`: `tokens: docs/design/tokens.json`, `ui_paths: ["web/"]`,
-      `components_dir: web/components/ui/`, `classes: tailwind`, Inverso's raw-value exceptions and
+      `components_dir: web/components/ui/`, `classes: tailwind`, the pilot project's raw-value exceptions and
       forbidden icon libraries.
-- [ ] Replace Inverso's hooks **one at a time**: turn one off in `.claude/settings.json`, show that
-      devflow's equivalent blocks the same things in a real session, then delete the Inverso hook and
+- [ ] Replace the pilot project's hooks **one at a time**: turn one off in `.claude/settings.json`, show that
+      devflow's equivalent blocks the same things in a real session, then delete the pilot project hook and
       its tests:
 
-  | Inverso hook | devflow hook | Shown by |
+  | The pilot project hook | devflow hook | Shown by |
   |---|---|---|
   | `block_push.py` | `guard_bash` | a push in the main session asks; an agent's push is denied |
   | `guard_bash.py` | `guard_bash` | `down -v` denied; an agent's `taskkill /IM` denied |
   | `guard_paths.py` | `guard_paths` | an agent's edit to `.claude/` and to `docs/specs/` denied |
   | `design_lint.py` + `design_rules.py` | `design_check` | a raw hex colour in `web/` denied |
-  | `pre_commit.py` | `pre_commit` | an added `.only` denied; then `apps` added to Inverso's config and the suites run |
+  | `pre_commit.py` | `pre_commit` | an added `.only` denied; then `apps` added to the pilot project's config and the suites run |
 
-  Inverso's "no AI search in the MVP" rule stays as a small Inverso hook.
-- [ ] `devflow:reviewer` reviews an already-reviewed Inverso commit (one of M1's) and reaches the same
-      verdict as Inverso's reviewer did.
+  the pilot project's "no AI search in the MVP" rule stays as a small the pilot project hook.
+- [ ] `devflow:reviewer` reviews an already-reviewed the pilot project commit (one of M1's) and reaches the same
+      verdict as the pilot project's reviewer did.
 - [ ] Every guard rule and the design check have fired at least once in a real session.
 - [ ] Record what went wrong; open the follow-ups before 0.14.0.
 

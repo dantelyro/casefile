@@ -6,7 +6,7 @@
 **Implemented by:** `9d894b4` — 2026-10-15 (`plan_status.py`), `2a03d6c` (`devflow:planner`),
 `2d64684` — 2026-10-16 (`implement`).
 
-**Context:** In Inverso M0/M1 the main session ran a milestone: it dispatched implementers and
+**Context:** In the pilot project M0/M1 the main session ran a milestone: it dispatched implementers and
 reviewers, merged, and kept the plan. Its own context filled with diffs when it read them, and when it
 filled a spec gap with its own wording ("≤4 words is reasonable") the builder failed the task twice
 (M1/T3). Sessions also ended mid-milestone, and the next one had to find out what was done.

@@ -93,7 +93,7 @@ writing: the yes covered the draft as it stood.
    answered question's line moves from open questions to product decisions.
 3. Each decision entry with `evidence-based-decisions/scripts/decision_new.py` (it writes
    `Proposed`); set `Accepted` on the ones the developer confirmed; then `decision_index.py`.
-4. Designs: the developer names the artifact ("the Inverso design system", "the job list screen").
+4. Designs: the developer names the artifact ("the design system", "the job list screen").
    Find it among the artifacts their account can open (the Artifact tool's `list`), read it, and
    save its files under `docs/product/design-system/` (a Design System) or `docs/product/design/`
    (a Design, one folder per screen or flow). The copy is the source of truth. More than one match,

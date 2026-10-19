@@ -6,7 +6,7 @@
 **Implemented by:** `9d894b4` — 2026-10-15 (`plan_status.py`), `e8d5a96` (`rules_coverage.py`),
 `2a03d6c` (`devflow:planner`), `2d64684` — 2026-10-16 (`implement`).
 
-**Context:** Inverso's specs state each behaviour as a heading with a stable ID and a tag —
+**Context:** The pilot project's specs state each behaviour as a heading with a stable ID and a tag —
 `### MATCH-010 · Formula     [MVP]` — and its M0/M1 milestones were planned, tested and reviewed
 against those IDs. `implement` generalises that workflow to any project, so it has to say what it
 needs from the specs it starts from.

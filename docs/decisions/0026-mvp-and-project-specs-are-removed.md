@@ -6,7 +6,7 @@ project-specs completly cause i never tested them").
 **Implemented by:** this change.
 
 **Context:** devflow is gaining agent workflows (`review`, `fix-bug`, `implement`, `write-specs`,
-designed in `docs/specs/2026-10-14-*`), generalised from the workflow that built Inverso M0–M1. That
+designed in `docs/specs/2026-10-14-*`), generalised from the workflow that built the pilot project M0–M1. That
 workflow starts from specs with rule IDs written after a free brainstorm, not from a cast of actors,
 and it builds a project as its first milestone rather than through a separate scaffolding skill.
 `mvp` and `project-specs` were never used on a real project.

@@ -4,14 +4,14 @@
 **Starts from:** `22a26c7` on `main`, version `0.14.1`.
 **Ships as:** `0.15.0`.
 
-**Goal:** Inverso's `build-milestone` as a devflow skill. `devflow:planner` turns one milestone of
+**Goal:** The pilot project's `build-milestone` as a devflow skill. `devflow:planner` turns one milestone of
 rules into small test-first tasks; `implement` runs them in parallel worktrees through the
 implementer, the reviewer and the shared merge, with the mechanical steps — which tasks are ready,
 which rules have tests — done by scripts.
 
 **How this plan is run:** as 0.14.0's: task by task, test first, each committed when green (the
 developer's standing instruction, 2026-10-15). Task 6, the live test, needs the developer: their own
-session is building Inverso's M2 with `build-milestone`, the milestone the spec names for this test.
+session is building the pilot project's M2 with `build-milestone`, the milestone the spec names for this test.
 
 ## Global constraints
 
@@ -32,7 +32,7 @@ that has not agreed to it.
 
 ## Task 1 — `plan_status.py <plan>`
 
-- [x] Tests first, on plan files in Inverso's format (`### T3 · Title`, `- Status:`, `- Depends on:`,
+- [x] Tests first, on plan files in the pilot project's format (`### T3 · Title`, `- Status:`, `- Depends on:`,
       `- Parallel-safe with:`, …) in a temporary repository:
   - statuses parsed: `todo`, `in-progress`, `done (<commit>)`, `blocked: <reason>`; anything else is
     an error naming the task;
@@ -60,7 +60,7 @@ that has not agreed to it.
 
 ## Task 3 — The planner agent
 
-- [x] `agents/planner.md` from Inverso's, generalised: inputs are a scope (a milestone in the build
+- [x] `agents/planner.md` from the pilot project's, generalised: inputs are a scope (a milestone in the build
       order); the build order's location and the specs folder from config (`build_order`, default
       `docs/product/blueprint.html`; `specs_dir`); the plan format above; `EXISTS` when the plan is
       already there; `[VERIFY]` and spec gaps go under Blockers, never planned around; every task names
@@ -71,7 +71,7 @@ that has not agreed to it.
 
 ## Task 4 — The `implement` skill
 
-- [x] `skills/implement/SKILL.md`, from Inverso's `build-milestone` with its lessons: preconditions
+- [x] `skills/implement/SKILL.md`, from the pilot project's `build-milestone` with its lessons: preconditions
       (clean tree on the default branch, tools installed *and running*); plan (the planner, the
       developer's approval of tasks and blockers, `chore(plans): plan <scope>`); the resume rule (an
       `in-progress` task's branch is checked for a finished commit, offered for review, never
@@ -90,12 +90,12 @@ that has not agreed to it.
       never writes product code, tests or specs, and the plan file is the progress record.
 - [x] README, CLAUDE.md, manifests, version `0.15.0`.
 
-## Task 6 — Live test on Inverso (needs the developer)
+## Task 6 — Live test on the pilot project (needs the developer)
 
-The spec's test is building Inverso's M2 with `implement` instead of `build-milestone`. The developer's
+The spec's test is building the pilot project's M2 with `implement` instead of `build-milestone`. The developer's
 own session is already building M2 with `build-milestone`; how to test 0.15.0 is theirs to decide.
 
-- [x] Ran on 2026-10-16, with the developer's yes, in a throwaway clone of Inverso at `95ca736` with
+- [x] Ran on 2026-10-16, with the developer's yes, in a throwaway clone of the pilot project at `95ca736` with
       its own Postgres on port 55432, headless (`claude -p --plugin-dir`), with a blanket yes for
       merges. "Continue building M2" resumed the plan: T12, stuck in progress with nothing on its
       branch, went back to todo; one batch (T2, T12, T20) ran in parallel, was reviewed, fixed and

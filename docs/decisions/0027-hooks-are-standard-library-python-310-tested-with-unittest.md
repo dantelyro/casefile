@@ -21,11 +21,11 @@ which Claude Code itself ships on.
 there; `X | None` annotations need it). Nothing is ever downloaded — no pip, no uv; tests use
 `unittest`, and a test fails on any import outside the standard library. A missing Python is
 detected by the `sh` starter, which tells Claude to tell the developer the install command and
-wait; no hook installs anything. Inverso's hooks, which this release ports, were already Python.
+wait; no hook installs anything. The pilot project's hooks, which this release ports, were already Python.
 
 **Trade-offs:** Python is a requirement a user may have to install (jq would be one too: it is not
 in Git for Windows and not reliably on macOS or Linux). The starter has to find whichever Python
 command a machine has (`py -3`, `python3`, `python`), and on Windows `python3` can be the
-Microsoft Store stub, so every candidate is version-checked. (c) was not pursued: Inverso's hooks,
+Microsoft Store stub, so every candidate is version-checked. (c) was not pursued: the pilot project's hooks,
 the code being ported, are Python, and whether every Claude Code install puts `node` on `PATH` was
 never checked. The "no test suite" property in `CLAUDE.md` ends.

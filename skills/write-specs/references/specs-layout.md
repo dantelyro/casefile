@@ -1,6 +1,6 @@
 # The specs layout
 
-Inverso's layout is the default. Folders are created only after the developer's yes, and only the
+This layout is the default. Folders are created only after the developer's yes, and only the
 ones the input needs.
 
 ```
