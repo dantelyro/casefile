@@ -72,7 +72,7 @@ writes code, tests or specs itself — the plan file is the progress record (D-0
 a project that has not agreed to it. Agents live flat in `agents/` (a subfolder becomes part of the
 name), and every rule an agent must obey is a plugin hook branching on `agent_type`, because a
 plugin agent's own `hooks` and `permissionMode` are ignored (D-030). The two greenfield skills were removed in 0.12.0 (D-026); the
-agent workflows that replace them are designed in `docs/specs/2026-10-14-*` and land one release at
+agent workflows that replace them are designed in `docs/specs/history/2026-10-14-*` and land one release at
 a time, `write-specs` among them.
 
 **Per-project settings are `.claude/devflow.json`**, read through `hooks/devflow_hooks/lib.py`
@@ -155,6 +155,10 @@ verified once and never re-checked becomes a belief about an old version (D-024)
 in `docs/decisions/README.md`. It was seeded retroactively on 2026-08-27, so every existing entry
 is marked as a reconstruction. Record new decisions in the same change that implements them, per
 `skills/evidence-based-decisions/references/decision-log.md`.
+
+devflow is specified in its own `write-specs` layout and built with `implement` (D-047): rules with
+IDs in `docs/specs/`, the build order in `docs/product/blueprint.md`, milestone plans in
+`docs/plans/`. Designs of releases through 0.19.1 are in `docs/specs/history/`.
 
 There is no separate architecture document: at this size the architecture *is* this file, which is
 why the reconciliation watermark sits in the header above. Move it in the same commit as any doc

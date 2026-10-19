@@ -1,7 +1,7 @@
 # D-038 — The decision log's numbering, entries and index are scripts
 
 **Status:** Accepted (2026-10-14).
-**Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: approved with the 0.16.0 spec (`docs/specs/2026-10-14-write-specs-design.md`) on 2026-10-14.
+**Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: approved with the 0.16.0 spec (`docs/specs/history/2026-10-14-write-specs-design.md`) on 2026-10-14.
 **Implemented by:** `6d433d5` — 2026-10-16 (the scripts), `2d69fbe` (the evidence skill uses them).
 
 **Context:** The evidence skill numbered entries by `ls | tail -1`, wrote them by hand and kept the index by hand. Results varied with whoever did it: devflow's own index had dropped that D-022 also supersedes D-013. `write-specs` needs to write entries too.

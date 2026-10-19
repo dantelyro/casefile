@@ -17,7 +17,7 @@ designed in its own spec and shipped in its own release, accepted only after rea
 (c) ship all workflows in one release.
 
 **Decision:** (b). `review` (0.13.0), `fix-bug` (0.14.0), `implement` (0.15.0), `write-specs`
-(0.16.0), each with a spec in `docs/specs/2026-10-14-*` and a plan before building. Agents are named
+(0.16.0), each with a spec in `docs/specs/history/2026-10-14-*` and a plan before building. Agents are named
 `devflow:<name>`, which is what hooks see in `agent_type`; every agent rule lives in the plugin's
 `hooks/hooks.json`, branching on it. A skill dispatches its agents by name, so no trigger matching
 stands between a workflow and its agents.

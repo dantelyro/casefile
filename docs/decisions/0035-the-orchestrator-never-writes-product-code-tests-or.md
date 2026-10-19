@@ -2,7 +2,7 @@
 
 **Status:** Accepted (2026-10-14).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: approved with the 0.15.0 spec
-(`docs/specs/2026-10-14-implement-design.md`) on 2026-10-14.
+(`docs/specs/history/2026-10-14-implement-design.md`) on 2026-10-14.
 **Implemented by:** `9d894b4` — 2026-10-15 (`plan_status.py`), `2a03d6c` (`devflow:planner`),
 `2d64684` — 2026-10-16 (`implement`).
 

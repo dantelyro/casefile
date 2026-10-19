@@ -33,7 +33,7 @@ first means no later release has to keep their triggers apart from the new skill
 - **`README.md`**: the skill list and any walkthrough of the removed skills.
 - **`plugin.json` and `marketplace.json`**: the shared `description` no longer mentions turning an idea
   into a brief or building from generators. Both change together.
-- **`docs/specs/2026-08-31-mvp-and-project-specs-design.md` and `docs/plans/2026-08-31-mvp-skill.md`**
+- **`docs/specs/history/2026-08-31-mvp-and-project-specs-design.md` and `docs/plans/2026-08-31-mvp-skill.md`**
   stay as history, each with a line at the top saying the skills were removed in 0.12.0 (D-026).
 - **Version**: `0.12.0` (minor: the plugin's skill set changes).
 

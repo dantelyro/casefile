@@ -1,6 +1,6 @@
 # 0.15.0 — `implement`, the planner and the plan scripts — implementation plan
 
-**Spec:** `docs/specs/2026-10-14-implement-design.md` (approved 2026-10-14).
+**Spec:** `docs/specs/history/2026-10-14-implement-design.md` (approved 2026-10-14).
 **Starts from:** `22a26c7` on `main`, version `0.14.1`.
 **Ships as:** `0.15.0`.
 

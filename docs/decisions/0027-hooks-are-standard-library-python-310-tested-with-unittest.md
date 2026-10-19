@@ -2,7 +2,7 @@
 
 **Status:** Accepted (2026-10-14).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session. The 0.13.0 spec
-(`docs/specs/2026-10-14-review-design.md`) was approved on 2026-10-14 with Python, the standard
+(`docs/specs/history/2026-10-14-review-design.md`) was approved on 2026-10-14 with Python, the standard
 library only and no downloads; asked again on 2026-10-15 whether sh + jq would be simpler: "keep
 python".
 **Implemented by:** `b71c36c` — 2026-10-15 (runtime and library), with each hook from `65adde2` to

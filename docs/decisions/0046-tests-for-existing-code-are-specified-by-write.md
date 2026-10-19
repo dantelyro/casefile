@@ -7,6 +7,6 @@
 
 **Options:** (a) a write-tests skill with the implementer, planner and reviewer loop; (b) a write-tests skill where the main session writes the tests and the reviewer proves them, naming tests with no rule after their behaviour; (c) write-specs drafts rules from the existing code, each proposed, and implement builds them as tests-only tasks.
 
-**Decision:** (c), the developer's call. write-specs reads the named scope and drafts one rule per observed behaviour, each shown as proposed; behaviour that looks wrong is never drafted as a rule but asked at the approval step, and becomes a rule or an issue. The milestone holds tests-only tasks, proved by the reviewer's breaks. D-035 is unchanged: the main session never writes tests.
+**Decision:** (c), the developer's call. write-specs reads the named scope and drafts one rule per observed behaviour, each shown as proposed; behaviour that looks wrong is never drafted as a rule but asked at the approval step, and becomes a rule or an issue. The milestone holds tests-only tasks, proved by the reviewer's breaks. Rules: SPEC-001 to SPEC-005 (docs/specs/30-write-specs.md). D-035 is unchanged: the main session never writes tests.
 
 **Trade-offs:** Adding a few tests to one module takes specs, a plan and agents, the weight of any feature. write-specs' description gains a second kind of input, which changes when it triggers and needs eval cases.

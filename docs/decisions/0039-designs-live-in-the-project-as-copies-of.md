@@ -1,7 +1,7 @@
 # D-039 — Designs live in the project as copies of their artifacts
 
 **Status:** Accepted (2026-10-14).
-**Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: approved with the 0.16.0 spec (`docs/specs/2026-10-14-write-specs-design.md`) on 2026-10-14.
+**Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: approved with the 0.16.0 spec (`docs/specs/history/2026-10-14-write-specs-design.md`) on 2026-10-14.
 **Implemented by:** `9f4bb76` — 2026-10-16 (`write-specs`).
 
 **Context:** The pilot project's design system and screens were made as claude.ai artifacts. A link can change or disappear without the project noticing, and the design check and the implementer read files, not links.

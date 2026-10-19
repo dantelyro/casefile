@@ -51,7 +51,7 @@ including `review`, which proposes `.claude/devflow.json` on first use.
 #### Guards
 
 Hooks, on in every project where devflow is enabled, failing closed (D-028). The full table is in
-`docs/specs/2026-10-14-review-design.md`, *Guard rules*.
+`docs/specs/history/2026-10-14-review-design.md`, *Guard rules*.
 
 - `git push` asks you in your own session and is refused to every agent (D-029).
 - `docker compose down -v` and `--no-verify` are refused to everyone.

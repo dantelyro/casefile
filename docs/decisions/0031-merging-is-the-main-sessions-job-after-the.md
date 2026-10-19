@@ -2,7 +2,7 @@
 
 **Status:** Accepted (2026-10-14).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: the 0.14.0 spec
-(`docs/specs/2026-10-14-fix-bug-design.md`) was approved in session on 2026-10-14; the practice is
+(`docs/specs/history/2026-10-14-fix-bug-design.md`) was approved in session on 2026-10-14; the practice is
 The pilot project M0–M1's, where every merge waited for the developer's OK.
 **Implemented by:** `e2e4113` — 2026-10-15 (`shared/merge.md`), with the implementer's and
 reviewer's guard rules (`65adde2`).

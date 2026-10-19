@@ -1,7 +1,7 @@
 # D-037 — Product answers and logged decisions are kept apart, and nothing is accepted by silence
 
 **Status:** Accepted (2026-10-14).
-**Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: approved with the 0.16.0 spec (`docs/specs/2026-10-14-write-specs-design.md`) on 2026-10-14.
+**Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: approved with the 0.16.0 spec (`docs/specs/history/2026-10-14-write-specs-design.md`) on 2026-10-14.
 **Implemented by:** `9f4bb76` — 2026-10-16 (`write-specs`), `2d69fbe` (`Proposed` status).
 
 **Context:** The pilot project kept `docs/specs/00-decisions.md`, one line each marked ✅, 🔵 or 🟡. Most lines were the owner's answers about the product ("Brazil first"), with no alternatives weighed and no evidence to grade; a few were real choices between alternatives. 🔵 meant "proposed by Claude, accepted unless changed", and read as decided.

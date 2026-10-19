@@ -1,6 +1,6 @@
 # 0.16.0 — `write-specs`, the decision-log scripts and `spec_lint` — implementation plan
 
-**Spec:** `docs/specs/2026-10-14-write-specs-design.md` (approved 2026-10-14).
+**Spec:** `docs/specs/history/2026-10-14-write-specs-design.md` (approved 2026-10-14).
 **Starts from:** `c00c9af` on `main`, version `0.15.0` (unpushed).
 **Ships as:** `0.16.0`.
 

@@ -1,6 +1,6 @@
 # 0.13.0 — `review`, the Python hooks and the design check — implementation plan
 
-**Spec:** `docs/specs/2026-10-14-review-design.md` (approved 2026-10-14, design check added 2026-10-15).
+**Spec:** `docs/specs/history/2026-10-14-review-design.md` (approved 2026-10-14, design check added 2026-10-15).
 **Starts from:** `47c0d4e` on `main`, version `0.12.0`.
 **Ships as:** `0.13.0`.
 

@@ -63,6 +63,7 @@ so.
 | [D-044](0044-what-no-spec-rule-states-is-a-planner.md) | What no spec rule states is a planner choice the developer accepts or cuts | Accepted |
 | [D-045](0045-the-reviewer-runs-the-breaks-in-its-own.md) | The reviewer runs the breaks in its own worktree; the implementer no longer proves its own tests | Accepted |
 | [D-046](0046-tests-for-existing-code-are-specified-by-write.md) | Tests for existing code are specified by write-specs and built by implement; there is no separate test-writing skill | Accepted |
+| [D-047](0047-devflow-is-specified-in-its-own-write-specs.md) | devflow is specified in its own write-specs layout and built with implement | Accepted |
 
 ## Conventions
 
