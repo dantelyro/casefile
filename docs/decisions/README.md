@@ -61,6 +61,8 @@ so.
 | [D-042](0042-devflows-setup-makes-the-projects-tools-ignore-agent.md) | Devflow's setup makes the project's tools ignore agent worktrees, and runs lint when the project has it | Accepted |
 | [D-043](0043-devflow-agents-run-one-command-per-call-with.md) | Devflow agents run one command per call, with a timeout, and never wait in a loop | Accepted |
 | [D-044](0044-what-no-spec-rule-states-is-a-planner.md) | What no spec rule states is a planner choice the developer accepts or cuts | Accepted |
+| [D-045](0045-the-reviewer-runs-the-breaks-in-its-own.md) | The reviewer runs the breaks in its own worktree; the implementer no longer proves its own tests | Accepted |
+| [D-046](0046-tests-for-existing-code-are-specified-by-write.md) | Tests for existing code are specified by write-specs and built by implement; there is no separate test-writing skill | Accepted |
 
 ## Conventions
 
