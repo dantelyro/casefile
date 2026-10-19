@@ -135,7 +135,8 @@ class Reviewer(Base):
 class Restore(Base):
     def test_GUARD_003_reviewer_may_git_restore_paths(self):
         self.expect(["devflow:reviewer"], (
-            "git restore web/x.ts", "git restore -- web/x.ts", "git restore web/a.ts web/b.ts"), "allow")
+            "git restore web/x.ts", "git restore -- web/x.ts", "git restore web/a.ts web/b.ts",
+            "git restore -- -odd-name.ts"), "allow")
 
     def test_GUARD_003_restore_without_a_path_is_denied(self):
         self.expect(["devflow:reviewer"], ("git restore", "git restore --"), "deny")
@@ -145,7 +146,8 @@ class Restore(Base):
             "git restore --staged web/x.ts", "git restore -S web/x.ts",
             "git restore --source HEAD~1 web/x.ts", "git restore -s HEAD~1 web/x.ts",
             "git restore --source=HEAD~1 web/x.ts", "git restore -sHEAD~1 web/x.ts",
-            "git restore -SW web/x.ts"), "deny")
+            "git restore -SW web/x.ts", "git restore --stag web/x.ts",
+            "git restore --sou=HEAD~1 web/x.ts", "git restore --so HEAD~1 web/x.ts"), "deny")
 
     def test_GUARD_003_other_repository_changes_stay_denied(self):
         self.expect(["devflow:reviewer"], (

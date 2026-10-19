@@ -176,7 +176,8 @@ def _restores_worktree_paths(s: Statement) -> bool:
         elif a == "--":
             options_ended = True
         elif a.startswith("--"):
-            if a.split("=", 1)[0] in ("--staged", "--source"):
+            name = a.split("=", 1)[0]  # git accepts any unique prefix of a long option
+            if "--staged".startswith(name) or "--source".startswith(name):
                 return False
         elif {"S", "s"} & set(a[1:]):
             return False
