@@ -126,10 +126,39 @@ class Reviewer(Base):
     def test_changes_nothing(self):
         self.expect(["devflow:reviewer"], (
             "git add -A", "git commit -m x", "git merge feat", "git rebase main", "git reset HEAD~1",
-            "git stash", "git checkout -- web/x.ts", "git restore web/x.ts", "git branch -d feat",
+            "git stash", "git checkout -- web/x.ts", "git branch -d feat",
             "rm web/x.ts", "mv a b", "echo hi > notes.txt", "cat x >> y", "Remove-Item x",
             "Set-Content x hi", "sed -i s/a/b/ web/x.ts", "git switch feat", "git cherry-pick abc"),
             "deny")
+
+
+class Restore(Base):
+    def test_GUARD_003_reviewer_may_git_restore_paths(self):
+        self.expect(["devflow:reviewer"], (
+            "git restore web/x.ts", "git restore -- web/x.ts", "git restore web/a.ts web/b.ts"), "allow")
+
+    def test_GUARD_003_restore_without_a_path_is_denied(self):
+        self.expect(["devflow:reviewer"], ("git restore", "git restore --"), "deny")
+
+    def test_GUARD_003_restore_with_staged_or_source_is_denied(self):
+        self.expect(["devflow:reviewer"], (
+            "git restore --staged web/x.ts", "git restore -S web/x.ts",
+            "git restore --source HEAD~1 web/x.ts", "git restore -s HEAD~1 web/x.ts",
+            "git restore --source=HEAD~1 web/x.ts", "git restore -sHEAD~1 web/x.ts",
+            "git restore -SW web/x.ts"), "deny")
+
+    def test_GUARD_003_other_repository_changes_stay_denied(self):
+        self.expect(["devflow:reviewer"], (
+            "git add -A", "git commit -m x", "git stash", "git checkout -- web/x.ts", "git reset HEAD~1",
+            "rm web/x.ts", "sed -i s/a/b/ web/x.ts", "echo x > web/x.ts",
+            "git restore web/x.ts > out.txt", "git restore web/x.ts && npm test"), "deny")
+
+    def test_GUARD_004_planner_may_not_git_restore(self):
+        self.expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow")
+        self.expect(["devflow:planner"], ("git restore web/x.ts",), "deny")
+
+    def test_REV_007_reviewer_never_commits(self):
+        self.expect(["devflow:reviewer"], ("git commit -m x", "git commit -am x", "git add -A"), "deny")
 
 
 class Implementer(Base):

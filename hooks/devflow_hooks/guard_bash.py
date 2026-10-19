@@ -162,6 +162,27 @@ def _read_only_violation(s: Statement) -> str | None:
     return None
 
 
+def _restores_worktree_paths(s: Statement) -> bool:
+    """`git restore <path>…` that only discards edits in the working tree (GUARD-003): at least one
+    path, and no `--staged`/`-S` (index) or `--source`/`-s` (another revision), attached forms too."""
+    sub, args = s.git()
+    if sub != "restore":
+        return False
+    paths = 0
+    options_ended = False
+    for a in args:
+        if options_ended or not a.startswith("-"):
+            paths += 1
+        elif a == "--":
+            options_ended = True
+        elif a.startswith("--"):
+            if a.split("=", 1)[0] in ("--staged", "--source"):
+                return False
+        elif {"S", "s"} & set(a[1:]):
+            return False
+    return paths > 0
+
+
 def _writes_by_redirect(command: str) -> bool:
     for m in _REDIRECT.finditer(_QUOTED.sub(" Q ", command)):
         target = m.group(2)
@@ -226,6 +247,8 @@ def main(event: dict) -> None:
     if role in ("reviewer", "planner"):
         for s in parsed:
             why = _read_only_violation(s)
+            if why and role == "reviewer" and _restores_worktree_paths(s):
+                why = None
             if why:
                 lib.deny(f"the {role} only reads: {why}. (`{shown}`)")
         if _writes_by_redirect(command):
