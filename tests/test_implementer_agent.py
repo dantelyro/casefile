@@ -28,12 +28,13 @@ class Implementer(unittest.TestCase):
         steps = re.findall(r"^\d+\. \*\*(.+?)\*\*", process, re.M)
         self.assertTrue(steps)
         self.assertNotIn("Break check.", steps)
-        self.assertFalse([s for s in steps if "break" in s.lower()])
+        self.assertNotIn("break", process.lower())
 
     def test_IMPL_002_implementer_reports_red_none_when_behaviour_exists(self):
         text = _text()
         self.assertIn("RED: none — <test> passed on first run", text)
-        self.assertIn("product code", text.split("RED: none", 1)[1].split("\n3. ", 1)[0])
+        after = text.split("RED: none", 1)[1].split("\n3. ", 1)[0]
+        self.assertIn("you touch no product code", " ".join(after.split()))
 
 
 if __name__ == "__main__":
