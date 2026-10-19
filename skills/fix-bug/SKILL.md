@@ -55,6 +55,7 @@ Get the id and file prefix from the script, never by counting by hand:
    saving. Commit it on the default branch (`docs(issues): I-0007 <title>`), and set `in-progress`.
 2. **Implement.** The project settings must be in place first, as in `implement`'s preconditions:
    without `worktree.baseRef: "head"` the implementer starts without the issue you just committed.
+   The current branch must be the default branch: the worktree starts from whatever is checked out.
    Then dispatch `devflow:implementer` with the issue path only. It writes the failing
    test, confirms it fails for the right reason, fixes, and commits on its own branch.
 3. **Review.** Dispatch `devflow:reviewer` with the issue path and the implementer's report

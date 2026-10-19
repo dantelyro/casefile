@@ -35,6 +35,8 @@ produced it is how a change gets approved by the reasoning that wrote it.
    commands itself.
    Whether or not the file exists, propose whatever is missing of the following, under the same yes
    when there is one (D-042):
+   - **The base branch.** No `default_branch` → ask which local branch work starts from and merges
+     back to (`main`, `develop`, `staging`…). Never assume `main`: on PetTool it is never touched.
    - **Worktrees ignored.** Claude Code puts agent worktrees in `.claude/worktrees/`, each a full
      copy of the project: `.gitignore` and the ignores of every linter, formatter and test runner
      configured at the root (`eslint.config.js`, `.prettierignore`, `vitest.config.ts`…) must list
