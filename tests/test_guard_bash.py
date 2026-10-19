@@ -147,7 +147,9 @@ class Restore(Base):
             "git restore --source HEAD~1 web/x.ts", "git restore -s HEAD~1 web/x.ts",
             "git restore --source=HEAD~1 web/x.ts", "git restore -sHEAD~1 web/x.ts",
             "git restore -SW web/x.ts", "git restore --stag web/x.ts",
-            "git restore --sou=HEAD~1 web/x.ts", "git restore --so HEAD~1 web/x.ts"), "deny")
+            "git restore --sou=HEAD~1 web/x.ts", "git restore --so HEAD~1 web/x.ts",
+            'git restore "--staged" web/x.ts', "git restore '-s' HEAD~1 web/x.ts",
+            'git restore --sta""ged web/x.ts'), "deny")
 
     def test_GUARD_003_other_repository_changes_stay_denied(self):
         self.expect(["devflow:reviewer"], (

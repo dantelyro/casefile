@@ -170,7 +170,8 @@ def _restores_worktree_paths(s: Statement) -> bool:
         return False
     paths = 0
     options_ended = False
-    for a in args:
+    for word in args:
+        a = s.value(word)  # the word git receives, quotes removed
         if options_ended or not a.startswith("-"):
             paths += 1
         elif a == "--":
