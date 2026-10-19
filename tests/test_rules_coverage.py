@@ -133,5 +133,16 @@ class Errors(Base):
         self.assertIn("Rules covered", out["errors"][0])
 
 
+class Siblings(Base):
+    def test_a_test_in_a_sibling_repository_covers_the_rule(self):
+        back = self.repo / "back"
+        back.mkdir()
+        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=back, check=True)
+        (back / "api.test.ts").write_text("it('MATCH-001: required skills weigh 70%', () => {})\n", encoding="utf-8")
+        self.write(".claude/devflow.json", json.dumps({"repo": "frontend", "siblings": {"backend": "back"}}))
+        out = self.coverage()[1]
+        self.assertIn("MATCH-001", out["covered"])
+
+
 if __name__ == "__main__":
     unittest.main()

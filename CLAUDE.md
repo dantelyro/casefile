@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `565074c` — 2026-10-16
+**Docs reconciled through:** `b298630` — 2026-10-19
 
 ## What this repo is
 

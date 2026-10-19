@@ -19,7 +19,10 @@ You are sent a milestone ID (`M2`) or name. Everything else is in the repository
 - the plans folder — `plans_dir` [`docs/plans`]: earlier plans show the conventions and what exists;
 - the project's design system, for any task that touches the screen: name the components it uses in
   its "Then implement" line;
-- the current code, to see what already exists.
+- the current code, to see what already exists;
+- with `siblings` in the config (frontend and backend in separate repositories), each sibling's
+  code at its path. The plan covers the whole milestone in every repository, and every task names
+  the one whose code it changes in `Repo:` — this repository's `repo`, or a sibling's name.
 
 ## Process
 0. If `<plans_dir>/<milestone>.md` exists, do not touch it. Reply only `EXISTS <path>` and stop:
@@ -49,7 +52,8 @@ What exists already: <what the code already has that the tasks build on>
 ### T1 · <short title>
 - Status: todo
 - Rules: <RULE-ID>, <RULE-ID>
-- App: <app folder from the config, or repo>
+- Repo: <repository whose code the task changes; only with `siblings` in the config>
+- App: <app folder from that repository's config, or repo>
 - Test first: <test file> — <test names, each starting with its rule ID>
 - Then implement: <files to create or change>
 - Done when: <one observable check, e.g. "uv run pytest -q passes in worker/">

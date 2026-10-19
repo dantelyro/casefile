@@ -27,7 +27,10 @@ produced it is how a change gets approved by the reasoning that wrote it.
    default branch, each app's folder with its `test` and `install` commands as found in the
    project files, and the protected paths — and with it `"worktree": { "baseRef": "head" }` in
    `.claude/settings.json` (merged into what is there), so agent worktrees start from local HEAD
-   instead of the remote, which misses every unpushed commit (D-040). Show both, and **wait** for
+   instead of the remote, which misses every unpushed commit (D-040). When the project's frontend
+   and backend are separate repositories, also `repo` (this one's name) and `siblings` (each
+   other's name and relative path), and `permissions.additionalDirectories` listing those paths so
+   this session can read them (D-041). Show both, and **wait** for
    the developer's yes before writing them. Without them, the reviewer still runs, finding test
    commands itself.
 3. **Check the tests can run.** For every app the change touches, the tools its test command needs

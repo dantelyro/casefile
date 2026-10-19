@@ -74,6 +74,12 @@ milestones) tell `implement` and the planner where things are; the values shown 
 devflow proposes `"worktree": { "baseRef": "head" }` in `.claude/settings.json`, so agent worktrees
 start from your local commits rather than the remote's (D-040).
 
+Frontend and backend in separate repositories: give each `"repo"` (its own name) and `"siblings"`
+(the others' names and relative paths, `{"backend": "../pettool-backend"}`), and list those paths in
+`permissions.additionalDirectories`. Both repositories then hold the same specs, milestone and plan;
+each task's `Repo:` says which one builds it, and each reads the other's plan for the status of the
+tasks it does not build (D-041).
+
 ```json
 {
   "default_branch": "main",

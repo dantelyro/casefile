@@ -6,6 +6,8 @@
   waiting      todo tasks held by an open issue in docs/issues/ (Blocks: <plan> <task>), or by an
                entry of the plan's Blockers named in their Depends on (`needs Gabriel (B18)`)
   blocked      tasks marked `blocked: <reason>`
+  elsewhere    tasks whose `Repo:` is a sibling repository, with their status read from the sibling's
+               copy of the plan (same path); they are built there, never here
 add --json for machine-readable output. Exit 1 when the plan cannot be read or has errors.
 
 Open issues are read through fix-bug's issues_status.py, never parsed twice. Standard library only.
@@ -19,7 +21,7 @@ import subprocess
 import sys
 
 TASK = re.compile(r"^### ([A-Z]\d+[a-z]?) · (.+)$")  # T3, F1 (fix tasks), T3b
-FIELD = re.compile(r"^- (Status|Depends on|Parallel-safe with):\s*(.*)$")
+FIELD = re.compile(r"^- (Status|Depends on|Parallel-safe with|Repo):\s*(.*)$")
 STATUS = re.compile(r"^(todo|in-progress)$|^done \(([0-9a-f]{7,40})\)$|^blocked: (.+)$")
 ISSUES_STATUS = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "..", "..", "fix-bug", "scripts", "issues_status.py")
@@ -44,7 +46,8 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
     for line in plan_text.splitlines():
         m = TASK.match(line)
         if m:
-            current = {"id": m.group(1), "title": m.group(2), "status": None, "depends": [], "parallel": [], "blockers": []}
+            current = {"id": m.group(1), "title": m.group(2), "status": None, "depends": [], "parallel": [], "blockers": [],
+                       "repo": None}
             tasks.append(current)
         elif line.startswith("## "):
             current = None
@@ -54,6 +57,8 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
                 current["status_text"] = f.group(2).strip()
             elif f and f.group(1) == "Depends on":
                 current["depends"] = task_ids(f.group(2))
+            elif f and f.group(1) == "Repo":
+                current["repo"] = f.group(2).strip()
             elif f:
                 current["parallel"] = task_ids(f.group(2))
     known = {t["id"] for t in tasks}
@@ -72,6 +77,53 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
             if dep not in known:
                 errors.append(f"{t['id']}: depends on {dep}, which is not in the plan")
     return tasks, errors
+
+
+def config(root: str) -> dict:
+    try:
+        with open(os.path.join(root, ".claude", "devflow.json"), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def take_sibling_statuses(tasks: list[dict], plan: str, errors: list[str]) -> list[dict]:
+    """Marks the tasks another repository builds, with the status its own copy of the plan gives."""
+    root = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True,
+                          text=True).stdout.strip() or os.getcwd()
+    cfg = config(root)
+    siblings = cfg.get("siblings") or {}
+    if not siblings:
+        return []
+    here = cfg.get("repo")
+    if not here:
+        errors.append("devflow.json declares `siblings` but not `repo`, this repository's name in them")
+        return []
+    rel = os.path.relpath(os.path.abspath(plan), root)
+    copies: dict[str, dict] = {}
+    elsewhere = []
+    for t in tasks:
+        name = t["repo"]
+        if name in (None, here):
+            continue
+        if name not in siblings:
+            errors.append(f"{t['id']}: Repo `{name}` is neither `{here}` nor a sibling in devflow.json")
+            continue
+        if name not in copies:
+            path = os.path.join(root, siblings[name], rel)
+            try:
+                copies[name] = {s["id"]: s for s in parse(open(path, encoding="utf-8").read())[0]}
+            except OSError as e:
+                copies[name] = {}
+                errors.append(f"{name}: its copy of the plan, {path}, cannot be read: {e.strerror}")
+                continue
+        theirs = copies[name].get(t["id"])
+        if copies[name] and not theirs:
+            errors.append(f"{t['id']}: not in {name}'s copy of the plan")
+        t["status"], t["reason"] = (theirs["status"], theirs["reason"]) if theirs else (None, None)
+        t["elsewhere"] = True
+        elsewhere.append({"task": t["id"], "repo": name, "status": t["status"]})
+    return elsewhere
 
 
 def blocking_issues(plan: str, task: str) -> list[str]:
@@ -99,10 +151,12 @@ def main() -> None:
         print(json.dumps({"errors": [f"{plan}: {e.strerror}"]}) if args.json else f"ERROR {plan}: {e.strerror}")
         sys.exit(1)
     tasks, errors = parse(text)
+    elsewhere = take_sibling_statuses(tasks, plan, errors)
     by_id = {t["id"]: t for t in tasks}
+    here = [t for t in tasks if not t.get("elsewhere")]
 
     ready, waiting = [], []
-    for t in tasks:
+    for t in here:
         if t["status"] != "todo" or any(by_id.get(d, {}).get("status") != "done" for d in t["depends"]):
             continue
         held = blocking_issues(plan, t["id"])
@@ -118,10 +172,11 @@ def main() -> None:
 
     out = {
         "ready": ready, "batch": batch,
-        "in_progress": [t["id"] for t in tasks if t["status"] == "in-progress"],
+        "in_progress": [t["id"] for t in here if t["status"] == "in-progress"],
         "waiting": waiting,
-        "blocked": [{"task": t["id"], "reason": t["reason"]} for t in tasks if t["status"] == "blocked"],
-        "done": [t["id"] for t in tasks if t["status"] == "done"],
+        "blocked": [{"task": t["id"], "reason": t["reason"]} for t in here if t["status"] == "blocked"],
+        "done": [t["id"] for t in here if t["status"] == "done"],
+        "elsewhere": elsewhere,
         "errors": errors,
     }
     if args.json:
@@ -134,7 +189,9 @@ def main() -> None:
             print(f"waiting: {w['task']} on " + ", ".join(w["issues"] + [f"{b} (Blockers)" for b in w["blockers"]]))
         for b in out["blocked"]:
             print(f"blocked: {b['task']} — {b['reason']}")
-        print(f"done: {len(out['done'])} of {len(tasks)}")
+        for e in elsewhere:
+            print(f"elsewhere: {e['task']} in {e['repo']} — {e['status'] or 'unknown'}")
+        print(f"done: {len(out['done'])} of {len(here)}" + (" here" if elsewhere else ""))
         for e in errors:
             print(f"ERROR {e}")
     sys.exit(1 if errors else 0)

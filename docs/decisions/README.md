@@ -57,6 +57,7 @@ so.
 | [D-038](0038-the-decision-logs-numbering-entries-and-index-are.md) | The decision log's numbering, entries and index are scripts | Accepted |
 | [D-039](0039-designs-live-in-the-project-as-copies-of.md) | Designs live in the project as copies of their artifacts | Accepted |
 | [D-040](0040-devflow-proposes-worktree-baseref-head-with-devflow-json.md) | Devflow proposes worktree.baseRef head with devflow.json | Accepted |
+| [D-041](0041-sibling-repositories-hold-the-same-specs-and-plan.md) | Sibling repositories hold the same specs and plan, and each builds its own tasks | Accepted |
 
 ## Conventions
 

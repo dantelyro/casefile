@@ -12,7 +12,8 @@ specs folder (`specs_dir`, default docs/specs): `### MATCH-010 · Title     [MVP
 
 A test is named after a rule when a test file holds `it('MATCH-010: …'` / `test("MATCH-010 …"`
 (Jest, Vitest, Playwright) or `def test_MATCH_010_…` (pytest, unittest). Comments do not count.
-Files are the repository's, minus what .gitignore ignores. Standard library only.
+Files are the repository's and each sibling repository's (`siblings` in devflow.json), minus what
+.gitignore ignores. Standard library only.
 """
 
 import argparse
@@ -73,22 +74,24 @@ def main() -> None:
                 if h:
                     tags[h.group(1)] = set(TAG.findall(h.group(2)))
 
-    files = subprocess.run(["git", "-C", root, "ls-files", "--cached", "--others", "--exclude-standard"],
-                           capture_output=True, text=True, encoding="utf-8").stdout.splitlines()
+    repo_files = [(repo, subprocess.run(["git", "-C", repo, "ls-files", "--cached", "--others", "--exclude-standard"],
+                                        capture_output=True, text=True, encoding="utf-8").stdout.splitlines())
+                  for repo in [root] + [os.path.join(root, p) for p in (cfg.get("siblings") or {}).values()]]
     named: set[str] = set()
     js_name = re.compile(rf"""(?<![.\w])(?:it|test)(?:\.\w+)*\s*\(\s*["'`]({rule})[:\s]""")
     py_name = re.compile(r"^\s*(?:async\s+)?def test_([A-Z]+)_(\d+)_", re.M)
-    for rel in files:
-        if not TEST_FILE.search(rel):
-            continue
-        try:
-            text = open(os.path.join(root, rel), encoding="utf-8").read()
-        except (OSError, UnicodeDecodeError):
-            continue
-        if rel.endswith(".py"):
-            named |= {f"{a}-{b}" for a, b in py_name.findall(PY_COMMENTS.sub(r"\1", text))}
-        else:
-            named |= set(js_name.findall(JS_COMMENTS.sub(r"\1", text)))
+    for repo, files in repo_files:
+        for rel in files:
+            if not TEST_FILE.search(rel):
+                continue
+            try:
+                text = open(os.path.join(repo, rel), encoding="utf-8").read()
+            except (OSError, UnicodeDecodeError):
+                continue
+            if rel.endswith(".py"):
+                named |= {f"{a}-{b}" for a, b in py_name.findall(PY_COMMENTS.sub(r"\1", text))}
+            else:
+                named |= set(js_name.findall(JS_COMMENTS.sub(r"\1", text)))
 
     out = {"covered": [], "missing": [], "manual": [], "later": [], "untracked": [], "errors": errors}
     for r in scope:

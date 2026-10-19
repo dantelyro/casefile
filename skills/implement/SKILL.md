@@ -34,14 +34,25 @@ redo by hand what they report.
 - Every tool the milestone's apps need is installed **and running** — a database the integration
   tests use means Docker answering `docker ps`, not just installed: a reviewer that cannot run the
   tests cannot approve.
+- **Siblings** (`siblings` in `.claude/devflow.json`): each sibling's folder is readable from this
+  session (`permissions.additionalDirectories` in `.claude/settings.json`, proposed as `review` does).
+
+**Siblings.** Every repository holds the same specs, milestone and plan, and builds only the tasks
+whose `Repo:` is its own; a task of a sibling is never dispatched from here. This session changes
+the status of its own tasks only, and `plan_status.py` reads a sibling task's status from that
+sibling's copy of the plan (D-041). Writing into a sibling happens only for the plan, in step 1, and
+only while it is on its default branch with a clean working tree; otherwise stop and tell the
+developer. Commit there touching only that file (`git -C <sibling> commit -- <plan>`).
 
 ## 1. Plan
 
-- No plan file yet → dispatch `devflow:planner` with the milestone, then read the plan.
+- No plan file yet, but a sibling has it → copy it here and commit:
+  `chore(plans): plan <milestone> from <sibling>`. It was approved there; never re-plan it.
+- No plan file anywhere → dispatch `devflow:planner` with the milestone, then read the plan.
 - Show the developer the tasks (titles, rules, dependencies) and the Blockers, and **wait for their
   approval**. A blocker that is an undecided question is answered by the developer — then the spec is
   amended first, and the task carries the exact rule; never an invented one. Commit the approved plan:
-  `chore(plans): plan <milestone>`.
+  `chore(plans): plan <milestone>`, here and in each sibling.
 - A plan already there is read, never re-planned unless the developer asks.
 - **Resume:** for each task `plan_status.py` reports in progress, look at its worktree branch
   (`git worktree list`, `git log <default>..<branch>`). A finished commit there → tell the developer
@@ -79,7 +90,8 @@ every batch until the issue is fixed. A bug inside a task's own unmerged branch 
 When `plan_status.py` reports nothing ready and nothing in progress, run
 `implement/scripts/rules_coverage.py <plan>` and `fix-bug/scripts/issues_status.py`, and report:
 tasks done and blocked (with reasons), issues opened and fixed during the milestone, every rule in
-scope with or without a test named after it, and what the developer has to decide next.
+scope with or without a test named after it, the sibling tasks still open (`elsewhere`) and which
+repository builds them, and what the developer has to decide next.
 
 ## Rules
 

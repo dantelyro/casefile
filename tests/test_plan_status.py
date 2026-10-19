@@ -199,5 +199,65 @@ class Errors(Base):
         self.assertIn("batch: T1, T2", proc.stdout)
 
 
+class Siblings(Base):
+    """A frontend and a backend repository holding the same plan; each builds the tasks of its Repo."""
+
+    def setUp(self):
+        super().setUp()
+        self.back = self.repo / "back"
+        self.back.mkdir()
+        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=self.back, check=True)
+        self.repo = self.repo / "front"
+        self.repo.mkdir()
+        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=self.repo, check=True)
+        self.write(".claude/devflow.json", json.dumps({"repo": "frontend", "siblings": {"backend": "../back"}}))
+
+    def plans(self, front, back):
+        self.write("docs/plans/M2.md", plan(*front))
+        p = self.back / "docs" / "plans" / "M2.md"
+        p.parent.mkdir(parents=True)
+        p.write_text(plan(*back), encoding="utf-8")
+
+    @staticmethod
+    def on(repo, text):
+        return text.replace("- App: web", f"- Repo: {repo}")
+
+    def test_a_sibling_task_is_never_in_the_batch_and_its_status_comes_from_the_sibling(self):
+        self.plans([self.on("backend", task(1)), self.on("frontend", task(2, depends="T1")), self.on("frontend", task(3))],
+                   [self.on("backend", task(1, "done (abc1234)")), self.on("frontend", task(2, depends="T1")),
+                    self.on("frontend", task(3))])
+        code, out, err = self.status()
+        self.assertEqual(code, 0, err)
+        self.assertEqual(out["ready"], ["T2", "T3"])
+        self.assertEqual(out["elsewhere"], [{"task": "T1", "repo": "backend", "status": "done"}])
+        self.assertEqual(out["done"], [])
+
+    def test_a_dependency_on_an_unfinished_sibling_task_holds_the_task(self):
+        self.plans([self.on("backend", task(1, "done (abc1234)")), self.on("frontend", task(2, depends="T1"))],
+                   [self.on("backend", task(1, "in-progress")), self.on("frontend", task(2, depends="T1"))])
+        out = self.status()[1]
+        self.assertEqual(out["ready"], [])  # the local copy's stale "done" does not count
+        self.assertEqual(out["in_progress"], [])
+
+    def test_unknown_repo(self):
+        self.plans([self.on("mobile", task(1))], [self.on("mobile", task(1))])
+        code, out, _ = self.status()
+        self.assertEqual(code, 1)
+        self.assertIn("mobile", out["errors"][0])
+
+    def test_sibling_without_the_plan(self):
+        self.write("docs/plans/M2.md", plan(self.on("backend", task(1))))
+        code, out, _ = self.status()
+        self.assertEqual(code, 1)
+        self.assertIn("backend: its copy of the plan", out["errors"][0])
+
+    def test_siblings_without_repo(self):
+        self.write(".claude/devflow.json", json.dumps({"siblings": {"backend": "../back"}}))
+        self.plans([self.on("backend", task(1))], [self.on("backend", task(1))])
+        code, out, _ = self.status()
+        self.assertEqual(code, 1)
+        self.assertIn("`repo`", out["errors"][0])
+
+
 if __name__ == "__main__":
     unittest.main()
