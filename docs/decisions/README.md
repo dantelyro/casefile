@@ -58,6 +58,7 @@ so.
 | [D-039](0039-designs-live-in-the-project-as-copies-of.md) | Designs live in the project as copies of their artifacts | Accepted |
 | [D-040](0040-devflow-proposes-worktree-baseref-head-with-devflow-json.md) | Devflow proposes worktree.baseRef head with devflow.json | Accepted |
 | [D-041](0041-sibling-repositories-hold-the-same-specs-and-plan.md) | Sibling repositories hold the same specs and plan, and each builds its own tasks | Accepted |
+| [D-042](0042-devflows-setup-makes-the-projects-tools-ignore-agent.md) | Devflow's setup makes the project's tools ignore agent worktrees, and runs lint when the project has it | Accepted |
 
 ## Conventions
 

@@ -67,7 +67,9 @@ Hooks, on in every project where devflow is enabled, failing closed (D-028). The
 Per-project settings the guards and agents read; every key optional, and devflow never writes it
 unasked. Each app names its own test command (whatever the project uses: `npm test`, `npx vitest
 run`, `uv run pytest -q`…) and runs in its folder — `path`, defaulting to the app's name; `"."` is
-the whole repository. The skipped-test check knows Node and Python test files only. `install` sets up a fresh worktree; `cleanup` runs in a
+the whole repository. `lint` is optional: when set, the commit gate, the reviewer and the merge run
+it next to `test`. With the settings, devflow proposes `.claude/worktrees/` in `.gitignore` and in
+the ignores of the project's linters, formatters and test runners (D-042). The skipped-test check knows Node and Python test files only. `install` sets up a fresh worktree; `cleanup` runs in a
 worktree before it is removed at merge; `image` rebuilds the app's container when a merge touched it.
 `specs_dir`, `plans_dir` and `build_order` (the page whose "Build order" section lists the
 milestones) tell `implement` and the planner where things are; the values shown are the defaults. Alongside it,
@@ -85,7 +87,7 @@ tasks it does not build (D-041).
   "default_branch": "main",
   "protected_paths": ["docs/specs/", "docs/plans/", "docs/issues/", "docs/product/"],
   "specs_dir": "docs/specs", "plans_dir": "docs/plans", "build_order": "docs/product/blueprint.html",
-  "apps": { "web": { "test": "npm test", "install": "npm ci",
+  "apps": { "web": { "test": "npm test", "lint": "npm run lint", "install": "npm ci",
                      "cleanup": "npm run test:db:drop", "image": "docker compose build web" } },
   "design": { "tokens": "docs/product/design-system/tokens.json", "ui_paths": ["web/"],
               "components_dir": "web/components/ui/", "classes": "tailwind" }

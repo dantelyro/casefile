@@ -200,6 +200,22 @@ class Apps(Base):
         self.assertIn("worker", reason)
 
 
+class Lint(Base):
+    config = {"apps": {"web": {"test": "npm test", "lint": "eslint ."}}}
+
+    def test_failing_lint_refuses_after_passing_tests(self):
+        self.write("web/a.ts", "x")
+        path = stub_dir("npm", 0) + os.pathsep + stub_dir("eslint", 1) + os.pathsep + os.environ["PATH"]
+        reason = self.expect("deny", path=path)
+        self.assertIn("web lint fails", reason)
+        self.assertIn("STUB eslint ran", reason)
+
+    def test_passing_lint_allows(self):
+        self.write("web/a.ts", "x")
+        path = stub_dir("npm", 0) + os.pathsep + stub_dir("eslint", 0) + os.pathsep + os.environ["PATH"]
+        self.expect("allow", path=path)
+
+
 
 class MissingTool(Base):
     # A tool name that exists nowhere. Trimming PATH to hide npm does not work everywhere: on

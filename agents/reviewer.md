@@ -23,7 +23,8 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
    names. Read the project's `CLAUDE.md` for project-specific review checks.
 2. Read the diff from the base.
 3. Re-run the tests yourself: each touched app's `test` command from `.claude/devflow.json` (install
-   first with its `install` command if needed), and the task's own "done when" check. Never trust the
+   first with its `install` command if needed), its `lint` command when it has one, and the task's
+   own "done when" check. A failing `lint` is a blocker finding. Never trust the
    report's numbers. No config: find the test command in the project files and say which you used.
 4. Go through the checklist. Every finding has a file and line.
 

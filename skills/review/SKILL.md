@@ -25,7 +25,7 @@ produced it is how a change gets approved by the reasoning that wrote it.
    when the target is ambiguous; do not guess which branch.
 2. **Project settings.** Read `.claude/devflow.json`. If it does not exist, propose one — the
    default branch, each app's folder with its `test` and `install` commands as found in the
-   project files, and the protected paths — and with it `"worktree": { "baseRef": "head" }` in
+   project files, its `lint` command when the app has a linter, and the protected paths — and with it `"worktree": { "baseRef": "head" }` in
    `.claude/settings.json` (merged into what is there), so agent worktrees start from local HEAD
    instead of the remote, which misses every unpushed commit (D-040). When the project's frontend
    and backend are separate repositories, also `repo` (this one's name) and `siblings` (each
@@ -33,6 +33,14 @@ produced it is how a change gets approved by the reasoning that wrote it.
    this session can read them (D-041). Show both, and **wait** for
    the developer's yes before writing them. Without them, the reviewer still runs, finding test
    commands itself.
+   Whether or not the file exists, propose whatever is missing of the following, under the same yes
+   when there is one (D-042):
+   - **Worktrees ignored.** Claude Code puts agent worktrees in `.claude/worktrees/`, each a full
+     copy of the project: `.gitignore` and the ignores of every linter, formatter and test runner
+     configured at the root (`eslint.config.js`, `.prettierignore`, `vitest.config.ts`…) must list
+     it. On PetTool, `eslint .` swept the copies and hung for over 400 s.
+   - **A linter, per app without one.** Name the usual one for its stack. A no is final: lint is
+     optional, tests are not. An app with no test command is asked for one.
 3. **Check the tests can run.** For every app the change touches, the tools its test command needs
    must be running, not just installed: Docker's daemon (`docker info`), a database container the
    suite expects. If one is down, tell the developer before dispatching — a reviewer that cannot

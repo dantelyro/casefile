@@ -21,7 +21,8 @@ several changes at once; merge them one by one all the same.
 3. **Prove it on the default branch.**
    - Install first: each touched app's `install` command, run on the default branch, so the tests
      run against the merged lock files.
-   - Tests: every app the change touches runs its `test` command. With `apps` configured, the commit
+   - Tests: every app the change touches runs its `test` command, and its `lint` command when it has
+     one. With `apps` configured, the commit
      in step 4 runs them through the pre-commit gate; without, run them yourself now. Before running
      them, check that nothing else holds the services the tests use (`docker ps`: an agent's test
      database on the same port makes two suites fail each other).

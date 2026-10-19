@@ -4,7 +4,8 @@ Port of Inverso's pre_commit.py (TEST-001, TEST-002):
 1. No skipped or focused tests in the added lines of test files.
 2. The design check on the added lines of UI files, so a file written outside Claude Code's edit
    tools is caught too.
-3. The test command of every configured app the commit touches passes.
+3. The test command of every configured app the commit touches passes, and its lint command when
+   it has one.
 
 A commit only counts where `git commit` starts a statement (guard_bash's parsing). With no `apps`
 configured, step 3 runs nothing: projects opt into the slow part.
@@ -112,19 +113,23 @@ def main(event: dict) -> None:
     for name, app in cfg["apps"].items():
         folder = (app.get("path") or name).strip("/")
         whole_repo = folder in ("", ".")  # "path": "." — the repository is the app
-        command = app.get("test")
-        if not command or not (whole_repo or any(f.startswith(folder + "/") for f in files)):
+        if not (whole_repo or any(f.startswith(folder + "/") for f in files)):
             continue
-        tool = shlex.split(command, posix=os.name != "nt")[0]
-        if shutil.which(tool) is None:
-            lib.deny(f"`{tool}` isn't on PATH, so the {name} tests did not run (they did not fail). "
-                     f"Make `{tool}` available to this session and retry the commit.")
-        try:
-            code, output = _run(command, root if whole_repo else os.path.join(root, *folder.split("/")))
-        except subprocess.TimeoutExpired:
-            lib.deny(f"the {name} tests took longer than {SUITE_TIMEOUT // 60} minutes; commit refused.")
-        if code != 0:
-            tail = "\n".join(output.strip().splitlines()[-30:])
-            lib.deny(f"the {name} tests fail (`{command}`), so the commit is refused. Last lines:\n{tail}")
+        # `lint` is optional: the developer may decline a linter; `test` is the mandatory one (D-042)
+        for kind, label, fails in (("test", "tests", "fail"), ("lint", "lint", "fails")):
+            command = app.get(kind)
+            if not command:
+                continue
+            tool = shlex.split(command, posix=os.name != "nt")[0]
+            if shutil.which(tool) is None:
+                lib.deny(f"`{tool}` isn't on PATH, so the {name} {label} did not run (no failure was seen). "
+                         f"Make `{tool}` available to this session and retry the commit.")
+            try:
+                code, output = _run(command, root if whole_repo else os.path.join(root, *folder.split("/")))
+            except subprocess.TimeoutExpired:
+                lib.deny(f"the {name} {label} took longer than {SUITE_TIMEOUT // 60} minutes; commit refused.")
+            if code != 0:
+                tail = "\n".join(output.strip().splitlines()[-30:])
+                lib.deny(f"the {name} {label} {fails} (`{command}`), so the commit is refused. Last lines:\n{tail}")
 
     lib.allow()
