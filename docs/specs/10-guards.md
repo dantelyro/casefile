@@ -4,12 +4,14 @@ What `hooks/devflow_hooks/guard_paths.py` and `guard_bash.py` let each devflow a
 cover only what changed in 0.20.0; the rest is in `history/2026-10-14-review-design.md`, "Guard
 rules".
 
-### GUARD-001 · The reviewer edits only inside a linked worktree      [MVP]
+### GUARD-001 · The reviewer edits only inside its own worktree      [MVP]
 Given `devflow:reviewer` writes a file with Edit, Write, MultiEdit or NotebookEdit
-When the file lies in a linked worktree (its git dir differs from its common dir)
+When the file lies in a linked worktree (its git dir differs from its common dir), and it is the same
+worktree as the reviewer's working folder (`cwd`)
 Then the write is allowed, subject to GUARD-002
-And in the main checkout, outside any repository, or when git cannot tell, it is denied, the reason
-saying breaks happen only in the reviewer's own worktree. See D-045.
+And in the main checkout, in any other linked worktree (an implementer's, another reviewer's), outside
+any repository, or when git cannot tell, it is denied, the reason saying breaks happen only in the
+reviewer's own worktree. See D-045.
 
 ### GUARD-002 · The reviewer never edits tests, records or settings      [MVP]
 Given `devflow:reviewer` writes a file inside a linked worktree
