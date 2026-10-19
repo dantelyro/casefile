@@ -7,3 +7,5 @@
   (2026-10-19) → SPEC-001, see D-046
 - Documents are brought into devflow's layout by a separate skill, not by hand and not by the
   evidence skill (2026-10-19) → DOCS-001
+- The repo adopts ruff and pytest, run through uv, as their own milestone after M3 (2026-10-19)
+  → TOOL-001..004

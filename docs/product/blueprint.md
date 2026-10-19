@@ -13,3 +13,4 @@ Releases shipped through 0.19.1 predate these specs; their designs are in `docs/
 - **M2 — Specs for existing code** (0.21.0): SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005.
 - **M3 — Docs reconciliation** (later): DOCS-001, DOCS-002, DOCS-003, DOCS-004, DOCS-005,
   DOCS-006, DOCS-007, DOCS-008.
+- **M4 — Ruff and pytest** (later): TOOL-001, TOOL-002, TOOL-003, TOOL-004.
