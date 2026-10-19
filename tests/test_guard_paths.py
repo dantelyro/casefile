@@ -37,12 +37,12 @@ class Base(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def decide(self, agent, path, tool="Write", cwd=None):
+    def decide(self, agent, path, tool="Write", cwd=None, raw_path=False):
         e = json.loads((FIXTURES / "write_main.json").read_text(encoding="utf-8"))
         e["tool_name"] = tool
         e["cwd"] = str(cwd or self.repo)
         key = "notebook_path" if tool == "NotebookEdit" else "file_path"
-        full = path if os.path.isabs(path) else str(self.repo / path)
+        full = path if raw_path or os.path.isabs(path) else str(self.repo / path)
         e["tool_input"] = {key: full, "content": "x"}
         e.pop("agent_type", None)
         if agent:
@@ -125,6 +125,23 @@ class ReviewerWorktree(Base):
         subprocess.run(["git", "worktree", "add", "-q", str(other_wt)], cwd=other, check=True)
         got, _ = self.decide("devflow:reviewer", str(other_wt / "web" / "a.ts"), cwd=wt)
         self.assertEqual(got, "deny")
+
+    def test_GUARD_001_reviewer_is_denied_in_another_linked_worktree_of_the_same_repository(self):
+        wt = self.make_worktree()
+        implementer_wt = self.repo / ".claude" / "worktrees" / "agent-2"
+        subprocess.run(["git", "worktree", "add", "-q", str(implementer_wt)], cwd=self.repo, check=True)
+        # Claude Code sets CLAUDE_PROJECT_DIR to the main repo, which makes the path repo-relative.
+        with mock.patch.dict(os.environ, {"CLAUDE_PROJECT_DIR": str(self.repo)}):
+            for tool, path in (("Edit", "web/a.ts"), ("Write", "web/new-folder/b.ts"),
+                               ("NotebookEdit", "nb.ipynb")):
+                got, reason = self.decide("devflow:reviewer", str(implementer_wt / path), tool=tool, cwd=wt)
+                self.assertEqual(got, "deny", f"{tool} {path}: {reason}")
+                self.assertIn("worktree", reason)
+
+    def test_GUARD_001_a_relative_path_resolves_against_the_cwd(self):
+        wt = self.make_worktree()
+        got, reason = self.decide("devflow:reviewer", "web/a.ts", cwd=wt, raw_path=True)
+        self.assertEqual(got, "allow", reason)
 
     def test_GUARD_001_the_files_directory_is_judged_not_the_session_cwd(self):
         wt = self.make_worktree()

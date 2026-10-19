@@ -76,17 +76,9 @@ def git_root(cwd: str | None) -> str | None:
     return out.stdout.strip() or None
 
 
-def in_linked_worktree(path: str, cwd: str | None = None) -> bool:
-    """True when `path` (relative ones resolved against `cwd`) lies in a linked git worktree (not the
-    main checkout). Asked of the nearest existing parent directory. Any git failure, timeout or no
-    repository → False (fail closed)."""
-    directory = os.path.dirname(os.path.realpath(os.path.join(cwd or os.getcwd(), path)))
-    while directory and not os.path.isdir(directory):
-        parent = os.path.dirname(directory)
-        if parent == directory:
-            return False
-        directory = parent
-
+def _linked_worktree_dir(directory: str) -> str | None:
+    """The git dir of the linked worktree that `directory` is in (unique per worktree); None when it is the
+    main checkout, outside any repository, or git cannot tell (fail closed)."""
     def ask(flag: str) -> str | None:
         try:
             out = subprocess.run(["git", "-C", directory, "rev-parse", "--path-format=absolute", flag],
@@ -98,7 +90,24 @@ def in_linked_worktree(path: str, cwd: str | None = None) -> bool:
         return os.path.realpath(out.stdout.strip())
 
     git_dir, common_dir = ask("--git-dir"), ask("--git-common-dir")
-    return git_dir is not None and common_dir is not None and git_dir != common_dir
+    if git_dir is None or common_dir is None or git_dir == common_dir:
+        return None
+    return git_dir
+
+
+def in_own_worktree(path: str, cwd: str | None = None) -> bool:
+    """True when `path` (relative ones resolved against `cwd`) lies in the same linked git worktree as
+    `cwd`. The file is asked through its nearest existing parent directory. Anything git cannot tell
+    → False (fail closed)."""
+    cwd = cwd or os.getcwd()
+    directory = os.path.dirname(os.path.realpath(os.path.join(cwd, path)))
+    while directory and not os.path.isdir(directory):
+        parent = os.path.dirname(directory)
+        if parent == directory:
+            return False
+        directory = parent
+    file_tree = _linked_worktree_dir(directory)
+    return file_tree is not None and file_tree == _linked_worktree_dir(cwd)
 
 
 _WORKTREE_PREFIX = re.compile(r"^\.claude/worktrees/[^/]+/")
