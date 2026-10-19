@@ -1,6 +1,6 @@
 # Skill authoring — what Anthropic documents
 
-**Verified against:** Claude Code `2.1.301` — 2026-10-15
+**Verified against:** Claude Code `2.1.304` — 2026-10-19
 
 Facts about how skills load and behave, taken from Anthropic's own pages. This file records what
 the vendor says; the rules devflow layers on top live in `CLAUDE.md`. Each fact cites its page so a
@@ -41,6 +41,9 @@ version bump can be checked against the source rather than against this summary.
   and low-priority skills set to `"name-only"` in `skillOverrides` to free it. `/skill-doctor`
   (v2.1.252+) finds unused skills. [CC]
 - Skills could drop out of the model's listing after `/rewind`, fixed in v2.1.301. [CL]
+- After compaction the skill list is sent to Claude again; `/reload-skills` sends only new or changed
+  skills, and resumed and cloud sessions no longer resend the whole list on every plugin reload
+  (v2.1.304). [CL]
 - A skill whose file or folder name holds hidden, direction-changing or blank-like characters, `<` or
   `>`, is not offered until renamed (v2.1.299). [CL]
 
@@ -81,6 +84,9 @@ version bump can be checked against the source rather than against this summary.
 - After auto-compaction, the most recent invocation of each skill is re-attached, **first 5,000
   tokens only**, sharing a **25,000-token** budget filled from the most recently invoked skill.
   Older skills can be dropped entirely. **Put the most important instructions near the top.** [CC]
+- A skill's own `hooks` are capped at 1,024 per source (a repo, your folder, or a plugin), a `once`
+  hook no longer removes another skill's identical hook, and under a policy that allows hooks from
+  plugins only, skills' hooks follow it (v2.1.304). [CL]
 - A rule that must hold every time belongs in a hook — a skill can register one in its `hooks`
   frontmatter — not in prose Claude may stop following. [CC]
 - Be concise: "Claude is already very smart" — add only context it does not have, and ask of each
@@ -102,6 +108,9 @@ version bump can be checked against the source rather than against this summary.
 - Plugin skills do not load in cloud sessions when the plugin is enabled only in user settings or
   declared in the repo's `.claude/settings.json`. [CC]
 - Subagents preload at most 32 skills from their `skills` field (v2.1.295). [CL]
+- Startup with many plugins takes far fewer file-system calls for command and agent files (v2.1.302);
+  the PowerShell tool finds commands in a plugin's `bin/` folder (v2.1.302). [CL]
+- A plugin could keep a headless run going past `--max-turns`; fixed in v2.1.304. [CL]
 
 ## Plugin hooks and agents
 
@@ -131,6 +140,8 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
 - `if` takes exactly one permission rule, runs only on tool events, and is best-effort: when Claude
   Code cannot tell which commands a Bash input runs, the hook runs regardless. The page says to use
   the permission system, not a hook, for a hard allow or deny. [HK]
+- A PreToolUse hook's deny reason was replaced by a timeout error; fixed in v2.1.304. Prompt and agent
+  hooks run at most 12 of one event at a time (v2.1.302); devflow's hooks are command hooks. [CL]
 - `updatedInput` from PreToolUse is validated like Claude's own input: unknown keys dropped, input the
   tool rejects denies the call (v2.1.300). [CL]
 - `UserPromptSubmit` hooks run before a skill or slash command expands, so blocking the prompt also
@@ -141,7 +152,9 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   `disallowedTools`, `skills`, `memory`, `background`, `omitClaudeMd`, `isolation` (only
   `"worktree"`), `color`. **Ignored:** `permissionMode`, `hooks`, `mcpServers`, `initialPrompt` — an
   agent's rules have to be plugin hooks. Malformed frontmatter loads the agent with every field
-  ignored. [PL] Which branch a plugin agent's worktree starts from is not documented.
+  ignored. [PL] Which branch a plugin agent's worktree starts from is not documented. Subagents that were messaged
+  or resumed sometimes forgot their latest work; fixed in v2.1.304. Fork subagents (`subagent_type:
+  "fork"`) are on by default in `claude -p` (v2.1.302). [CL]
 - `claude --plugin-dir <path>` loads a plugin for one session without installing it; the plugin is
   named after the directory. [CLI][PL]
 

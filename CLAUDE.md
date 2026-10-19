@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `b298630` — 2026-10-19
+**Docs reconciled through:** `3953145` — 2026-10-19
 
 ## What this repo is
 
@@ -73,8 +73,15 @@ a project that has not agreed to it. Agents live flat in `agents/` (a subfolder 
 name), and every rule an agent must obey is a plugin hook branching on `agent_type`, because a
 plugin agent's own `hooks` and `permissionMode` are ignored (D-030). The two greenfield skills were removed in 0.12.0 (D-026); the
 agent workflows that replace them are designed in `docs/specs/2026-10-14-*` and land one release at
-a time. Until `write-specs` ships, no devflow skill writes a new project's specs or claims `/init`
-in an empty directory.
+a time, `write-specs` among them.
+
+**Per-project settings are `.claude/devflow.json`**, read through `hooks/devflow_hooks/lib.py`
+(`_DEFAULTS`, `_TYPES`: a new key is added to both). Skills and agents read it, and `review` step 2
+is where its contents are proposed: apps with `test`, `install` and optional `lint` (D-042),
+`default_branch`, and `repo` with `siblings` for a frontend and backend in separate repositories,
+where every repository holds the same specs and plan and builds only its own tasks (D-041). The
+planner marks any detail no spec rule states as a `Planner choice:` and the developer rules on each
+(D-044).
 
 ## Hook gotchas
 
@@ -96,6 +103,9 @@ Each of these is load-bearing; the comments in the files say so too.
 - **Emit exactly one context field.** Claude Code reads both `additionalContext` and
   `hookSpecificOutput.additionalContext` without deduplicating, so `session_start` emits the nested
   form under Claude Code (`CLAUDE_PLUGIN_ROOT` set) and the top-level form elsewhere.
+- **Devflow agents get one command per call.** `guard_bash` denies `;`, `&&`, `||`, several lines,
+  `| tail` and `sleep`/`until` loops for devflow's own agents (`devflow:*`), so a hung check cannot hide
+  inside a chain (D-043).
 - **Only the standard library.** A test fails on any import outside `sys.stdlib_module_names`.
 
 ## Skill-authoring baseline
