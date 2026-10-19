@@ -3,7 +3,7 @@
 **Status:** Accepted (2026-10-19).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: asked for in session on 2026-10-19.
 
-**Context:** On PetTool (0.16.1), Claude Code's agent worktrees under .claude/worktrees/ (its default, documented at code.claude.com/docs/en/worktrees, Grade 2) were swept by eslint . from the root, whose flat config ignored only dist and dev-dist; lint hung past 400 s (I-0017), and git status showed ?? .claude/worktrees/, so merge.md's clean-tree check was always false. No devflow step ran lint: the reviewer did so on its own, and the PetTool backend has no linter.
+**Context:** On devflow 0.16.1, Claude Code's agent worktrees under .claude/worktrees/ (its default, documented at code.claude.com/docs/en/worktrees, Grade 2) were swept by eslint . from the root, whose flat config ignored only dist and dev-dist; lint hung past 400 s, and git status showed ?? .claude/worktrees/, so merge.md's clean-tree check was always false. No devflow step ran lint: the reviewer did so on its own, and a backend had no linter.
 
 **Options:** (a) worktrees outside the repository through a WorktreeCreate hook, which replaces Claude Code's worktree logic for every session with the plugin, drops .worktreeinclude and leaves agent worktrees uncleaned; (b) the setup proposes .claude/worktrees/ in .gitignore and in the root ignores of every linter, formatter and test runner; plus an optional per-app lint command that the gate, the reviewer and the merge run.
 
