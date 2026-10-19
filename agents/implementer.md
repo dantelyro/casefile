@@ -86,6 +86,10 @@ silently skipped or changed item is a failed task.
 - **Dependencies are added with the package manager's command** (`npm install zod`, `uv add httpx`),
   never by typing a version into a manifest.
 - A missing tool (a runtime, Docker) → `blocked`; don't write code you can't run.
+- **One check per command, with a timeout** (`timeout 300 npm test`): typecheck, lint and each suite
+  apart, never chained or piped into `tail` — one implementer waited ~30 min on such a chain, with no
+  way to tell which step hung. Give each one's time under TESTS. A check that times out is reported
+  `blocked` with its last output; never wait on it in a loop. The hooks refuse chains and loops (D-043).
 - A fresh database or service for a check is a **throwaway** one — its own container on its own port,
   removed when you are done — never the developer's. Never stop processes by name.
 - Tests never call real outside services; use the project's fakes and fixtures.

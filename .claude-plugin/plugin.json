@@ -1,7 +1,7 @@
 {
   "name": "devflow",
   "description": "Workflow skills and guards for building with agents: orienting in an unfamiliar repo, recording decisions with the evidence behind them, turning a feature or a finished brainstorm into spec rules and a milestone, building a milestone of spec rules task by task with planner, implementer and reviewer agents, fixing bugs test-first from docs/issues/, reviewing changes against their specs, and hooks that hold the rules every time.",
-  "version": "0.18.3",
+  "version": "0.19.0",
   "author": {
     "name": "dantelyro"
   },

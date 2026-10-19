@@ -103,6 +103,36 @@ def _kills_by_name(s: Statement) -> bool:
     return False
 
 
+_SLEEP_LIMIT = 10  # seconds; an implementer once waited ~30 min in sleep/until loops on a hung check
+_DURATION = re.compile(r"^(\d+(?:\.\d+)?)([smhd]?)$")
+
+
+_CHAIN = re.compile(r"&&|\|\||;|\n|\|\s*tail\b")
+
+
+def _chained(command: str) -> bool:
+    """More than one command in one call, or output cut by `tail` (D-043). Quoted text never counts."""
+    return bool(_CHAIN.search(_QUOTED.sub("", command.strip())))
+
+
+def _waits_in_a_loop(s: Statement) -> bool:
+    """A devflow agent polling a command instead of running it with a timeout (D-043)."""
+    words = [s.name] + [a.lower() for a in s.args]
+    if words[0] == "do":  # `while …; do sleep 100; done` splits into `do sleep 100`
+        words = words[1:]
+    if not words:
+        return False
+    if words[0] in ("until", "while"):
+        return True
+    if words[0] in ("sleep", "start-sleep"):
+        for w in words[1:]:
+            m = _DURATION.match(w)
+            if m:
+                seconds = float(m.group(1)) * {"": 1, "s": 1, "m": 60, "h": 3600, "d": 86400}[m.group(2)]
+                return seconds >= _SLEEP_LIMIT
+    return False
+
+
 # --- read-only agents (reviewer, planner) --------------------------------------------------
 
 _READ_GIT = {"log", "diff", "show", "status", "rev-parse", "ls-files", "blame", "grep", "describe",
@@ -183,6 +213,15 @@ def main(event: dict) -> None:
         if _kills_by_name(s):
             lib.deny("agents may not kill processes by name: it kills the developer's processes too. "
                      f"Stop the one process you started, by its id. (`{shown}`)")
+
+    if role:
+        if _chained(command):
+            lib.deny("devflow agents run one command per call: no `;`, `&&`, `||`, several lines or "
+                     f"`| tail`. Split it, and give each check its own timeout. (`{shown}`)")
+        for s in parsed:
+            if _waits_in_a_loop(s):
+                lib.deny(f"devflow agents run each check once, with a timeout, and never wait on one in a "
+                         f"`sleep`/`until` loop. If it timed out, report it with its last output. (`{shown}`)")
 
     if role in ("reviewer", "planner"):
         for s in parsed:

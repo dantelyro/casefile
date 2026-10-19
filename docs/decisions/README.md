@@ -59,6 +59,7 @@ so.
 | [D-040](0040-devflow-proposes-worktree-baseref-head-with-devflow-json.md) | Devflow proposes worktree.baseRef head with devflow.json | Accepted |
 | [D-041](0041-sibling-repositories-hold-the-same-specs-and-plan.md) | Sibling repositories hold the same specs and plan, and each builds its own tasks | Accepted |
 | [D-042](0042-devflows-setup-makes-the-projects-tools-ignore-agent.md) | Devflow's setup makes the project's tools ignore agent worktrees, and runs lint when the project has it | Accepted |
+| [D-043](0043-devflow-agents-run-one-command-per-call-with.md) | Devflow agents run one command per call, with a timeout, and never wait in a loop | Accepted |
 
 ## Conventions
 

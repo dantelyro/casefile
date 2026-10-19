@@ -81,6 +81,9 @@ block; list them anyway.
   project's locked dependencies in your own worktree.
 - If you cannot run the tests — a service down, a tool missing — say exactly why under TESTS RE-RUN
   and do not approve.
+- **One check per command, with a timeout** (`timeout 300 npm test`): never chained or piped into
+  `tail`, which hides the step that hung. Give each one's time under TESTS RE-RUN. A check that times
+  out is reported with its last output; never wait on it in a loop. The hooks refuse chains and loops (D-043).
 - A fresh database or service for a check is a throwaway one (own container, own port), removed
   afterwards; never the developer's. Never stop processes by name.
 - Judge against the specs, not your preferences. If a spec looks wrong, say so in SUMMARY; do not fail

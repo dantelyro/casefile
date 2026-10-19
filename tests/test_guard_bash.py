@@ -120,7 +120,7 @@ class Reviewer(Base):
     def test_reads_and_tests(self):
         self.expect(["devflow:reviewer"], (
             "git diff main...feat", "git log --oneline -5", "git show HEAD", "git status",
-            "git switch --detach feat", "npm test 2>&1 | tail -20", "uv run pytest -q", "npm ci",
+            "git switch --detach feat", "npm test 2>&1", "uv run pytest -q", "npm ci",
             "uv sync", "npm test > /dev/null", "npm test 2>/dev/null", "git branch --list"), "allow")
 
     def test_changes_nothing(self):
@@ -142,6 +142,29 @@ class Implementer(Base):
         self.expect(["devflow:implementer"], (
             "git merge main", "git rebase main", "git cherry-pick abc", "git reset --hard HEAD~1",
             "git switch main", "git checkout main", "git branch -D feat"), "deny")
+
+
+class OneCommandPerCall(Base):
+    def test_devflow_agents_never_chain(self):
+        self.expect(DEVFLOW_AGENTS, (
+            "npm run typecheck | tail; npm run lint | tail; git commit -m x", "cd web && npm test",
+            "npm test || true", "npm test\nnpm run lint", "npx playwright test e2e | tail -20"), "deny")
+
+    def test_one_command_quoted_separators_and_other_pipes_pass(self):
+        self.expect(DEVFLOW_AGENTS, ('git log --grep "a; b && c"', "git log --oneline | head -5",
+                                     "timeout 300 npm test"), "allow")
+        self.expect((MAIN,) + OTHER_AGENTS, ("npm test && npm run lint",), "allow")
+
+
+class NoWaitLoops(Base):
+    def test_devflow_agents_do_not_poll(self):
+        self.expect(DEVFLOW_AGENTS, (
+            "sleep 100; cat out.log", "until grep -q done out.log; do sleep 5; done",
+            "while true; do cat x; done", "sleep 1m", "Start-Sleep -Seconds 60"), "deny")
+
+    def test_a_short_pause_and_everyone_else_pass(self):
+        self.expect(DEVFLOW_AGENTS, ("sleep 2", "timeout 120 npm test"), "allow")
+        self.expect((MAIN,) + OTHER_AGENTS, ("sleep 100", "until false; do sleep 5; done"), "allow")
 
 
 class Planner(Base):
