@@ -41,6 +41,7 @@ hook or a script enforces are `[MVP]`.
 | [20-reviewer.md](20-reviewer.md) | `devflow:reviewer` |
 | [21-implementer.md](21-implementer.md) | `devflow:implementer` |
 | [30-write-specs.md](30-write-specs.md) | The `write-specs` skill |
+| [40-docs-reconciliation.md](40-docs-reconciliation.md) | The docs reconciliation skill |
 
 Behaviour shipped before these files (through 0.19.1) is described in `history/`, one design per
 release, and is being specified here area by area. Where a rule here and a history design disagree,

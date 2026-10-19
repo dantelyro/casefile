@@ -5,3 +5,5 @@
 - The reviewer, not the implementer, proves tests can fail (2026-10-19) → REV-001, IMPL-001, see D-045
 - Tests for existing code go through `write-specs` and `implement`, with no separate skill
   (2026-10-19) → SPEC-001, see D-046
+- Documents are brought into devflow's layout by a separate skill, not by hand and not by the
+  evidence skill (2026-10-19) → DOCS-001
