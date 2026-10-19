@@ -76,6 +76,30 @@ def git_root(cwd: str | None) -> str | None:
     return out.stdout.strip() or None
 
 
+def in_linked_worktree(path: str) -> bool:
+    """True when `path` lies in a linked git worktree (not the main checkout). Asked of the nearest
+    existing parent directory. Any git failure, timeout or no repository → False (fail closed)."""
+    directory = os.path.dirname(os.path.realpath(path))
+    while directory and not os.path.isdir(directory):
+        parent = os.path.dirname(directory)
+        if parent == directory:
+            return False
+        directory = parent
+
+    def ask(flag: str) -> str | None:
+        try:
+            out = subprocess.run(["git", "-C", directory, "rev-parse", "--path-format=absolute", flag],
+                                 capture_output=True, text=True, timeout=10)
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        if out.returncode != 0 or not out.stdout.strip():
+            return None
+        return os.path.realpath(out.stdout.strip())
+
+    git_dir, common_dir = ask("--git-dir"), ask("--git-common-dir")
+    return git_dir is not None and common_dir is not None and git_dir != common_dir
+
+
 _WORKTREE_PREFIX = re.compile(r"^\.claude/worktrees/[^/]+/")
 
 
