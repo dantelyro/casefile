@@ -4,25 +4,24 @@ import os
 import pathlib
 import subprocess
 import sys
-import unittest
+
+import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCRIPTS = sorted((ROOT / "skills").glob("*/scripts/*.py"))
 
 
-class Utf8Output(unittest.TestCase):
-    def test_every_script_prints_utf8_under_a_legacy_code_page(self):
-        self.assertTrue(SCRIPTS)
-        env = dict(os.environ, PYTHONIOENCODING="cp1252", PYTHONUTF8="0")
-        for script in SCRIPTS:
-            with self.subTest(script.name):
-                r = subprocess.run([sys.executable, str(script), "--help"], cwd=ROOT, env=env,
-                                   capture_output=True)
-                self.assertEqual(r.returncode, 0, r.stderr.decode("utf-8", "replace"))
-                text = r.stdout.decode("utf-8")  # raises if a character came out in cp1252
-                if script.name != "decision_next_id.py":  # it takes a folder, not options
-                    self.assertTrue(any(ord(c) > 127 for c in text), text)  # "—" or "…" in each description
+def test_there_are_skill_scripts_to_check():
+    assert SCRIPTS
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.mark.parametrize("script", SCRIPTS, ids=lambda s: s.name)
+def test_every_script_prints_utf8_under_a_legacy_code_page(script):
+    env = dict(os.environ, PYTHONIOENCODING="cp1252", PYTHONUTF8="0")
+    r = subprocess.run([sys.executable, str(script), "--help"], cwd=ROOT, env=env,
+                       capture_output=True, check=False)
+    assert r.returncode == 0, r.stderr.decode("utf-8", "replace")
+    text = r.stdout.decode("utf-8", errors="replace")  # a character that came out in cp1252 becomes U+FFFD
+    assert "�" not in text, f"{script.name} printed a non-UTF-8 byte: {text!r}"
+    if script.name != "decision_next_id.py":  # it takes a folder, not options
+        assert any(ord(c) > 127 for c in text), text  # "—" or "…" in each description
