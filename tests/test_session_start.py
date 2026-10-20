@@ -7,15 +7,16 @@ import pathlib
 import shutil
 import subprocess
 import sys
-import unittest
 from contextlib import redirect_stdout
 from unittest import mock
+
+import pytest
 
 HOOKS = pathlib.Path(__file__).resolve().parent.parent / "hooks"
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(HOOKS))
 
-from devflow_hooks import session_start  # noqa: E402
+from devflow_hooks import session_start  # needs HOOKS on sys.path first
 
 
 def expected(name: str) -> dict:
@@ -29,35 +30,35 @@ def output(env: dict) -> dict:
     return json.loads(out.getvalue())
 
 
-class SessionStart(unittest.TestCase):
-    def test_under_claude_code_nested_form(self):
-        self.assertEqual(output({"CLAUDE_PLUGIN_ROOT": "/x"}), expected("nested"))
-
-    def test_elsewhere_top_level_form(self):
-        self.assertEqual(output({}), expected("top"))
-
-    def test_copilot_gets_top_level_form(self):
-        self.assertEqual(output({"CLAUDE_PLUGIN_ROOT": "/x", "COPILOT_CLI": "1"}), expected("top"))
-
-    def test_exactly_one_context_field(self):
-        for env in ({"CLAUDE_PLUGIN_ROOT": "/x"}, {}):
-            out = output(env)
-            fields = [k for k in ("additionalContext",) if k in out]
-            fields += [k for k in ("additionalContext",) if k in out.get("hookSpecificOutput", {})]
-            self.assertEqual(len(fields), 1, out)
+def test_under_claude_code_nested_form():
+    assert output({"CLAUDE_PLUGIN_ROOT": "/x"}) == expected("nested")
 
 
-@unittest.skipUnless(shutil.which("sh"), "needs sh")
-class ThroughTheWrapper(unittest.TestCase):
-    def test_wrapper_runs_it(self):
-        env = dict(os.environ, CLAUDE_PLUGIN_ROOT=str(HOOKS.parent))
-        env.pop("COPILOT_CLI", None)
-        proc = subprocess.run([shutil.which("sh"), str(HOOKS / "run-hook"), "session_start"],
-                              input=(FIXTURES / "session_start_startup.json").read_text(encoding="utf-8"),
-                              capture_output=True, text=True, encoding="utf-8", env=env, timeout=60)
-        self.assertEqual(proc.returncode, 0, proc.stderr)
-        self.assertEqual(json.loads(proc.stdout), expected("nested"))
+def test_elsewhere_top_level_form():
+    assert output({}) == expected("top")
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_copilot_gets_top_level_form():
+    assert output({"CLAUDE_PLUGIN_ROOT": "/x", "COPILOT_CLI": "1"}) == expected("top")
+
+
+@pytest.mark.parametrize("env", [{"CLAUDE_PLUGIN_ROOT": "/x"}, {}])
+def test_exactly_one_context_field(env):
+    out = output(env)
+    fields = [k for k in ("additionalContext",) if k in out]
+    fields += [k for k in ("additionalContext",) if k in out.get("hookSpecificOutput", {})]
+    assert len(fields) == 1, out
+
+
+def test_wrapper_runs_it():
+    sh = shutil.which("sh")
+    assert sh, "devflow requires sh (Git Bash on Windows)"
+    env = dict(os.environ, CLAUDE_PLUGIN_ROOT=str(HOOKS.parent))
+    env.pop("COPILOT_CLI", None)
+    proc = subprocess.run(
+        [sh, str(HOOKS / "run-hook"), "session_start"],
+        input=(FIXTURES / "session_start_startup.json").read_text(encoding="utf-8"),
+        capture_output=True, text=True, encoding="utf-8", env=env, timeout=60, check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert json.loads(proc.stdout) == expected("nested")
