@@ -9,6 +9,7 @@ import os
 import re
 
 from devflow_hooks import lib
+from devflow_hooks.pre_commit import TEST_FILE
 
 ISSUES = "docs/issues/"  # always protected from devflow agents (0.14.0 spec, Issues)
 
@@ -40,6 +41,12 @@ def main(event: dict) -> None:
         if rel is None or not lib.in_own_worktree(path, event.get("cwd")):
             lib.deny("breaks happen only in the reviewer's own worktree, where it makes them and restores "
                      f"them; `{rel or path}` is not in it. Put the problem in your findings instead.")
+        cfg = lib.config(event)
+        folders = [ISSUES, cfg["plans_dir"].strip("/") + "/", cfg["specs_dir"].strip("/") + "/"]
+        folders += [p.strip("/") + "/" for p in cfg["protected_paths"]]
+        if TEST_FILE.search(rel) or any(rel.startswith(f) for f in folders):
+            lib.deny(f"the reviewer breaks product code; it never edits tests or records (`{rel}`). "
+                     "Report a weak test or a wrong record as a finding instead.")
         lib.allow()
 
     if rel is None:
