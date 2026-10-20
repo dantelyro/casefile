@@ -1,6 +1,6 @@
 # Lint and test tooling
 
-ruff and pytest, run through uv as development dependencies, adopted in their own milestone after M3.
+ruff and pytest, run through uv as development dependencies, adopted in their own milestone, the next after M1.
 Only development uses them: the hooks and scripts users run stay standard library (see D-048).
 
 ### TOOL-001 · The code passes ruff      [MVP]

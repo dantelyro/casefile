@@ -3,7 +3,7 @@
 **Status:** Accepted (2026-10-19).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session, 2026-10-19: answers 'Rewrite to pytest', 'Fix all in code' and 'pyproject + uv venv' to the M4 questions, after asking what a rewrite gains; then 'yes' to the redraft.
 
-**Context:** D-027 made devflow standard-library Python, tested with unittest, with nothing ever downloaded, and a test fails on any import outside the standard library in hooks/, skills/ and tests/. On 2026-10-19 ruff 0.17.1 with its default rules reported 51 findings in hooks/ and tests/, and the developer chose to adopt ruff together with pytest as milestone M4.
+**Context:** D-027 made devflow standard-library Python, tested with unittest, with nothing ever downloaded, and a test fails on any import outside the standard library in hooks/, skills/ and tests/. On 2026-10-19 ruff 0.17.1 with its default rules reported 51 findings in hooks/ and tests/, and the developer chose to adopt ruff together with pytest as its own milestone.
 
 **Options:** (a) pytest only as a runner of the unchanged unittest suite, D-027 kept whole; (b) the suite rewritten in pytest's style (plain assert, fixtures, parametrize), D-027 narrowed to shipped code; for installing the tools, (1) pinned uvx tools with no project files, or (2) dev dependencies in pyproject.toml with uv.lock committed and a uv venv.
 
