@@ -84,9 +84,9 @@ def main() -> None:
                 continue
             where = f"{specs_rel}/{name}:{no}"
             h = heading.match(line)
-            # a bracketed word in the title is a tag not set off by a space, in lower case, followed by
-            # text or standing alone as the title
-            if not h or re.search(r"\[[A-Za-z]+\]", h.group(2)):
+            # a square-bracket pair in the title (full-width too) is a tag that is not set off by a
+            # space, is in lower case or oddly spelt, is followed by text, or stands alone as the title
+            if not h or re.search(r"[\[［][^\]］]*[\]］]", h.group(2)):
                 errors.append(f"{where}: rule heading does not parse, expected "
                               f"`### {heading_id.match(line).group(1)} · Title`")
                 continue

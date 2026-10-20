@@ -166,6 +166,11 @@ def test_RULE_001_a_heading_with_no_title_does_not_parse(repo):
     "[mvp] Sign in",
     "[SOON] Sign in",
     "[MANUAL] is the developer's to test",
+    "Sign in [MVP ]",
+    "Sign in [ MVP ]",
+    "Sign in [MVP2]",
+    "Sign in [MVP-1]",
+    "Sign in ［MVP］",
 ])
 def test_RULE_001_a_bracketed_word_in_a_title_does_not_parse(repo, title):
     edit(repo, "docs/specs/10-auth.md", "Sign in with email", title)
