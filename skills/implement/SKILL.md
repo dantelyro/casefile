@@ -23,8 +23,9 @@ redo by hand what they report.
 
 - The working tree is clean and the current branch is the default branch (`.claude/devflow.json`,
   else `main`).
-- The milestone has rules: its scope in the build order, and `### RULE-ID · …  [MVP]` headings in the
-  specs. None → stop and say the specs come first.
+- The milestone has rules: its scope in the build order, and `### RULE-ID · …` headings in the
+  specs for them; no tag is needed, and every rule is planned except `[LATER]` and `[VERIFY]` ones.
+  None → stop and say the specs come first.
 - `.claude/devflow.json` exists and `.claude/settings.json` has `"worktree": { "baseRef": "head" }`.
   Either missing → propose them as `review` does (step 2), write and commit them after the
   developer's yes. Without the setting, every agent branches from the remote and misses the specs,
@@ -92,8 +93,10 @@ every batch until the issue is fixed. A bug inside a task's own unmerged branch 
 When `plan_status.py` reports nothing ready and nothing in progress, run
 `implement/scripts/rules_coverage.py <plan>` and `fix-bug/scripts/issues_status.py`, and report:
 tasks done and blocked (with reasons), issues opened and fixed during the milestone, every rule in
-scope with or without a test named after it, the sibling tasks still open (`elsewhere`) and which
-repository builds them, and what the developer has to decide next.
+scope as `rules_coverage.py` reports it (covered by a test, untested with its reason, or missing), the
+`[MANUAL]` rules as the developer's checklist to test by hand, the sibling tasks still open
+(`elsewhere`) and which repository builds them, and what the developer has to decide next, missing
+rules included.
 
 ## Rules
 
