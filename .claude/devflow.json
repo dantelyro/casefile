@@ -4,8 +4,8 @@
   "apps": {
     "devflow": {
       "path": ".",
-      "test": "py -3 -m unittest discover -s tests",
-      "install": ""
+      "test": "uv run pytest",
+      "install": "uv sync"
     }
   }
 }
