@@ -23,7 +23,9 @@ jobs:
           python-version: ${{ matrix.python }}
       - uses: astral-sh/setup-uv@v10.3.0
       # The matrix entry "3.x" is not a version uv understands, so uv gets the interpreter path.
-      - run: uv run --python "${{ steps.py.outputs.python-path }}" pytest -v
+      - run: uv sync --locked --python "${{ steps.py.outputs.python-path }}"
+      - run: uv run --locked --python "${{ steps.py.outputs.python-path }}" ruff check
+      - run: uv run --locked --python "${{ steps.py.outputs.python-path }}" pytest -v
 
   validate:
     # Manifests, agent and skill frontmatter. Needs no login. The trigger evals (evals/) are billed,

@@ -7,8 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this repo is
 
 A Claude Code plugin marketplace **and** the single plugin it ships, in one repository. There is
-no build and no dependencies — the product is Markdown (skills) plus hooks in standard-library
-Python, with a `unittest` suite. Changing a file here changes how future Claude Code sessions behave, including sessions in
+no build and no runtime dependencies — the product is Markdown (skills) plus hooks in
+standard-library Python, with a pytest suite and ruff as uv dev dependencies (D-048). Changing a file here changes how future Claude Code sessions behave, including sessions in
 this repo.
 
 ## Commands
@@ -21,8 +21,10 @@ this repo.
 /plugin marketplace add dantelyro/devflow
 /plugin install devflow@dantelyro
 
-# Run the test suite (standard library only; use py -3 on Windows)
-python -m unittest discover -s tests
+# Development needs uv: install the dev dependencies, then test and lint (every commit runs both)
+uv sync
+uv run pytest
+uv run ruff check
 
 # Trigger evals for the skills (billed, so on demand; results/ is gitignored). --scaffold runs each
 # case's fixture.sh, which sets up a small repo: in an empty folder runs give up before choosing a skill
@@ -32,7 +34,8 @@ claude plugin eval . --ablation none --no-publish --scaffold
 CLAUDE_PLUGIN_ROOT="$PWD" sh hooks/run-hook session_start < tests/fixtures/session_start_startup.json | python -m json.tool
 ```
 
-**Every shipped change bumps `version` in `.claude-plugin/plugin.json`.** Claude Code refreshes
+**Every shipped change bumps `version` in `.claude-plugin/plugin.json` and in `pyproject.toml`; the
+two change together.** Claude Code refreshes
 known marketplaces on startup, so a bump is what makes installed copies pick the change up;
 without one, nothing updates. Git history shows the convention: minor for a new skill or hook,
 patch for wording.
@@ -106,7 +109,8 @@ Each of these is load-bearing; the comments in the files say so too.
 - **Devflow agents get one command per call.** `guard_bash` denies `;`, `&&`, `||`, several lines,
   `| tail` and `sleep`/`until` loops for devflow's own agents (`devflow:*`), so a hung check cannot hide
   inside a chain (D-043).
-- **Only the standard library.** A test fails on any import outside `sys.stdlib_module_names`.
+- **Only the standard library in `hooks/` and `skills/`.** A test fails on any import outside
+  `sys.stdlib_module_names` there; tests may import pytest (D-048).
 
 ## Skill-authoring baseline
 
