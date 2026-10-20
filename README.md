@@ -56,8 +56,9 @@ Hooks, on in every project where devflow is enabled, failing closed (D-028). The
 - `git push` asks you in your own session and is refused to every agent (D-029).
 - `docker compose down -v` and `--no-verify` are refused to everyone.
 - Agents may not kill processes by name, or change any `.claude` folder.
-- `devflow:reviewer` edits only inside its own linked worktree, never tests or records, and may `git restore`; `devflow:planner` writes only its plan file; devflow agents stay out of the project's protected paths and never
-  write `docs/issues/`; `devflow:implementer` may not merge, rebase or switch to the default branch.
+- `devflow:reviewer` edits only inside its own linked worktree, never tests or records, and may `git restore`;
+  `devflow:planner` writes only its plan file; devflow agents stay out of the project's protected paths
+  and never write `docs/issues/`; `devflow:implementer` may not merge, rebase or switch to the default branch.
 - Every commit: no skipped or focused tests, the design check on added UI lines, and the test
   command of every configured app it touches.
 - UI code may use only what the project's design system (`tokens.json`) defines.
