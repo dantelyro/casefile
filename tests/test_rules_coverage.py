@@ -12,11 +12,11 @@ SCRIPT = ROOT / "skills" / "implement" / "scripts" / "rules_coverage.py"
 
 SPEC = """# Matching
 
-### MATCH-001 · Required skills weigh 70%     [MVP]
+### MATCH-001 · Required skills weigh 70%
 text
-### MATCH-002 · Nice skills weigh 20%     [MVP]
-### MATCH-003 · Title family     [MVP]
-### MATCH-004 · Manual look     [MVP] [MANUAL]
+### MATCH-002 · Nice skills weigh 20%
+### MATCH-003 · Title family
+### MATCH-004 · Manual look     [MANUAL]
 ### MATCH-005 · Later thing     [LATER]
 
 | CV-010 | a table rule |
@@ -148,3 +148,73 @@ def test_a_test_in_a_sibling_repository_covers_the_rule(repo):
     write(repo, ".claude/devflow.json", json.dumps({"repo": "frontend", "siblings": {"backend": "back"}}))
     out = coverage(repo)[1]
     assert "MATCH-001" in out["covered"]
+
+
+# RULE-006: a test or a reason
+
+def plan_with(repo, lines):
+    write(repo, "docs/plans/M2.md", "# Plan: M2\n\n## Rules covered\n" + "\n".join(lines) + "\n")
+
+
+def test_RULE_006_an_untagged_rule_with_a_named_test_is_covered(repo):
+    plan_with(repo, ["- MATCH-001 → T1 (no test: prose)"])
+    write(repo, "web/a.test.ts", "it('MATCH-001: x', () => {})\n")
+    code, out, err = coverage(repo)
+    assert code == 0, err
+    assert (out["covered"], out["missing"], out["later"]) == (["MATCH-001"], [], [])
+    assert out["reasoned"] == []
+
+
+def test_RULE_006_an_untagged_rule_with_a_reason_is_reasoned(repo):
+    plan_with(repo, ["- MATCH-001 → T1 (no test: agent prose, checked by hand)", "- MATCH-002 → T1"])
+    code, out, _ = coverage(repo)
+    assert code == 1
+    assert out["reasoned"] == [{"rule": "MATCH-001", "reason": "agent prose, checked by hand"}]
+    assert out["missing"] == ["MATCH-002"]
+
+
+def test_RULE_006_an_untagged_rule_with_neither_is_missing_and_exits_1(repo):
+    plan_with(repo, ["- MATCH-001, MATCH-002, MATCH-003 → T1"])
+    code, out, _ = coverage(repo)
+    assert code == 1
+    assert out["missing"] == ["MATCH-001", "MATCH-002", "MATCH-003"]
+    assert out["later"] == []
+
+
+def test_RULE_006_later_verify_and_manual_rules_need_neither(repo):
+    write(repo, "docs/specs/12-matching.md", SPEC + "### MATCH-006 · Pending fact     [VERIFY]\n")
+    plan_with(repo, ["- MATCH-004, MATCH-005, MATCH-006 → T1"])
+    code, out, _ = coverage(repo)
+    assert code == 0
+    assert out["missing"] == []
+    assert out["manual"] == ["MATCH-004"]
+    assert out["later"] == ["MATCH-005", "MATCH-006"]
+
+
+def test_RULE_006_a_reason_covers_every_rule_on_its_line_and_no_other(repo):
+    plan_with(repo, ["- MATCH-001, MATCH-002 → T1 (no test: prose)", "- MATCH-003 → T2"])
+    code, out, _ = coverage(repo)
+    assert code == 1
+    assert out["missing"] == ["MATCH-003"]
+    assert [r["rule"] for r in out["reasoned"]] == ["MATCH-001", "MATCH-002"]
+
+
+def test_RULE_006_an_empty_reason_does_not_count(repo):
+    plan_with(repo, ["- MATCH-001 → T1 (no test: )"])
+    out = coverage(repo)[1]
+    assert out["missing"] == ["MATCH-001"]
+    assert out["reasoned"] == []
+
+
+def test_RULE_006_a_note_that_is_not_a_no_test_reason_does_not_count(repo):
+    plan_with(repo, ["- MATCH-001 → T1 (T2 removes its test)"])
+    out = coverage(repo)[1]
+    assert out["missing"] == ["MATCH-001"]
+
+
+def test_RULE_006_a_rule_still_tagged_mvp_is_checked_like_an_untagged_one(repo):
+    write(repo, "docs/specs/12-matching.md", SPEC.replace("weigh 70%\n", "weigh 70%     [MVP]\n"))
+    plan_with(repo, ["- MATCH-001 → T1"])
+    code, out, _ = coverage(repo)
+    assert code == 1
+    assert out["missing"] == ["MATCH-001"]

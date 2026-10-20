@@ -1,12 +1,14 @@
 """rules_coverage.py PLAN — which rules in a plan's scope have a test named after them.
 
 The scope is the plan's `## Rules covered` section. Each rule's tag comes from its heading in the
-specs folder (`specs_dir`, default docs/specs): `### MATCH-010 · Title     [MVP]`.
+specs folder (`specs_dir`, default docs/specs): `### MATCH-010 · Title` (tags after the title are
+optional: [LATER], [VERIFY], [MANUAL]).
 
-  covered    [MVP] rules with a test named after them
-  missing    [MVP] rules with none — exit 1
-  manual     [MANUAL] rules: checked in review, never missing
-  later      [LATER] rules: out of scope
+  covered    rules with a test named after them
+  reasoned   rules with no test whose plan line says why: `- MATCH-010 → T1 (no test: <reason>)`
+  missing    rules with neither — exit 1
+  manual     [MANUAL] rules: the developer tests them by hand, never missing
+  later      [LATER] and [VERIFY] rules: out of scope
   untracked  rules in scope with no heading in the specs (a table row, say): reported with whether
              a test names them, never failed
 
@@ -27,6 +29,7 @@ import sys
 DEFAULT_RULE = r"[A-Z]+-\d{3}"
 TEST_FILE = re.compile(r"\.(test|spec)\.([cm]?[jt]s|[jt]sx)$|(^|/)test_[^/]*\.py$|_test\.py$")
 TAG = re.compile(r"\[([A-Z]+)\]")
+NO_TEST = re.compile(r"\(no test:(.*)\)")
 JS_COMMENTS = re.compile(r"/\*.*?\*/|(^|\s)//[^\n]*", re.DOTALL)
 PY_COMMENTS = re.compile(r"(^|\s)#[^\n]*")
 
@@ -58,11 +61,17 @@ def main() -> None:
         plan_text, errors = "", [f"{args.plan}: {e.strerror}"]
     scope: list[str] = []
     m = re.search(r"^## Rules covered\s*$(.*?)(?=^## |\Z)", plan_text, re.MULTILINE | re.DOTALL)
+    reasons: dict[str, str] = {}
     if m:
         for line in m.group(1).splitlines():
             if line.startswith("- "):
-                head = line[2:].split("→")[0]
-                scope += [r for r in re.findall(rf"(?<![\w-])({rule})(?![\w-])", head) if r not in scope]
+                head, _, tail = line[2:].partition("→")
+                ids = re.findall(rf"(?<![\w-])({rule})(?![\w-])", head)
+                scope += [r for r in ids if r not in scope]
+                why = NO_TEST.search(tail)
+                if why and why.group(1).strip():
+                    for r in ids:
+                        reasons.setdefault(r, why.group(1).strip())
     elif not errors:
         errors.append(f"{args.plan}: no `## Rules covered` section")
 
@@ -95,23 +104,29 @@ def main() -> None:
             else:
                 named |= set(js_name.findall(JS_COMMENTS.sub(r"\1", text)))
 
-    out = {"covered": [], "missing": [], "manual": [], "later": [], "untracked": [], "errors": errors}
+    out = {"covered": [], "missing": [], "reasoned": [], "manual": [], "later": [], "untracked": [], "errors": errors}
     for r in scope:
         if r not in tags:
             out["untracked"].append({"rule": r, "tested": r in named})
         elif "MANUAL" in tags[r]:
             out["manual"].append(r)
-        elif "MVP" in tags[r]:
-            out["covered" if r in named else "missing"].append(r)
-        else:
+        elif tags[r] & {"LATER", "VERIFY"}:
             out["later"].append(r)
+        elif r in named:
+            out["covered"].append(r)
+        elif r in reasons:
+            out["reasoned"].append({"rule": r, "reason": reasons[r]})
+        else:
+            out["missing"].append(r)
 
     if args.json:
         print(json.dumps(out, ensure_ascii=False))
     else:
         print(f"covered ({len(out['covered'])}): " + (", ".join(out["covered"]) or "none"))
         print(f"MISSING ({len(out['missing'])}): " + (", ".join(out["missing"]) or "none"))
-        print("checked in review: " + (", ".join(out["manual"]) or "none"))
+        print(f"no test, with reason ({len(out['reasoned'])}): "
+              + (", ".join(f"{x['rule']} ({x['reason']})" for x in out["reasoned"]) or "none"))
+        print("the developer tests by hand: " + (", ".join(out["manual"]) or "none"))
         if out["later"]:
             print("later: " + ", ".join(out["later"]))
         for u in out["untracked"]:
