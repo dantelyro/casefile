@@ -73,7 +73,7 @@ class Checker:
         try:
             with open(path, encoding="utf-8") as f:
                 tokens = json.load(f)
-            names = lambda family, prefix="": {  # noqa: E731
+            names = lambda family, prefix="": {
                 t["name"].removeprefix(prefix) for t in tokens.get(family, {}).get("tokens", [])}
             vocab = {
                 "colors": names("color"),
@@ -115,9 +115,9 @@ class Checker:
         name = "".join(p[:1].upper() + p[1:] for p in re.split(r"[-_]", stem)) if re.search(r"[-_]", stem) else stem
         if name in self.vocab["components"]:
             return []
-        return [f"`{rel}`: `{self.components_dir}/` only holds design-system components "
-                f"({', '.join(sorted(self.vocab['components']))}); `{name}` is not one. Put generic building "
-                f"blocks elsewhere, or have the component added to the design system first."]
+        return [(f"`{rel}`: `{self.components_dir}/` only holds design-system components "
+                 f"({', '.join(sorted(self.vocab['components']))}); `{name}` is not one. Put generic building "
+                 f"blocks elsewhere, or have the component added to the design system first.")]
 
     def check_text(self, rel: str, text: str) -> list[str]:
         if not self.is_ui_file(rel):

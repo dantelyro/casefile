@@ -35,7 +35,7 @@ def dispatch(name: str, raw: str, importer=importlib.import_module) -> tuple[int
         module = importer(f"devflow_hooks.{name}")
         event = json.loads(raw) if raw.strip() else {} if name in NEVER_BLOCKS else None
         if not isinstance(event, dict):
-            raise ValueError("hook input is not a JSON object")
+            raise TypeError("hook input is not a JSON object")
         with redirect_stdout(out):
             try:
                 module.main(event)
