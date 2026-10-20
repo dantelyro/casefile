@@ -41,7 +41,7 @@ Then its block has `BREAKS: <per test: the change → red (the failing assertion
 | not runnable>; git status: clean`, where `not runnable` is a break whose file `git restore` cannot
 name (GUARD-003).
 
-### REV-007 · The reviewer never commits or writes a test      [MVP]
+### REV-007 · The reviewer never commits or writes a test
 Given the reviewer found a weak test, an untested edge case or a bug
 When it acts on it
 Then it reports it as a finding and changes nothing that survives the review: it never commits and

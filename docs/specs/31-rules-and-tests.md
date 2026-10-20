@@ -1,10 +1,9 @@
 # Rules and tests
 
 What a rule's tags mean and what gets a test, across `write-specs`, the planner, `implement` and their
-scripts (see D-049). Until this milestone ships, devflow's lint still requires a tag, so the rules
-below that are untagged in meaning carry `[MVP]`; RULE-001 removes it from every rule.
+scripts (see D-049).
 
-### RULE-001 · A rule heading needs no tag      [MVP]
+### RULE-001 · A rule heading needs no tag
 Given a rule heading in the specs
 When `spec_lint.py` checks it
 Then `### ID · Title` with no tag passes; the allowed tags are `[LATER]`, `[VERIFY]` and `[MANUAL]`,
@@ -39,7 +38,7 @@ When the planner lists it under `## Rules covered`
 Then its line states why, e.g. `- TOOL-004 → T4` for a tested rule and
 `- REV-001 → T4 (no test: agent prose, checked by hand)` for an untested one.
 
-### RULE-006 · rules_coverage flags a rule with neither a test nor a reason      [MVP]
+### RULE-006 · rules_coverage flags a rule with neither a test nor a reason
 Given a rule in a plan's scope that is not `[LATER]`, `[VERIFY]` or `[MANUAL]`
 When `rules_coverage.py` runs
 Then the rule is covered when a test is named after it, reasoned when its plan line states a reason
