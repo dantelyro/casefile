@@ -7,7 +7,8 @@ on:
 jobs:
   hooks:
     # The hook suite on every platform devflow runs on, at the oldest and newest Python it supports
-    # (D-027: Python >= 3.10, standard library only, nothing installed with pip).
+    # (D-027: Python >= 3.10; D-048: standard library for hooks/ and skills/, uv dev dependencies
+    # for development).
     strategy:
       fail-fast: false
       matrix:
@@ -17,9 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+        id: py
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m unittest discover -s tests -v
+      - uses: astral-sh/setup-uv@v10.3.0
+      # The matrix entry "3.x" is not a version uv understands, so uv gets the interpreter path.
+      - run: uv run --python "${{ steps.py.outputs.python-path }}" pytest -v
 
   validate:
     # Manifests, agent and skill frontmatter. Needs no login. The trigger evals (evals/) are billed,
