@@ -156,14 +156,18 @@ class Restore(Base):
                         "git restore web/x.ts --$(echo staged)", "git -C ../other restore web/x.ts",
                         "git restore --ours web/x.ts", "git restore web/x.ts `echo --staged`",
                         "git --git-dir=../o/.git restore web/x.ts", "git restore -Wq web/x.ts",
-                        "git restore web/x.ts <(echo hi)"):
+                        "git restore web/x.ts <(echo hi)", "git restore web/x.ts {--staged,}",
+                        "git restore web/x.ts *", "git restore ~/x.ts", "git restore web/x.ts !!",
+                        "git restore 'web/a(1).ts'", 'git restore "web/$x.ts"',
+                        "git restore web/x.ts ?", "git restore web/[xy].ts", "git restore web/x.ts #c"):
             with self.subTest(command=command):
                 self.expect(["devflow:reviewer"], (command,), "deny")
 
     def test_GUARD_003_listed_flags_are_allowed(self):
         for command in ("git restore -W web/x.ts", "git restore -q -- web/x.ts",
                         "git restore --worktree --quiet web/x.ts", "git restore -p web/x.ts",
-                        'git restore "web/my file.ts"'):
+                        'git restore "web/my file.ts"', "git restore -W -q -- web/x.ts",
+                        "git restore web/a_b-c@2+x.ts"):
             with self.subTest(command=command):
                 self.expect(["devflow:reviewer"], (command,), "allow")
 

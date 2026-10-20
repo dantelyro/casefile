@@ -163,29 +163,33 @@ def _read_only_violation(s: Statement) -> str | None:
 
 
 _RESTORE_FLAGS = {"-W", "--worktree", "-p", "--patch", "-q", "--quiet"}
-_SHELL_EXPANSION = re.compile(r"[\\$`]")
+_PLAIN = r"[A-Za-z0-9._/@+-]+"
+_QUOTED_PATH = r"\"[A-Za-z0-9._/@+ -]*\"|'[A-Za-z0-9._/@+ -]*'"
+_WORD = rf"(?:{_QUOTED_PATH}|{_PLAIN})"
+_RESTORE_COMMAND = re.compile(rf"git restore(?:[ \t]+{_WORD})+")
 
 
-def _restores_worktree_paths(s: Statement, command: str) -> bool:
-    """`git restore <path>…` that only discards edits in the working tree (GUARD-003), as an
-    allow-list: no git option before `restore` (`-C` reaches other worktrees), only the flags in
-    `_RESTORE_FLAGS` and `--`, at least one path, and nothing the shell would rewrite into another
-    flag (backslash, `$`, backtick, parentheses), since git also takes options after paths."""
-    if s.name != "git" or not s.args or s.args[0] != "restore":
-        return False
-    if "(" in command or ")" in command:
+def _restores_worktree_paths(command: str) -> bool:
+    """`git restore <path>…` that only discards edits in the working tree (GUARD-003). An allow-list
+    over the raw command text: the whole command is `git restore` plus words made of plain
+    characters (a quoted path may also hold spaces), so no chain, redirect, git option, glob, brace
+    or other expansion can reach git as a flag. Flags are only those in `_RESTORE_FLAGS` and `--`;
+    quoted words are paths; at least one path is required."""
+    command = command.strip()
+    if not _RESTORE_COMMAND.fullmatch(command):
         return False
     paths = 0
     options_ended = False
-    for word in s.args[1:]:
-        a = s.value(word)  # the word git receives, quotes removed
-        if _SHELL_EXPANSION.search(a) or _SHELL_EXPANSION.search(word):
-            return False
-        if options_ended or not a.startswith("-"):
+    for word in re.findall(_WORD, command[len("git restore"):]):
+        if word[0] in "\"'":
+            if word[1:2] == "-":
+                return False
             paths += 1
-        elif a == "--":
+        elif options_ended or not word.startswith("-"):
+            paths += 1
+        elif word == "--":
             options_ended = True
-        elif a not in _RESTORE_FLAGS:
+        elif word not in _RESTORE_FLAGS:
             return False
     return paths > 0
 
@@ -254,7 +258,7 @@ def main(event: dict) -> None:
     if role in ("reviewer", "planner"):
         for s in parsed:
             why = _read_only_violation(s)
-            if why and role == "reviewer" and _restores_worktree_paths(s, command):
+            if why and role == "reviewer" and _restores_worktree_paths(command):
                 why = None
             if why:
                 lib.deny(f"the {role} only reads: {why}. (`{shown}`)")
