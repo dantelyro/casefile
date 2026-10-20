@@ -18,10 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+        id: py
         with:
           python-version: ${{ matrix.python }}
       - uses: astral-sh/setup-uv@v10.3.0
-      - run: uv run --python ${{ matrix.python }} pytest -v
+      # The matrix entry "3.x" is not a version uv understands, so uv gets the interpreter path.
+      - run: uv run --python "${{ steps.py.outputs.python-path }}" pytest -v
 
   validate:
     # Manifests, agent and skill frontmatter. Needs no login. The trigger evals (evals/) are billed,
