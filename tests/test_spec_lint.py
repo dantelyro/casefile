@@ -4,8 +4,8 @@ import json
 import pathlib
 import subprocess
 import sys
-import tempfile
-import unittest
+
+import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "skills" / "write-specs" / "scripts" / "spec_lint.py"
@@ -56,159 +56,177 @@ DECISIONS = """# Product decisions
 """
 
 
-class Base(unittest.TestCase):
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.repo = pathlib.Path(self.tmp.name)
-        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=self.repo, check=True)
-        self.write("docs/specs/README.md", README)
-        self.write("docs/specs/10-auth.md", AUTH)
-        self.write("docs/specs/12-matching.md", MATCHING)
-        self.write("docs/product/blueprint.html", BLUEPRINT)
-        self.write("docs/product/product-decisions.md", DECISIONS)
-        self.write("docs/decisions/0001-brazil-first.md", "# D-001 — Brazil first\n\n**Status:** Accepted.\n")
-
-    def tearDown(self):
-        self.tmp.cleanup()
-
-    def write(self, rel, text):
-        p = self.repo / rel
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(text, encoding="utf-8")
-
-    def edit(self, rel, old, new):
-        p = self.repo / rel
-        text = p.read_text(encoding="utf-8")
-        self.assertIn(old, text)
-        p.write_text(text.replace(old, new), encoding="utf-8")
-
-    def lint(self):
-        r = subprocess.run([sys.executable, str(SCRIPT), "--json"], cwd=self.repo, capture_output=True,
-                           text=True, encoding="utf-8")
-        out = json.loads(r.stdout)
-        return r.returncode, out
-
-    def assertError(self, *parts):
-        code, out = self.lint()
-        self.assertEqual(code, 1, out)
-        hits = [e for e in out["errors"] if all(p in e for p in parts)]
-        self.assertTrue(hits, f"no error with {parts}: {out['errors']}")
-        return out
+def write(repo, rel, text):
+    p = repo / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(text, encoding="utf-8")
 
 
-class Clean(Base):
-    def test_a_consistent_project_passes(self):
-        code, out = self.lint()
-        self.assertEqual((code, out["errors"], out["warnings"]), (0, [], []))
-        self.assertEqual(out["rules"], 5)
-
-    def test_text_output(self):
-        self.edit("docs/specs/10-auth.md", "[MVP]", "[MUST]")
-        r = subprocess.run([sys.executable, str(SCRIPT)], cwd=self.repo, capture_output=True, text=True,
-                           encoding="utf-8")
-        self.assertEqual(r.returncode, 1)
-        self.assertIn("ERROR docs/specs/10-auth.md:3", r.stdout)
+def edit(repo, rel, old, new):
+    p = repo / rel
+    text = p.read_text(encoding="utf-8")
+    assert old in text
+    p.write_text(text.replace(old, new), encoding="utf-8")
 
 
-class Headings(Base):
-    def test_a_rule_heading_without_the_separator_does_not_parse(self):
-        self.edit("docs/specs/10-auth.md", "AUTH-001 · Sign", "AUTH-001 Sign")
-        self.assertError("docs/specs/10-auth.md:3", "AUTH-001")
-
-    def test_a_rule_heading_without_a_tag_does_not_parse(self):
-        self.edit("docs/specs/10-auth.md", "Sign in with email     [MVP]", "Sign in with email")
-        self.assertError("docs/specs/10-auth.md:3")
-
-    def test_a_rule_may_carry_more_than_one_tag(self):
-        self.edit("docs/specs/10-auth.md", "[MVP]", "[MVP][VERIFY]")
-        self.assertEqual(self.lint()[1]["errors"], [])
-        self.edit("docs/specs/10-auth.md", "[MVP][VERIFY]", "[MVP] [SOON]")
-        self.assertError("10-auth.md:3", "SOON")
-
-    def test_an_unknown_tag_is_an_error(self):
-        self.edit("docs/specs/12-matching.md", "[LATER]", "[SOON]")
-        self.assertError("12-matching.md:4", "SOON")
-
-    def test_an_id_used_twice_names_both_places(self):
-        self.write("docs/specs/README.md", README + "| [13-jobs.md](13-jobs.md) | Jobs |\n")
-        self.write("docs/specs/13-jobs.md", "# Jobs\n\n### MATCH-002 · Again     [MVP]\n")
-        self.assertError("MATCH-002", "12-matching.md:4", "13-jobs.md:3")
-
-    def test_other_headings_and_the_readme_are_not_rules(self):
-        self.write("docs/specs/README.md", README + "\n### FORMAT-001 is how a heading looks\n")
-        code, out = self.lint()
-        self.assertEqual((code, out["errors"]), (0, []))
+def lint(repo):
+    r = subprocess.run([sys.executable, str(SCRIPT), "--json"], cwd=repo, capture_output=True,
+                       text=True, encoding="utf-8", check=False)
+    out = json.loads(r.stdout)
+    return r.returncode, out
 
 
-class BuildOrder(Base):
-    def test_a_rule_the_build_order_names_must_exist(self):
-        self.edit("docs/product/blueprint.html", "AUTH-001.</p>", "AUTH-001, AUTH-002.</p>")
-        self.assertError("build order", "AUTH-002")
-
-    def test_only_the_build_order_section_counts(self):
-        code, out = self.lint()  # MATCH-999 and MATCH-998 sit in other sections of the same file
-        self.assertEqual(out["errors"], [])
-
-    def test_a_markdown_build_order(self):
-        (self.repo / "docs/product/blueprint.html").unlink()
-        self.write(".claude/devflow.json", json.dumps({"build_order": "docs/blueprint.md"}))
-        self.write("docs/blueprint.md", "# Blueprint\n\nMATCH-777 elsewhere.\n\n## Build order\n\n- M1: MATCH-001, AUTH-009\n\n## Later\n\nMATCH-888\n")
-        out = self.assertError("build order", "AUTH-009")
-        self.assertFalse([e for e in out["errors"] if "MATCH-777" in e or "MATCH-888" in e])
-
-    def test_no_build_order_yet_is_a_warning(self):
-        (self.repo / "docs/product/blueprint.html").unlink()
-        code, out = self.lint()
-        self.assertEqual((code, out["errors"]), (0, []))
-        self.assertTrue(any("build order" in w for w in out["warnings"]))
-
-    def test_a_build_order_file_with_no_build_order_section_is_an_error(self):
-        self.write("docs/product/blueprint.html", "<html><body><h2>Architecture</h2></body></html>")
-        self.assertError("Build order")
+def assert_error(repo, *parts):
+    code, out = lint(repo)
+    assert code == 1, out
+    hits = [e for e in out["errors"] if all(p in e for p in parts)]
+    assert hits, f"no error with {parts}: {out['errors']}"
+    return out
 
 
-class ProductDecisions(Base):
-    def test_a_link_to_a_missing_file(self):
-        self.edit("docs/product/product-decisions.md", "../specs/10-auth.md", "../specs/11-auth.md")
-        self.assertError("product-decisions.md", "11-auth.md")
-
-    def test_a_rule_that_does_not_exist(self):
-        self.edit("docs/product/product-decisions.md", "→ MATCH-001", "→ MATCH-010")
-        self.assertError("product-decisions.md", "MATCH-010")
-
-    def test_a_decision_entry_that_does_not_exist(self):
-        self.edit("docs/product/product-decisions.md", "see D-001", "see D-004")
-        self.assertError("product-decisions.md", "D-004")
-
-    def test_outside_links_are_not_checked(self):
-        self.edit("docs/product/product-decisions.md", "→ MATCH-001.", "→ MATCH-001, [Stripe](https://stripe.com/x).")
-        self.assertEqual(self.lint()[1]["errors"], [])
-
-    def test_no_product_decisions_file_is_fine(self):
-        (self.repo / "docs/product/product-decisions.md").unlink()
-        self.assertEqual(self.lint(), (0, {"rules": 5, "errors": [], "warnings": []}))
+@pytest.fixture
+def repo(tmp_path):
+    subprocess.run(["git", "init", "-q", "-b", "main"], cwd=tmp_path, check=True)
+    write(tmp_path, "docs/specs/README.md", README)
+    write(tmp_path, "docs/specs/10-auth.md", AUTH)
+    write(tmp_path, "docs/specs/12-matching.md", MATCHING)
+    write(tmp_path, "docs/product/blueprint.html", BLUEPRINT)
+    write(tmp_path, "docs/product/product-decisions.md", DECISIONS)
+    write(tmp_path, "docs/decisions/0001-brazil-first.md", "# D-001 — Brazil first\n\n**Status:** Accepted.\n")
+    return tmp_path
 
 
-class FileTable(Base):
-    def test_a_spec_file_missing_from_the_table(self):
-        self.write("docs/specs/13-jobs.md", "# Jobs\n")
-        self.assertError("README.md", "13-jobs.md")
+# Clean
 
-    def test_a_table_row_for_a_missing_file(self):
-        (self.repo / "docs/specs/10-auth.md").unlink()
-        self.edit("docs/product/product-decisions.md", "[AUTH-001](../specs/10-auth.md#auth-001)", "x")
-        self.edit("docs/product/product-decisions.md", "→ x", "→ MATCH-001")
-        self.edit("docs/product/blueprint.html", "AUTH-001.", ".")
-        self.assertError("README.md", "10-auth.md")
-
-    def test_no_readme_is_an_error(self):
-        (self.repo / "docs/specs/README.md").unlink()
-        self.assertError("README.md")
-
-    def test_no_specs_folder_is_an_error(self):
-        self.write(".claude/devflow.json", json.dumps({"specs_dir": "specs"}))
-        self.assertError("specs")
+def test_a_consistent_project_passes(repo):
+    code, out = lint(repo)
+    assert (code, out["errors"], out["warnings"]) == (0, [], [])
+    assert out["rules"] == 5
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_text_output(repo):
+    edit(repo, "docs/specs/10-auth.md", "[MVP]", "[MUST]")
+    r = subprocess.run([sys.executable, str(SCRIPT)], cwd=repo, capture_output=True, text=True,
+                       encoding="utf-8", check=False)
+    assert r.returncode == 1
+    assert "ERROR docs/specs/10-auth.md:3" in r.stdout
+
+
+# Headings
+
+def test_a_rule_heading_without_the_separator_does_not_parse(repo):
+    edit(repo, "docs/specs/10-auth.md", "AUTH-001 · Sign", "AUTH-001 Sign")
+    assert_error(repo, "docs/specs/10-auth.md:3", "AUTH-001")
+
+
+def test_a_rule_heading_without_a_tag_does_not_parse(repo):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email     [MVP]", "Sign in with email")
+    assert_error(repo, "docs/specs/10-auth.md:3")
+
+
+def test_a_rule_may_carry_more_than_one_tag(repo):
+    edit(repo, "docs/specs/10-auth.md", "[MVP]", "[MVP][VERIFY]")
+    assert lint(repo)[1]["errors"] == []
+    edit(repo, "docs/specs/10-auth.md", "[MVP][VERIFY]", "[MVP] [SOON]")
+    assert_error(repo, "10-auth.md:3", "SOON")
+
+
+def test_an_unknown_tag_is_an_error(repo):
+    edit(repo, "docs/specs/12-matching.md", "[LATER]", "[SOON]")
+    assert_error(repo, "12-matching.md:4", "SOON")
+
+
+def test_an_id_used_twice_names_both_places(repo):
+    write(repo, "docs/specs/README.md", README + "| [13-jobs.md](13-jobs.md) | Jobs |\n")
+    write(repo, "docs/specs/13-jobs.md", "# Jobs\n\n### MATCH-002 · Again     [MVP]\n")
+    assert_error(repo, "MATCH-002", "12-matching.md:4", "13-jobs.md:3")
+
+
+def test_other_headings_and_the_readme_are_not_rules(repo):
+    write(repo, "docs/specs/README.md", README + "\n### FORMAT-001 is how a heading looks\n")
+    code, out = lint(repo)
+    assert (code, out["errors"]) == (0, [])
+
+
+# Build order
+
+def test_a_rule_the_build_order_names_must_exist(repo):
+    edit(repo, "docs/product/blueprint.html", "AUTH-001.</p>", "AUTH-001, AUTH-002.</p>")
+    assert_error(repo, "build order", "AUTH-002")
+
+
+def test_only_the_build_order_section_counts(repo):
+    _, out = lint(repo)  # MATCH-999 and MATCH-998 sit in other sections of the same file
+    assert out["errors"] == []
+
+
+def test_a_markdown_build_order(repo):
+    (repo / "docs/product/blueprint.html").unlink()
+    write(repo, ".claude/devflow.json", json.dumps({"build_order": "docs/blueprint.md"}))
+    write(repo, "docs/blueprint.md", "# Blueprint\n\nMATCH-777 elsewhere.\n\n## Build order\n\n- M1: MATCH-001, AUTH-009\n\n## Later\n\nMATCH-888\n")
+    out = assert_error(repo, "build order", "AUTH-009")
+    assert not [e for e in out["errors"] if "MATCH-777" in e or "MATCH-888" in e]
+
+
+def test_no_build_order_yet_is_a_warning(repo):
+    (repo / "docs/product/blueprint.html").unlink()
+    code, out = lint(repo)
+    assert (code, out["errors"]) == (0, [])
+    assert any("build order" in w for w in out["warnings"])
+
+
+def test_a_build_order_file_with_no_build_order_section_is_an_error(repo):
+    write(repo, "docs/product/blueprint.html", "<html><body><h2>Architecture</h2></body></html>")
+    assert_error(repo, "Build order")
+
+
+# Product decisions
+
+def test_a_link_to_a_missing_file(repo):
+    edit(repo, "docs/product/product-decisions.md", "../specs/10-auth.md", "../specs/11-auth.md")
+    assert_error(repo, "product-decisions.md", "11-auth.md")
+
+
+def test_a_rule_that_does_not_exist(repo):
+    edit(repo, "docs/product/product-decisions.md", "→ MATCH-001", "→ MATCH-010")
+    assert_error(repo, "product-decisions.md", "MATCH-010")
+
+
+def test_a_decision_entry_that_does_not_exist(repo):
+    edit(repo, "docs/product/product-decisions.md", "see D-001", "see D-004")
+    assert_error(repo, "product-decisions.md", "D-004")
+
+
+def test_outside_links_are_not_checked(repo):
+    edit(repo, "docs/product/product-decisions.md", "→ MATCH-001.", "→ MATCH-001, [Stripe](https://stripe.com/x).")
+    assert lint(repo)[1]["errors"] == []
+
+
+def test_no_product_decisions_file_is_fine(repo):
+    (repo / "docs/product/product-decisions.md").unlink()
+    assert lint(repo) == (0, {"rules": 5, "errors": [], "warnings": []})
+
+
+# File table
+
+def test_a_spec_file_missing_from_the_table(repo):
+    write(repo, "docs/specs/13-jobs.md", "# Jobs\n")
+    assert_error(repo, "README.md", "13-jobs.md")
+
+
+def test_a_table_row_for_a_missing_file(repo):
+    (repo / "docs/specs/10-auth.md").unlink()
+    edit(repo, "docs/product/product-decisions.md", "[AUTH-001](../specs/10-auth.md#auth-001)", "x")
+    edit(repo, "docs/product/product-decisions.md", "→ x", "→ MATCH-001")
+    edit(repo, "docs/product/blueprint.html", "AUTH-001.", ".")
+    assert_error(repo, "README.md", "10-auth.md")
+
+
+def test_no_readme_is_an_error(repo):
+    (repo / "docs/specs/README.md").unlink()
+    assert_error(repo, "README.md")
+
+
+def test_no_specs_folder_is_an_error(repo):
+    write(repo, ".claude/devflow.json", json.dumps({"specs_dir": "specs"}))
+    assert_error(repo, "specs")
