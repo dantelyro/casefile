@@ -2,14 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `3953145` — 2026-10-19
+**Docs reconciled through:** `0bf24e6` — 2026-10-20
 
 ## What this repo is
 
 A Claude Code plugin marketplace **and** the single plugin it ships, in one repository. There is
 no build and no runtime dependencies — the product is Markdown (skills) plus hooks in
-standard-library Python, with a pytest suite and ruff as uv dev dependencies (D-048). Changing a file here changes how future Claude Code sessions behave, including sessions in
-this repo.
+standard-library Python, with a pytest suite; pytest and ruff are uv dev dependencies (D-048).
+Changing a file here changes how future Claude Code sessions behave, including sessions in this repo.
 
 ## Commands
 
@@ -40,8 +40,8 @@ known marketplaces on startup, so a bump is what makes installed copies pick the
 without one, nothing updates. Git history shows the convention: minor for a new skill or hook,
 patch for wording.
 
-The plugin `description` is duplicated in `plugin.json` and `marketplace.json` — the only
-intentional duplication in the repo. Change both together.
+The plugin `description` is duplicated in `plugin.json` and `marketplace.json` — one of the two
+intentional duplications in the repo, with `version` above. Change both together.
 
 ## Architecture
 
