@@ -12,6 +12,7 @@ version bump can be checked against the source rather than against this summary.
 - **[HK]** Claude Code — Hooks reference: https://code.claude.com/docs/en/hooks
 - **[PL]** Claude Code — Plugin components and manifest reference: https://code.claude.com/docs/en/plugins/components, https://code.claude.com/docs/en/plugins-reference
 - **[CLI]** Claude Code — CLI reference: https://code.claude.com/docs/en/cli-reference
+- **[OS]** Claude Code — Output styles: https://code.claude.com/docs/en/output-styles
 
 ## Contents
 - Loading and the trigger surface
@@ -111,6 +112,16 @@ version bump can be checked against the source rather than against this summary.
 - Startup with many plugins takes far fewer file-system calls for command and agent files (v2.1.302);
   the PowerShell tool finds commands in a plugin's `bin/` folder (v2.1.302). [CL]
 - A plugin could keep a headless run going past `--max-turns`; fixed in v2.1.304. [CL]
+- **A `CLAUDE.md` at the plugin root is not loaded:** "Claude Code doesn't load a `CLAUDE.md` at the
+  plugin root, and `claude plugin validate` warns `CLAUDE.md at the plugin root is not loaded as
+  project context`. To include instructions in a plugin, write them as a skill." devflow's root
+  `CLAUDE.md` therefore reaches only sessions in this repository, and validate warns about it. [PL]
+- A plugin's always-on text without a hook: an output style in `output-styles/` with
+  `force-for-plugin: true` is applied whenever the plugin is enabled, overriding the user's
+  `outputStyle`; the first loaded plugin that sets it wins, and without `keep-coding-instructions:
+  true` it drops the default coding instructions. A style "gives Claude instructions to follow. It
+  doesn't guarantee that something always happens." [OS] A plugin's `settings.json` honours only
+  `agent` and `subagentStatusLine`, so it cannot add text. [PL]
 
 ## Plugin hooks and agents
 
