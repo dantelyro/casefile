@@ -20,7 +20,7 @@ class Implementer(unittest.TestCase):
     def test_IMPL_001_implementer_report_has_no_breaks_line(self):
         lines = _output_block(_text()).splitlines()
         self.assertFalse([l for l in lines if l.startswith("BREAKS:")])
-        # the reviewer's report still has one; the implementer's does not
+        # RED is asserted to prove the block was found and parsed
         self.assertTrue([l for l in lines if l.startswith("RED:")])
 
     def test_IMPL_001_implementer_has_no_break_check_step(self):
