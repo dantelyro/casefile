@@ -6,15 +6,14 @@ import pathlib
 import shutil
 import subprocess
 import sys
-import tempfile
-import unittest
-from unittest import mock
+
+import pytest
 
 HOOKS = pathlib.Path(__file__).resolve().parent.parent / "hooks"
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(HOOKS))
 
-import run  # noqa: E402
+import run
 
 # Sample input for the check under test, kept out of literal test code so this file itself
 # carries no markers.
@@ -23,40 +22,46 @@ ONLY = "test." + "only"
 XFAIL = "@pytest.mark." + "xfail"
 
 
-class Base(unittest.TestCase):
-    config: dict | None = {}
+def git(repo, *args):
+    subprocess.run(["git", *args], cwd=repo, check=True, timeout=60)
 
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.repo = pathlib.Path(self.tmp.name)
+
+class Repo:
+    """A temporary git repository, and the pre_commit hook run against it."""
+
+    def __init__(self, path, monkeypatch, config):
+        self.path = path
+        self.monkeypatch = monkeypatch
         for args in (["init", "-q"], ["config", "user.email", "t@t"], ["config", "user.name", "t"]):
-            subprocess.run(["git", *args], cwd=self.repo, check=True)
+            git(path, *args)
         self.write("README.md", "x")
-        if self.config is not None:
-            self.write(".claude/devflow.json", json.dumps(self.config))
-        subprocess.run(["git", "add", "-A"], cwd=self.repo, check=True)
-        subprocess.run(["git", "commit", "-qm", "init"], cwd=self.repo, check=True)
-
-    def tearDown(self):
-        self.tmp.cleanup()
+        if config is not None:
+            self.write(".claude/devflow.json", json.dumps(config))
+        git(path, "add", "-A")
+        git(path, "commit", "-qm", "init")
 
     def write(self, rel, text):
-        path = self.repo / rel
+        path = self.path / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
 
-    def check(self, command="git commit -m test", stage=True, agent=None, path=None):
+    def commit_all(self, message="t"):
+        git(self.path, "add", "-A")
+        git(self.path, "commit", "-qm", message, "--no-verify")
+
+    def check(self, command="git commit -m test", stage=True, agent=None, path=None, cwd=None):
         if stage:
-            subprocess.run(["git", "add", "-A"], cwd=self.repo, check=True)
+            git(self.path, "add", "-A")
         e = json.loads((FIXTURES / "bash_main.json").read_text(encoding="utf-8"))
-        e.update({"cwd": str(self.repo), "tool_input": {"command": command}})
+        e.update({"cwd": str(cwd or self.path), "tool_input": {"command": command}})
         e.pop("agent_type", None)
         if agent:
             e["agent_type"] = agent
-        env = {"PATH": path} if path is not None else {}
-        with mock.patch.dict(os.environ, env):
+        with self.monkeypatch.context() as m:  # PATH is changed for this call only
+            if path is not None:
+                m.setenv("PATH", path)
             code, out = run.dispatch("pre_commit", json.dumps(e))
-        self.assertEqual(code, 0)
+        assert code == 0
         if not out:
             return "allow", ""
         hso = json.loads(out)["hookSpecificOutput"]
@@ -64,216 +69,231 @@ class Base(unittest.TestCase):
 
     def expect(self, decision, **kw):
         got, reason = self.check(**kw)
-        self.assertEqual(got, decision, reason)
+        assert got == decision, reason
         return reason
 
 
-class Trigger(Base):
-    def test_only_a_commit_statement_triggers_it(self):
-        self.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
-        self.expect("allow", command="git status")
-        self.expect("allow", command='echo "git commit"')
-        self.expect("deny", command="cd web && git commit -m x")
-        self.expect("deny", command="git -C . commit -m x")
+@pytest.fixture
+def make_repo(tmp_path, monkeypatch):
+    """A factory: make_repo(config) builds the repository with that .claude/devflow.json."""
 
-    def test_git_dash_c_checks_that_repository(self):
-        self.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
-        subprocess.run(["git", "add", "-A"], cwd=self.repo, check=True)
-        with tempfile.TemporaryDirectory() as elsewhere:
-            e = json.loads((FIXTURES / "bash_main.json").read_text(encoding="utf-8"))
-            e.update({"cwd": elsewhere, "tool_input": {"command": f'git -C "{self.repo}" commit -m x'}})
-            code, out = run.dispatch("pre_commit", json.dumps(e))
-        self.assertEqual(json.loads(out)["hookSpecificOutput"]["permissionDecision"], "deny")
+    def make(config=None):
+        return Repo(tmp_path / "repo", monkeypatch, config)
 
-    def test_nothing_staged(self):
-        self.expect("allow", stage=False)
-
-    def test_commit_all_checks_unstaged_tracked_changes(self):
-        self.write("web/a.test.ts", "it('x', () => {})\n")
-        subprocess.run(["git", "add", "-A"], cwd=self.repo, check=True)
-        subprocess.run(["git", "commit", "-qm", "t"], cwd=self.repo, check=True)
-        self.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
-        self.expect("allow", stage=False)  # nothing staged: plain commit commits nothing
-        self.expect("deny", stage=False, command="git commit -am x")
-        self.expect("deny", stage=False, command="git commit --all -m x")
+    (tmp_path / "repo").mkdir()
+    return make
 
 
-class SkippedTests(Base):
-    def test_docs_only_commit_passes(self):
-        self.write("docs/specs/x.md", "# rule")
-        self.expect("allow")
-
-    def test_skipped_and_focused_tests_are_refused(self):
-        for path, line in (("web/features/score.test.ts", f"{SKIP}('MATCH-010: x', () => {{}})"),
-                           ("web/e2e/upload.spec.ts", f"{ONLY}('CV-001', async () => {{}})"),
-                           ("worker/tests/test_skills.py", f"{XFAIL}\ndef test_MATCH_002(): pass"),
-                           ("tests/test_x.py", "@unittest." + "skip('later')")):
-            with self.subTest(path=path):
-                self.write(path, line + "\n")
-                reason = self.expect("deny")
-                self.assertIn(path, reason)
-                subprocess.run(["git", "reset", "-q", "--hard"], cwd=self.repo, check=True)
-                subprocess.run(["git", "clean", "-qfd"], cwd=self.repo, check=True)
-
-    def test_skip_word_in_normal_code_is_fine(self):
-        self.write("web/features/jobs/list.ts", "const skip = 20; items.skip(1)\n")
-        self.expect("allow")
-
-    def test_removed_lines_do_not_count(self):
-        self.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
-        subprocess.run(["git", "add", "-A"], cwd=self.repo, check=True)
-        subprocess.run(["git", "commit", "-qm", "t", "--no-verify"], cwd=self.repo, check=True)
-        self.write("web/a.test.ts", "it('x', () => {})\n")
-        self.expect("allow")
+@pytest.fixture
+def repo(make_repo):
+    return make_repo({})
 
 
-class SkipMarkersAllowedIn(Base):
-    config = {"allow_skip_markers_in": ["tests/test_pre_commit.py", "hooks/tests/"]}
+@pytest.fixture
+def stub_dir(tmp_path_factory):
+    """A factory: stub_dir(tool, exit_code) is a folder holding a fake tool that prints and exits."""
 
-    def test_configured_files_may_hold_markers_as_sample_data(self):
-        self.write("tests/test_pre_commit.py", f'SAMPLE = "{SKIP}(x)"\n')
-        self.write("hooks/tests/test_y.py", f'SAMPLE = "{SKIP}(x)"\n')
-        self.expect("allow")
-        self.write("tests/test_other.py", f'SAMPLE = "{SKIP}(x)"\n')
-        self.expect("deny")
+    def make(tool: str, exit_code: int) -> str:
+        d = tmp_path_factory.mktemp("stub")
+        if os.name == "nt":
+            (d / (tool + ".cmd")).write_text(f"@echo STUB {tool} ran\n@exit /b {exit_code}\n")
+        else:
+            p = d / tool
+            p.write_text(f"#!/bin/sh\necho STUB {tool} ran\nexit {exit_code}\n")
+            p.chmod(0o755)
+        return str(d)
 
-
-class Design(Base):
-    config = {"design": {"ui_paths": ["web/"], "classes": "tailwind"}}
-
-    def setUp(self):
-        super().setUp()
-        shutil.copytree(FIXTURES / "design", self.repo / "docs" / "product" / "design-system")
-
-    def test_invented_styles_written_outside_the_edit_tools_are_refused(self):
-        self.write("web/app/page.tsx", '<main className="bg-blue-500 p-5" />\n')
-        reason = self.expect("deny")
-        self.assertIn("design system", reason)
-
-    def test_only_added_lines_are_checked(self):
-        self.write("web/app/page.tsx", '<main className="bg-blue-500" />\n')
-        subprocess.run(["git", "add", "-A"], cwd=self.repo, check=True)
-        subprocess.run(["git", "commit", "-qm", "old", "--no-verify"], cwd=self.repo, check=True)
-        self.write("web/app/page.tsx", '<main className="bg-blue-500" />\n<p className="text-ink" />\n')
-        self.expect("allow")
+    return make
 
 
-def stub_dir(tool: str, exit_code: int) -> str:
-    """A folder holding a fake `tool` that prints a line and exits with `exit_code`."""
-    d = tempfile.mkdtemp(prefix="stub-")
-    if os.name == "nt":
-        pathlib.Path(d, tool + ".cmd").write_text(f"@echo STUB {tool} ran\n@exit /b {exit_code}\n")
-    else:
-        p = pathlib.Path(d, tool)
-        p.write_text(f"#!/bin/sh\necho STUB {tool} ran\nexit {exit_code}\n")
-        p.chmod(0o755)
-    return d
+def with_real_path(*dirs):
+    return os.pathsep.join([*dirs, os.environ["PATH"]])
 
 
-class Apps(Base):
-    config = {"apps": {"web": {"test": "npm test"}, "worker": {"test": "uv run pytest -q"}}}
-
-    def path_with(self, tool, code):
-        return stub_dir(tool, code) + os.pathsep + os.environ["PATH"]
-
-    def test_passing_suite_allows(self):
-        self.write("web/package.json", "{}")
-        self.expect("allow", path=self.path_with("npm", 0))
-
-    def test_failing_suite_refuses_with_its_output(self):
-        self.write("web/package.json", "{}")
-        reason = self.expect("deny", path=self.path_with("npm", 1))
-        self.assertIn("web", reason)
-        self.assertIn("STUB npm ran", reason)
-
-    def test_untouched_app_is_not_run(self):
-        self.write("web/package.json", "{}")
-        subprocess.run(["git", "add", "-A"], cwd=self.repo, check=True)
-        subprocess.run(["git", "commit", "-qm", "web", "--no-verify"], cwd=self.repo, check=True)
-        self.write("docs/x.md", "x")
-        self.expect("allow", path=self.path_with("npm", 1))
-
-    def test_each_touched_app_runs(self):
-        self.write("web/package.json", "{}")
-        self.write("worker/app.py", "x")
-        reason = self.expect("deny", path=self.path_with("npm", 0) + os.pathsep + stub_dir("uv", 1))
-        self.assertIn("worker", reason)
+def test_only_a_commit_statement_triggers_it(repo):
+    repo.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
+    repo.expect("allow", command="git status")
+    repo.expect("allow", command='echo "git commit"')
+    repo.expect("deny", command="cd web && git commit -m x")
+    repo.expect("deny", command="git -C . commit -m x")
 
 
-class Lint(Base):
-    config = {"apps": {"web": {"test": "npm test", "lint": "eslint ."}}}
-
-    def test_failing_lint_refuses_after_passing_tests(self):
-        self.write("web/a.ts", "x")
-        path = stub_dir("npm", 0) + os.pathsep + stub_dir("eslint", 1) + os.pathsep + os.environ["PATH"]
-        reason = self.expect("deny", path=path)
-        self.assertIn("web lint fails", reason)
-        self.assertIn("STUB eslint ran", reason)
-
-    def test_passing_lint_allows(self):
-        self.write("web/a.ts", "x")
-        path = stub_dir("npm", 0) + os.pathsep + stub_dir("eslint", 0) + os.pathsep + os.environ["PATH"]
-        self.expect("allow", path=path)
+def test_git_dash_c_checks_that_repository(repo, tmp_path):
+    repo.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
+    git(repo.path, "add", "-A")
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    repo.expect("deny", stage=False, cwd=elsewhere, command=f'git -C "{repo.path}" commit -m x')
 
 
+def test_nothing_staged(repo):
+    repo.expect("allow", stage=False)
 
-class MissingTool(Base):
+
+def test_commit_all_checks_unstaged_tracked_changes(repo):
+    repo.write("web/a.test.ts", "it('x', () => {})\n")
+    git(repo.path, "add", "-A")
+    git(repo.path, "commit", "-qm", "t")
+    repo.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
+    repo.expect("allow", stage=False)  # nothing staged: plain commit commits nothing
+    repo.expect("deny", stage=False, command="git commit -am x")
+    repo.expect("deny", stage=False, command="git commit --all -m x")
+
+
+def test_docs_only_commit_passes(repo):
+    repo.write("docs/specs/x.md", "# rule")
+    repo.expect("allow")
+
+
+@pytest.mark.parametrize(
+    ("path", "line"),
+    [
+        ("web/features/score.test.ts", f"{SKIP}('MATCH-010: x', () => {{}})"),
+        ("web/e2e/upload.spec.ts", f"{ONLY}('CV-001', async () => {{}})"),
+        ("worker/tests/test_skills.py", f"{XFAIL}\ndef test_MATCH_002(): pass"),
+        ("tests/test_x.py", "@unittest." + "skip('later')"),
+    ],
+)
+def test_skipped_and_focused_tests_are_refused(repo, path, line):
+    repo.write(path, line + "\n")
+    reason = repo.expect("deny")
+    assert path in reason
+
+
+def test_skip_word_in_normal_code_is_fine(repo):
+    repo.write("web/features/jobs/list.ts", "const skip = 20; items.skip(1)\n")
+    repo.expect("allow")
+
+
+def test_removed_lines_do_not_count(repo):
+    repo.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
+    repo.commit_all()
+    repo.write("web/a.test.ts", "it('x', () => {})\n")
+    repo.expect("allow")
+
+
+def test_configured_files_may_hold_markers_as_sample_data(make_repo):
+    repo = make_repo({"allow_skip_markers_in": ["tests/test_pre_commit.py", "hooks/tests/"]})
+    repo.write("tests/test_pre_commit.py", f'SAMPLE = "{SKIP}(x)"\n')
+    repo.write("hooks/tests/test_y.py", f'SAMPLE = "{SKIP}(x)"\n')
+    repo.expect("allow")
+    repo.write("tests/test_other.py", f'SAMPLE = "{SKIP}(x)"\n')
+    repo.expect("deny")
+
+
+@pytest.fixture
+def design_repo(make_repo):
+    repo = make_repo({"design": {"ui_paths": ["web/"], "classes": "tailwind"}})
+    shutil.copytree(FIXTURES / "design", repo.path / "docs" / "product" / "design-system")
+    return repo
+
+
+def test_invented_styles_written_outside_the_edit_tools_are_refused(design_repo):
+    design_repo.write("web/app/page.tsx", '<main className="bg-blue-500 p-5" />\n')
+    reason = design_repo.expect("deny")
+    assert "design system" in reason
+
+
+def test_only_added_lines_are_checked(design_repo):
+    design_repo.write("web/app/page.tsx", '<main className="bg-blue-500" />\n')
+    design_repo.commit_all("old")
+    design_repo.write("web/app/page.tsx", '<main className="bg-blue-500" />\n<p className="text-ink" />\n')
+    design_repo.expect("allow")
+
+
+@pytest.fixture
+def apps_repo(make_repo):
+    return make_repo({"apps": {"web": {"test": "npm test"}, "worker": {"test": "uv run pytest -q"}}})
+
+
+def test_passing_suite_allows(apps_repo, stub_dir):
+    apps_repo.write("web/package.json", "{}")
+    apps_repo.expect("allow", path=with_real_path(stub_dir("npm", 0)))
+
+
+def test_failing_suite_refuses_with_its_output(apps_repo, stub_dir):
+    apps_repo.write("web/package.json", "{}")
+    reason = apps_repo.expect("deny", path=with_real_path(stub_dir("npm", 1)))
+    assert "web" in reason
+    assert "STUB npm ran" in reason
+
+
+def test_untouched_app_is_not_run(apps_repo, stub_dir):
+    apps_repo.write("web/package.json", "{}")
+    apps_repo.commit_all("web")
+    apps_repo.write("docs/x.md", "x")
+    apps_repo.expect("allow", path=with_real_path(stub_dir("npm", 1)))
+
+
+def test_each_touched_app_runs(apps_repo, stub_dir):
+    apps_repo.write("web/package.json", "{}")
+    apps_repo.write("worker/app.py", "x")
+    reason = apps_repo.expect("deny", path=with_real_path(stub_dir("npm", 0), stub_dir("uv", 1)))
+    assert "worker" in reason
+
+
+@pytest.fixture
+def lint_repo(make_repo):
+    return make_repo({"apps": {"web": {"test": "npm test", "lint": "eslint ."}}})
+
+
+def test_failing_lint_refuses_after_passing_tests(lint_repo, stub_dir):
+    lint_repo.write("web/a.ts", "x")
+    reason = lint_repo.expect("deny", path=with_real_path(stub_dir("npm", 0), stub_dir("eslint", 1)))
+    assert "web lint fails" in reason
+    assert "STUB eslint ran" in reason
+
+
+def test_passing_lint_allows(lint_repo, stub_dir):
+    lint_repo.write("web/a.ts", "x")
+    lint_repo.expect("allow", path=with_real_path(stub_dir("npm", 0), stub_dir("eslint", 0)))
+
+
+def test_missing_tool_says_so_instead_of_failing_tests(make_repo):
     # A tool name that exists nowhere. Trimming PATH to hide npm does not work everywhere: on
     # macOS runners git and npm share a folder.
-    config = {"apps": {"web": {"test": "devflow-no-such-tool run"}}}
-
-    def test_missing_tool_says_so_instead_of_failing_tests(self):
-        self.write("web/package.json", "{}")
-        reason = self.expect("deny")
-        self.assertIn("devflow-no-such-tool", reason)
-        self.assertIn("did not run", reason)
+    repo = make_repo({"apps": {"web": {"test": "devflow-no-such-tool run"}}})
+    repo.write("web/package.json", "{}")
+    reason = repo.expect("deny")
+    assert "devflow-no-such-tool" in reason
+    assert "did not run" in reason
 
 
-class AppPathFromConfig(Base):
-    config = {"apps": {"frontend": {"path": "apps/web", "test": "npm test"}}}
-
-    def test_runs_when_its_path_is_touched(self):
-        self.write("apps/web/x.ts", "x")
-        self.expect("deny", path=stub_dir("npm", 1) + os.pathsep + os.environ["PATH"])
+def test_runs_when_its_path_is_touched(make_repo, stub_dir):
+    repo = make_repo({"apps": {"frontend": {"path": "apps/web", "test": "npm test"}}})
+    repo.write("apps/web/x.ts", "x")
+    repo.expect("deny", path=with_real_path(stub_dir("npm", 1)))
 
 
-class WholeRepositoryApp(Base):
-    config = {"apps": {"app": {"path": ".", "test": "npm test"}}}
-
-    def test_any_file_runs_it(self):
-        self.write("src/index.ts", "x")
-        reason = self.expect("deny", path=stub_dir("npm", 1) + os.pathsep + os.environ["PATH"])
-        self.assertIn("STUB npm ran", reason)
-
-    def test_it_passes_too(self):
-        self.write("README.md", "changed")
-        self.expect("allow", path=stub_dir("npm", 0) + os.pathsep + os.environ["PATH"])
+@pytest.fixture
+def whole_repo_app(make_repo):
+    return make_repo({"apps": {"app": {"path": ".", "test": "npm test"}}})
 
 
-class NodeTestFileNames(Base):
-    def test_module_extensions_are_test_files_too(self):
-        for name in ("a.test.mts", "a.spec.cts", "a.test.mjs", "a.spec.cjs"):
-            with self.subTest(name=name):
-                self.write(f"src/{name}", f"{SKIP}('x', () => {{}})\n")
-                self.expect("deny")
-                subprocess.run(["git", "reset", "-q", "--hard"], cwd=self.repo, check=True)
-                subprocess.run(["git", "clean", "-qfd"], cwd=self.repo, check=True)
+def test_any_file_runs_it(whole_repo_app, stub_dir):
+    whole_repo_app.write("src/index.ts", "x")
+    reason = whole_repo_app.expect("deny", path=with_real_path(stub_dir("npm", 1)))
+    assert "STUB npm ran" in reason
 
 
-class NoApps(Base):
-    config = None
-
-    def test_no_suites_run(self):
-        self.write("web/x.ts", "x")
-        self.expect("allow", path=stub_dir("npm", 1) + os.pathsep + os.environ["PATH"])
+def test_it_passes_too(whole_repo_app, stub_dir):
+    whole_repo_app.write("README.md", "changed")
+    whole_repo_app.expect("allow", path=with_real_path(stub_dir("npm", 0)))
 
 
-class Everyone(Base):
-    def test_agents_too(self):
-        self.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
-        self.expect("deny", agent="devflow:implementer")
-        self.expect("deny", agent="general-purpose")
+@pytest.mark.parametrize("name", ["a.test.mts", "a.spec.cts", "a.test.mjs", "a.spec.cjs"])
+def test_module_extensions_are_test_files_too(repo, name):
+    repo.write(f"src/{name}", f"{SKIP}('x', () => {{}})\n")
+    repo.expect("deny")
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_no_suites_run(make_repo, stub_dir):
+    repo = make_repo(None)
+    repo.write("web/x.ts", "x")
+    repo.expect("allow", path=with_real_path(stub_dir("npm", 1)))
+
+
+def test_agents_too(repo):
+    repo.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
+    repo.expect("deny", agent="devflow:implementer")
+    repo.expect("deny", agent="general-purpose")
