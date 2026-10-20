@@ -162,25 +162,30 @@ def _read_only_violation(s: Statement) -> str | None:
     return None
 
 
-def _restores_worktree_paths(s: Statement) -> bool:
-    """`git restore <path>…` that only discards edits in the working tree (GUARD-003): at least one
-    path, and no `--staged`/`-S` (index) or `--source`/`-s` (another revision), attached forms too."""
-    sub, args = s.git()
-    if sub != "restore":
+_RESTORE_FLAGS = {"-W", "--worktree", "-p", "--patch", "-q", "--quiet"}
+_SHELL_EXPANSION = re.compile(r"[\\$`]")
+
+
+def _restores_worktree_paths(s: Statement, command: str) -> bool:
+    """`git restore <path>…` that only discards edits in the working tree (GUARD-003), as an
+    allow-list: no git option before `restore` (`-C` reaches other worktrees), only the flags in
+    `_RESTORE_FLAGS` and `--`, at least one path, and nothing the shell would rewrite into another
+    flag (backslash, `$`, backtick, parentheses), since git also takes options after paths."""
+    if s.name != "git" or not s.args or s.args[0] != "restore":
+        return False
+    if "(" in command or ")" in command:
         return False
     paths = 0
     options_ended = False
-    for word in args:
+    for word in s.args[1:]:
         a = s.value(word)  # the word git receives, quotes removed
+        if _SHELL_EXPANSION.search(a) or _SHELL_EXPANSION.search(word):
+            return False
         if options_ended or not a.startswith("-"):
             paths += 1
         elif a == "--":
             options_ended = True
-        elif a.startswith("--"):
-            name = a.split("=", 1)[0]  # git accepts any unique prefix of a long option
-            if "--staged".startswith(name) or "--source".startswith(name):
-                return False
-        elif {"S", "s"} & set(a[1:]):
+        elif a not in _RESTORE_FLAGS:
             return False
     return paths > 0
 
@@ -249,7 +254,7 @@ def main(event: dict) -> None:
     if role in ("reviewer", "planner"):
         for s in parsed:
             why = _read_only_violation(s)
-            if why and role == "reviewer" and _restores_worktree_paths(s):
+            if why and role == "reviewer" and _restores_worktree_paths(s, command):
                 why = None
             if why:
                 lib.deny(f"the {role} only reads: {why}. (`{shown}`)")

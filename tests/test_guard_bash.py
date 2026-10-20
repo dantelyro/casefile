@@ -151,6 +151,22 @@ class Restore(Base):
             'git restore "--staged" web/x.ts', "git restore '-s' HEAD~1 web/x.ts",
             'git restore --sta""ged web/x.ts'), "deny")
 
+    def test_GUARD_003_shell_escapes_other_flags_and_git_options_are_denied(self):
+        for command in (r"git restore --st\aged web/x.ts", "git restore $'--staged' web/x.ts",
+                        "git restore web/x.ts --$(echo staged)", "git -C ../other restore web/x.ts",
+                        "git restore --ours web/x.ts", "git restore web/x.ts `echo --staged`",
+                        "git --git-dir=../o/.git restore web/x.ts", "git restore -Wq web/x.ts",
+                        "git restore web/x.ts <(echo hi)"):
+            with self.subTest(command=command):
+                self.expect(["devflow:reviewer"], (command,), "deny")
+
+    def test_GUARD_003_listed_flags_are_allowed(self):
+        for command in ("git restore -W web/x.ts", "git restore -q -- web/x.ts",
+                        "git restore --worktree --quiet web/x.ts", "git restore -p web/x.ts",
+                        'git restore "web/my file.ts"'):
+            with self.subTest(command=command):
+                self.expect(["devflow:reviewer"], (command,), "allow")
+
     def test_GUARD_003_other_repository_changes_stay_denied(self):
         self.expect(["devflow:reviewer"], (
             "git add -A", "git commit -m x", "git stash", "git checkout -- web/x.ts", "git reset HEAD~1",
