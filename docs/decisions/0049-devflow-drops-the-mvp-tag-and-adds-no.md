@@ -1,0 +1,12 @@
+# D-049 — devflow drops the MVP tag and adds no test tag; what gets a test follows from the project's own code
+
+**Status:** Accepted (2026-10-20).
+**Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session, 2026-10-20, in the developer's words quoted under Context, then '(a) off course' and 'why 5 even exists you know what are dev dependencies'.
+
+**Context:** devflow's tags coupled scope to testing: [MVP] meant 'must ship' and 'needs a test named after it', and [MANUAL] meant 'cannot be tested automatically'. Applied literally during M2 (2026-10-20), this produced tests that ran ruff, read the gate's config, checked the uv lock and .venv in .gitignore, a checker of other tests' style, and string tests on agent Markdown: every rule a machine could check got a test, whether or not it was the project's code. The developer: 'tests are to test code not tools', 'testing is for code my code. my behavior, my bussiness logic. not tools, not packages', and '[MVP] i see a minimal viable product […] there is no need to create some especial tag for automated test you should already know what to test'.
+
+**Options:** (a) no test tag: [MVP] is dropped, a test follows from whether a rule describes the project's own code, and a rule without a test states its reason, which rules_coverage.py checks; (b) an explicit [TEST] tag marking the rules that need a test; (c) keep [MVP] and only redefine [MANUAL].
+
+**Decision:** (a), the developer's call ('(a) off course'). Tags say only scope and who verifies: [LATER] and [VERIFY] as before, [MANUAL] meaning the developer tests it by hand because the AI has no way to. The planner plans a test for each rule that describes the project's own code, covering its normal, edge and failure cases, and writes a reason on the plan line of any rule it leaves untested; rules_coverage.py reports a rule with neither as missing. Development tooling is not a spec rule (D-048 holds it): TOOL-001, 002, 003 and 005 leave the specs, TOOL-004 stays because users rely on shipped code being standard library.
+
+**Trade-offs:** Whether a rule gets a test is judgment rather than a tag, so a planner can still get it wrong; the stated reason makes every such call visible to the reviewer and the developer, and rules_coverage.py catches a rule with neither. Every existing rule loses [MVP] in one milestone, and spec_lint, rules_coverage, the planner, implement and write-specs change together. (b) was rejected as one more thing to tag on every rule; (c) keeps the scope word that misled.

@@ -26,7 +26,7 @@ Given the rules drafted from existing code are approved
 When their milestone is planned
 Then the planner marks each of its tasks tests-only, and the implementer reports them as IMPL-002.
 
-### SPEC-005 · The description triggers on existing code      [MVP]
+### SPEC-005 · The description triggers on existing code      [MANUAL]
 Given a request to specify code that already exists
 When skills are matched
 Then `write-specs` triggers, and it does not on a request to fix a bug in that code; checked by trigger
