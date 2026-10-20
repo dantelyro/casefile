@@ -26,7 +26,8 @@ Then it is a major finding, for any rule, naming the test and the change that sl
 ### REV-004 · A break counts as red only on an assertion      [MANUAL]
 Given a break the reviewer ran
 When the test fails on a crash, a missing name or an import error instead of an assertion
-Then the break is not counted as red, and the test is treated as not covering it.
+Then the break is not counted as red: the test is treated as not covering that line, reported as
+`not covered`, a major finding as a green break is (REV-003).
 
 ### REV-005 · The worktree is clean before and after the breaks      [MANUAL]
 Given the reviewer is about to break code
@@ -36,8 +37,9 @@ Then it gives no verdict and says what was left.
 ### REV-006 · The report carries a BREAKS line      [MANUAL]
 Given a review of a change with rule tests
 When the reviewer replies
-Then its block has `BREAKS: <per test: the change → red (the failing assertion) | green>; git
-status: clean`.
+Then its block has `BREAKS: <per test: the change → red (the failing assertion) | green | not covered
+| not runnable>; git status: clean`, where `not runnable` is a break whose file `git restore` cannot
+name (GUARD-003).
 
 ### REV-007 · The reviewer never commits or writes a test      [MVP]
 Given the reviewer found a weak test, an untested edge case or a bug
