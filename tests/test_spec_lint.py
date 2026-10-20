@@ -149,7 +149,37 @@ def test_RULE_001_an_unknown_tag_names_the_allowed_ones(repo):
 
 def test_RULE_001_a_heading_with_no_title_does_not_parse(repo):
     edit(repo, "docs/specs/10-auth.md", "AUTH-001 · Sign in with email", "AUTH-001 · ")
+    out = assert_error(repo, "docs/specs/10-auth.md:3", "AUTH-001", "does not parse")
+    hit = next(e for e in out["errors"] if "10-auth.md:3" in e)
+    assert hit.endswith("`### AUTH-001 · Title`")
+    assert "MVP" not in hit
+
+
+@pytest.mark.parametrize("title", [
+    "Sign in[MVP]",
+    "[MVP]",
+    "[LATER]",
+    "Sign in     [mvp]",
+    "Sign in [MVP] (old)",
+])
+def test_RULE_001_a_tag_not_set_off_or_a_title_of_only_tags_does_not_parse(repo, title):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", title)
     assert_error(repo, "docs/specs/10-auth.md:3", "AUTH-001", "does not parse")
+
+
+def test_RULE_001_a_title_may_open_with_a_bracketed_word(repo):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "[MANUAL] is the developer's to test")
+    assert lint(repo)[1]["errors"] == []
+
+
+def test_RULE_001_the_mvp_error_cites_the_decision(repo):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "Sign in with email     [MVP]")
+    assert_error(repo, "AUTH-001", "MVP", "D-049")
+
+
+def test_RULE_001_an_unknown_tag_after_an_allowed_one_is_an_error(repo):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "Sign in with email     [VERIFY][SOON]")
+    assert_error(repo, "10-auth.md:3", "AUTH-001", "SOON")
 
 
 def test_an_id_used_twice_names_both_places(repo):
