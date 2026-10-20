@@ -7,12 +7,14 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 HOOKS = pathlib.Path(__file__).resolve().parent.parent / "hooks"
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(HOOKS))
 
 import run  # noqa: E402
+from devflow_hooks import lib  # noqa: E402
 
 MAIN = None
 OTHER_AGENTS = ("Explore", "general-purpose", "other-plugin:helper")
@@ -35,12 +37,12 @@ class Base(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def decide(self, agent, path, tool="Write", cwd=None):
+    def decide(self, agent, path, tool="Write", cwd=None, raw_path=False):
         e = json.loads((FIXTURES / "write_main.json").read_text(encoding="utf-8"))
         e["tool_name"] = tool
         e["cwd"] = str(cwd or self.repo)
         key = "notebook_path" if tool == "NotebookEdit" else "file_path"
-        full = path if os.path.isabs(path) else str(self.repo / path)
+        full = path if raw_path or os.path.isabs(path) else str(self.repo / path)
         e["tool_input"] = {key: full, "content": "x"}
         e.pop("agent_type", None)
         if agent:
@@ -83,6 +85,88 @@ class Reviewer(Base):
     def test_writes_nothing(self):
         self.expect(["devflow:reviewer"], ("web/a.ts", "docs/plans/M1.md", "notes.txt"), "deny")
         self.expect(["devflow:reviewer"], ("nb.ipynb",), "deny", tool="NotebookEdit")
+
+
+class ReviewerWorktree(Base):
+    def make_worktree(self):
+        subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
+                        "--allow-empty", "-m", "i"], cwd=self.repo, check=True)
+        wt = self.repo / ".claude" / "worktrees" / "agent-1"
+        subprocess.run(["git", "worktree", "add", "-q", str(wt)], cwd=self.repo, check=True)
+        return wt
+
+    def test_GUARD_001_reviewer_may_edit_product_code_in_a_linked_worktree(self):
+        wt = self.make_worktree()
+        for tool, path in (("Edit", "web/a.ts"), ("Write", "web/a.ts"), ("MultiEdit", "web/a.ts"),
+                           ("NotebookEdit", "nb.ipynb"), ("Write", "web/new-folder/b.ts")):
+            got, reason = self.decide("devflow:reviewer", str(wt / path), tool=tool, cwd=wt)
+            self.assertEqual(got, "allow", f"{tool} {path}: {reason}")
+
+    def test_GUARD_001_reviewer_is_denied_in_the_main_checkout(self):
+        self.make_worktree()  # a linked worktree exists, so the main checkout must still be refused
+        for tool, path in (("Edit", "web/a.ts"), ("Write", "web/a.ts"), ("MultiEdit", "web/a.ts"),
+                           ("NotebookEdit", "nb.ipynb"), ("Write", "web/new-folder/b.ts")):
+            got, reason = self.decide("devflow:reviewer", path, tool=tool)
+            self.assertEqual(got, "deny", f"{tool} {path}: {reason}")
+
+    def test_GUARD_001_reviewer_is_denied_outside_any_repository(self):
+        with tempfile.TemporaryDirectory() as other:
+            got, _ = self.decide("devflow:reviewer", os.path.join(other, "x.txt"), cwd=other)
+            self.assertEqual(got, "deny")
+
+    def test_GUARD_001_reviewer_is_denied_in_another_repositorys_worktree(self):
+        wt = self.make_worktree()
+        other = pathlib.Path(self.tmp.name) / "other"
+        other.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=other, check=True)
+        subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
+                        "--allow-empty", "-m", "i"], cwd=other, check=True)
+        other_wt = pathlib.Path(self.tmp.name) / "other-wt"
+        subprocess.run(["git", "worktree", "add", "-q", str(other_wt)], cwd=other, check=True)
+        got, _ = self.decide("devflow:reviewer", str(other_wt / "web" / "a.ts"), cwd=wt)
+        self.assertEqual(got, "deny")
+
+    def test_GUARD_001_reviewer_is_denied_in_another_linked_worktree_of_the_same_repository(self):
+        wt = self.make_worktree()
+        implementer_wt = self.repo / ".claude" / "worktrees" / "agent-2"
+        subprocess.run(["git", "worktree", "add", "-q", str(implementer_wt)], cwd=self.repo, check=True)
+        # Claude Code sets CLAUDE_PROJECT_DIR to the main repo, which makes the path repo-relative.
+        with mock.patch.dict(os.environ, {"CLAUDE_PROJECT_DIR": str(self.repo)}):
+            for tool, path in (("Edit", "web/a.ts"), ("Write", "web/new-folder/b.ts"),
+                               ("NotebookEdit", "nb.ipynb")):
+                got, reason = self.decide("devflow:reviewer", str(implementer_wt / path), tool=tool, cwd=wt)
+                self.assertEqual(got, "deny", f"{tool} {path}: {reason}")
+                self.assertIn("worktree", reason)
+
+    def test_GUARD_001_a_relative_path_resolves_against_the_cwd(self):
+        wt = self.make_worktree()
+        got, reason = self.decide("devflow:reviewer", "web/a.ts", cwd=wt, raw_path=True)
+        self.assertEqual(got, "allow", reason)
+
+    def test_GUARD_001_the_files_directory_is_judged_not_the_session_cwd(self):
+        wt = self.make_worktree()
+        with mock.patch.dict(os.environ, {"CLAUDE_PROJECT_DIR": str(self.repo)}):
+            got, _ = self.decide("devflow:reviewer", str(self.repo / "web" / "a.ts"), cwd=wt)
+        self.assertEqual(got, "deny")
+
+    def test_GUARD_001_reviewer_is_denied_when_git_cannot_tell(self):
+        wt = self.make_worktree()
+        real = subprocess.run
+        failing = subprocess.CompletedProcess([], 128, "", "fatal")
+        for flag in ("--git-dir", "--git-common-dir"):
+            for fake in ({"side_effect": OSError("no git")}, {"return_value": failing}):
+                def run_git(cmd, *a, **kw):
+                    if flag in cmd:  # only this one call fails
+                        return mock.Mock(**fake)(cmd, *a, **kw)
+                    return real(cmd, *a, **kw)
+                with mock.patch.object(lib.subprocess, "run", side_effect=run_git):
+                    got, _ = self.decide("devflow:reviewer", str(wt / "web" / "a.ts"), cwd=wt)
+                self.assertEqual(got, "deny", f"{flag} {fake}")
+
+    def test_GUARD_001_reason_says_breaks_happen_only_in_the_reviewers_own_worktree(self):
+        got, reason = self.decide("devflow:reviewer", "web/a.ts")
+        self.assertEqual(got, "deny")
+        self.assertIn("worktree", reason)
 
 
 class Planner(Base):

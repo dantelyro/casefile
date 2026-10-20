@@ -76,6 +76,40 @@ def git_root(cwd: str | None) -> str | None:
     return out.stdout.strip() or None
 
 
+def _linked_worktree_dir(directory: str) -> str | None:
+    """The git dir of the linked worktree that `directory` is in (unique per worktree); None when it is the
+    main checkout, outside any repository, or git cannot tell (fail closed)."""
+    def ask(flag: str) -> str | None:
+        try:
+            out = subprocess.run(["git", "-C", directory, "rev-parse", "--path-format=absolute", flag],
+                                 capture_output=True, text=True, timeout=10)
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        if out.returncode != 0 or not out.stdout.strip():
+            return None
+        return os.path.realpath(out.stdout.strip())
+
+    git_dir, common_dir = ask("--git-dir"), ask("--git-common-dir")
+    if git_dir is None or common_dir is None or git_dir == common_dir:
+        return None
+    return git_dir
+
+
+def in_own_worktree(path: str, cwd: str | None = None) -> bool:
+    """True when `path` (relative ones resolved against `cwd`) lies in the same linked git worktree as
+    `cwd`. The file is asked through its nearest existing parent directory. Anything git cannot tell
+    → False (fail closed)."""
+    cwd = cwd or os.getcwd()
+    directory = os.path.dirname(os.path.realpath(os.path.join(cwd, path)))
+    while directory and not os.path.isdir(directory):
+        parent = os.path.dirname(directory)
+        if parent == directory:
+            return False
+        directory = parent
+    file_tree = _linked_worktree_dir(directory)
+    return file_tree is not None and file_tree == _linked_worktree_dir(cwd)
+
+
 _WORKTREE_PREFIX = re.compile(r"^\.claude/worktrees/[^/]+/")
 
 

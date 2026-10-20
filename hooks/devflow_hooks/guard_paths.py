@@ -37,7 +37,10 @@ def main(event: dict) -> None:
         lib.allow()
 
     if role == "reviewer":
-        lib.deny("the reviewer never edits files. Put the problem in your findings instead.")
+        if rel is None or not lib.in_own_worktree(path, event.get("cwd")):
+            lib.deny("breaks happen only in the reviewer's own worktree, where it makes them and restores "
+                     f"them; `{rel or path}` is not in it. Put the problem in your findings instead.")
+        lib.allow()
 
     if rel is None:
         lib.deny(f"the {role} only writes inside the repository it works in; `{path}` is outside it.")
