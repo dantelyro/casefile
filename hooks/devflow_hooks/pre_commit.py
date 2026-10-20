@@ -43,7 +43,7 @@ def _commit(command: str):
 
 
 def _git(root: str, *args: str) -> str:
-    out = subprocess.run(["git", "-C", root, *args], capture_output=True, text=True,
+    out = subprocess.run(["git", "-C", root, *args], check=False, capture_output=True, text=True,
                          encoding="utf-8", errors="replace")
     return out.stdout
 
@@ -61,7 +61,7 @@ def _added_lines(diff: str) -> dict[str, list[str]]:
 
 def _run(command: str, cwd: str) -> tuple[int, str]:
     # Through the shell, which finds npm.cmd on Windows and npm elsewhere.
-    out = subprocess.run(command, cwd=cwd, shell=True, capture_output=True, text=True,
+    out = subprocess.run(command, cwd=cwd, shell=True, check=False, capture_output=True, text=True,
                          encoding="utf-8", errors="replace", timeout=SUITE_TIMEOUT)
     return out.returncode, out.stdout + out.stderr
 

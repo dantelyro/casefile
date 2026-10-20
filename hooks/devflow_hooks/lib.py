@@ -15,14 +15,14 @@ PREFIX = "devflow:"
 
 
 def read_event() -> dict:
-    """The event Claude Code sends on stdin. Raises ValueError on empty or malformed input,
-    so the launcher can fail closed."""
+    """The event Claude Code sends on stdin. Raises ValueError on empty or malformed input
+    and TypeError when it is not a JSON object, so the launcher can fail closed."""
     raw = sys.stdin.buffer.read().decode("utf-8").strip()
     if not raw:
         raise ValueError("empty hook input")
     event = json.loads(raw)
     if not isinstance(event, dict):
-        raise ValueError("hook input is not a JSON object")
+        raise TypeError("hook input is not a JSON object")
     return event
 
 
@@ -68,7 +68,7 @@ def git_root(cwd: str | None) -> str | None:
         return None
     try:
         out = subprocess.run(["git", "-C", cwd, "rev-parse", "--show-toplevel"],
-                             capture_output=True, text=True, timeout=10)
+                             check=False, capture_output=True, text=True, timeout=10)
     except (OSError, subprocess.TimeoutExpired):
         return None
     if out.returncode != 0:
@@ -82,7 +82,7 @@ def _linked_worktree_dir(directory: str) -> str | None:
     def ask(flag: str) -> str | None:
         try:
             out = subprocess.run(["git", "-C", directory, "rev-parse", "--path-format=absolute", flag],
-                                 capture_output=True, text=True, timeout=10)
+                                 check=False, capture_output=True, text=True, timeout=10)
         except (OSError, subprocess.TimeoutExpired):
             return None
         if out.returncode != 0 or not out.stdout.strip():
