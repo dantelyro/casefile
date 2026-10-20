@@ -64,7 +64,8 @@ only if the input has designs. The first milestone is repository setup.
 | A question nobody answered | a line in `open-questions.md`, and a question at the approval step |
 
 - **Never fill a gap.** What the input does not decide stays a question. A fact about the outside
-  world you are not sure of → `[VERIFY]`, never `[MVP]`.
+  world you are not sure of → `[VERIFY]`. A rule the AI has no way to test → `[MANUAL]`. Never write
+  `[MVP]`: an untagged rule is built.
 - **Nothing is accepted by silence.** Every product decision and decision entry you derived rather
   than read from the developer's own words is shown as *proposed*.
 - Decision entries follow the evidence skill's log:
@@ -73,14 +74,14 @@ only if the input has designs. The first milestone is repository setup.
 
 ## 2. Approval — one step, everything at once
 
-Show, compactly: per spec file, the rules (`ID · title [tag]`); the milestone; the product
+Show, compactly: per spec file, the rules (`ID · title`, plus `[tag]` only when the rule has one); the milestone; the product
 decisions and decision entries, each marked as the developer's or proposed; the open questions,
 **asked together** as questions. On a project without `docs/decisions/` or `docs/product/`, say
 these folders will be created — one approval covers them.
 
 Wait. Answers become product decisions (or entries); requested changes → redraft and show again.
 A question still unanswered after the yes stays in `open-questions.md` with what it blocks; a rule
-that depends on it is not `[MVP]` until it is answered.
+that depends on it is tagged `[VERIFY]` until it is answered.
 
 ## 3. Write — only after the yes
 

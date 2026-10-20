@@ -6,7 +6,7 @@ How this project is built:
 2. **Test second.** Before any code, a failing test whose name starts with the rule ID
    (`def test_GUARD_001_…`).
 3. **Code third.** The least code that makes it pass, then refactor.
-4. **Trace.** Every `[MVP]` rule has a test named after it (`rules_coverage.py`).
+4. **Trace.** Every rule that describes what the project's code does has a test named after it; a rule left untested states why on its plan line (`rules_coverage.py`).
 5. **Change.** To change behaviour: spec (a new or changed ID) → test → code. Never the other way round.
 
 This folder is the source of truth: if code and a spec disagree, the spec wins or is changed first.
@@ -17,21 +17,23 @@ This folder is the source of truth: if code and a spec disagree, the spec wins o
 ## A rule
 
 ```
-### GUARD-001 · The reviewer edits only inside a linked worktree      [MVP]
+### GUARD-001 · The reviewer edits only inside a linked worktree
 Given the reviewer writes a file
 When the file is outside a linked worktree
 Then the write is denied
 ```
 
-The ID is the area's prefix and a three-digit number. Tags — a rule may carry more than one:
-`[MVP]` must ship · `[LATER]` planned, not built yet · `[VERIFY]` depends on an outside fact to
-confirm before building · `[MANUAL]` cannot be tested automatically; checked in review or a release
-checklist. A rule that exists because of a logged decision cites it (`see D-012`); the reasoning
+The ID is the area's prefix and a three-digit number. A rule needs no tag: it is built in its
+milestone. Tags, which a rule may combine: `[LATER]` planned, not built yet · `[VERIFY]` waits for
+something to be confirmed before it is built: a fact about an outside system, or the developer's
+answer to a question the rule depends on · `[MANUAL]` the AI has no way to test it (an agent's or
+skill's behaviour, a live run, how a screen feels); the developer tests it by hand when its milestone
+finishes. A rule that exists because of a logged decision cites it (`see D-012`); the reasoning
 stays in the entry.
 
 Most of devflow's behaviour is agent and skill prose, which a unit test cannot run: those rules are
-`[MANUAL]` and are checked by the reviewer, the trigger evals and each release's live test. Rules a
-hook or a script enforces are `[MVP]`.
+`[MANUAL]`: the developer tests them by hand when the milestone finishes. Rules a hook or a script
+carries out are untagged and have a test.
 
 ## Files
 
