@@ -1,6 +1,7 @@
 # D-027 — Hooks are standard-library Python ≥ 3.10, tested with unittest
 
-**Status:** Accepted (2026-10-14).
+**Status:** Accepted (2026-10-14). **SUPERSEDED in part by D-048 (2026-10-19):** development (tests,
+lint) uses uv, pytest and ruff; the hooks and scripts users run stay standard library.
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session. The 0.13.0 spec
 (`docs/specs/history/2026-10-14-review-design.md`) was approved on 2026-10-14 with Python, the standard
 library only and no downloads; asked again on 2026-10-15 whether sh + jq would be simpler: "keep
@@ -29,3 +30,8 @@ command a machine has (`py -3`, `python3`, `python`), and on Windows `python3` c
 Microsoft Store stub, so every candidate is version-checked. (c) was not pursued: the pilot project's hooks,
 the code being ported, are Python, and whether every Claude Code install puts `node` on `PATH` was
 never checked. The "no test suite" property in `CLAUDE.md` ends.
+
+**Changed by:**
+- 2026-10-19 · dantelyro — superseded in part by D-048: "no uv" and "tests use unittest" no longer
+  hold for development; the standard-library rule now covers `hooks/` and `skills/` only. Overtaken by a
+  new choice, not found wrong.

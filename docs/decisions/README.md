@@ -64,6 +64,7 @@ so.
 | [D-045](0045-the-reviewer-runs-the-breaks-in-its-own.md) | The reviewer runs the breaks in its own worktree; the implementer no longer proves its own tests | Accepted |
 | [D-046](0046-tests-for-existing-code-are-specified-by-write.md) | Tests for existing code are specified by write-specs and built by implement; there is no separate test-writing skill | Accepted |
 | [D-047](0047-devflow-is-specified-in-its-own-write-specs.md) | devflow is specified in its own write-specs layout and built with implement | Accepted |
+| [D-048](0048-development-uses-uv-pytest-and-ruff-only-shipped.md) | Development uses uv, pytest and ruff; only shipped code stays standard library | Accepted |
 
 ## Conventions
 

@@ -1,25 +1,33 @@
 # Lint and test tooling
 
-ruff and pytest, run through uv, adopted in their own milestone after M3. How the suite moves to
-pytest, how today's ruff findings are handled and where the tools are installed from are open
-questions; every rule here stays `[LATER]` until they are answered.
+ruff and pytest, run through uv as development dependencies, adopted in their own milestone after M3.
+Only development uses them: the hooks and scripts users run stay standard library (see D-048).
 
-### TOOL-001 · The code passes ruff      [LATER]
+### TOOL-001 · The code passes ruff      [MVP]
 Given the repository's Python code
-When ruff checks it through uv
-Then it exits 0.
+When `uv run ruff check` runs with ruff's default rules
+Then it exits 0: every finding is fixed in the code, and a `noqa` is allowed only with its reason, where
+the code is right as written.
 
-### TOOL-002 · Lint runs before every commit      [LATER]
+### TOOL-002 · Lint and tests run before every commit      [MVP]
 Given `.claude/devflow.json`
 When a commit touches the repository
-Then the `devflow` app's `lint` command runs ruff, and pre_commit refuses the commit on a finding.
+Then the `devflow` app's `install` is `uv sync`, its `test` is `uv run pytest` and its `lint` is
+`uv run ruff check`, so pre_commit refuses the commit on a failing test or a finding.
 
-### TOOL-003 · The suite runs under pytest      [LATER]
+### TOOL-003 · The suite is written for pytest      [MVP]
 Given the test suite
-When pytest runs it through uv
-Then it collects and passes every test.
+When it is run with `uv run pytest`
+Then every test of today still exists and passes, written with plain `assert`, fixtures and
+`parametrize` instead of `unittest.TestCase`, and each test's name still starts with its rule ID.
 
-### TOOL-004 · Hooks stay standard library      [LATER]
-Given the code under `hooks/`
-When ruff and pytest are adopted
-Then it imports nothing outside the standard library (D-027).
+### TOOL-004 · Shipped code stays standard library      [MVP]
+Given the code under `hooks/` and `skills/`
+When its imports are checked
+Then it imports nothing outside the standard library; only `tests/` may import pytest (D-048).
+
+### TOOL-005 · ruff and pytest are uv dev dependencies      [MVP]
+Given the repository
+When the tools are installed
+Then `pyproject.toml` lists ruff and pytest as development dependencies, `uv.lock` is committed, and
+`.venv/` is ignored.
