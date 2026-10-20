@@ -122,7 +122,7 @@ hooks/
   run-hook              # sh starter: finds Python 3.10+, runs run.py
   run.py                # runs one hook; refuses the call if the hook fails
   devflow_hooks/        # the hooks, standard-library Python
-tests/                  # python -m unittest discover -s tests
+tests/                  # uv run pytest
 evals/                  # trigger evals, billed: claude plugin eval . --ablation none --scaffold
 agents/
   implementer.md        # devflow:implementer: one task or issue, test-first, in its own worktree
