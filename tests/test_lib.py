@@ -174,8 +174,8 @@ def test_no_file_gives_defaults(config_repo):
     assert cfg["default_branch"] == "main"
     assert cfg["protected_paths"] == []
     assert cfg["apps"] == {}
-    assert cfg["design"]["tokens"] == "docs/product/design-system/tokens.json"
-    assert cfg["design"]["ui_paths"] == []
+    assert cfg["design"].get("tokens") == "docs/product/design-system/tokens.json"
+    assert cfg["design"].get("ui_paths") == []
     assert cfg["build_order"] == "docs/product/blueprint.html"
 
 
@@ -184,8 +184,8 @@ def test_partial_file_keeps_other_defaults(config_repo):
     cfg = lib.config({"cwd": str(config_repo)})
     assert cfg["protected_paths"] == ["docs/specs/"]
     assert cfg["default_branch"] == "main"
-    assert cfg["design"]["ui_paths"] == ["web/"]
-    assert cfg["design"]["tokens"] == "docs/product/design-system/tokens.json"
+    assert cfg["design"].get("ui_paths") == ["web/"]
+    assert cfg["design"].get("tokens") == "docs/product/design-system/tokens.json"
 
 
 def test_invalid_json_names_the_file(config_repo):
@@ -203,4 +203,5 @@ def test_wrong_type_names_the_key(config_repo):
 
 
 def test_outside_a_repo_gives_defaults(tmp_path):
+    write_config(tmp_path, '{"apps": {"web": {"test": "npm test"}}}')  # not read: no repository here
     assert lib.config({"cwd": str(tmp_path)})["apps"] == {}

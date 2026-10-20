@@ -49,17 +49,18 @@ class Repo:
         git(self.path, "add", "-A")
         git(self.path, "commit", "-qm", message, "--no-verify")
 
-    def check(self, command="git commit -m test", stage=True, agent=None, path=None):
+    def check(self, command="git commit -m test", stage=True, agent=None, path=None, cwd=None):
         if stage:
             git(self.path, "add", "-A")
         e = json.loads((FIXTURES / "bash_main.json").read_text(encoding="utf-8"))
-        e.update({"cwd": str(self.path), "tool_input": {"command": command}})
+        e.update({"cwd": str(cwd or self.path), "tool_input": {"command": command}})
         e.pop("agent_type", None)
         if agent:
             e["agent_type"] = agent
-        if path is not None:
-            self.monkeypatch.setenv("PATH", path)
-        code, out = run.dispatch("pre_commit", json.dumps(e))
+        with self.monkeypatch.context() as m:  # PATH is changed for this call only
+            if path is not None:
+                m.setenv("PATH", path)
+            code, out = run.dispatch("pre_commit", json.dumps(e))
         assert code == 0
         if not out:
             return "allow", ""
@@ -122,10 +123,7 @@ def test_git_dash_c_checks_that_repository(repo, tmp_path):
     git(repo.path, "add", "-A")
     elsewhere = tmp_path / "elsewhere"
     elsewhere.mkdir()
-    e = json.loads((FIXTURES / "bash_main.json").read_text(encoding="utf-8"))
-    e.update({"cwd": str(elsewhere), "tool_input": {"command": f'git -C "{repo.path}" commit -m x'}})
-    _, out = run.dispatch("pre_commit", json.dumps(e))
-    assert json.loads(out)["hookSpecificOutput"]["permissionDecision"] == "deny"
+    repo.expect("deny", stage=False, cwd=elsewhere, command=f'git -C "{repo.path}" commit -m x')
 
 
 def test_nothing_staged(repo):
@@ -230,7 +228,7 @@ def test_untouched_app_is_not_run(apps_repo, stub_dir):
 def test_each_touched_app_runs(apps_repo, stub_dir):
     apps_repo.write("web/package.json", "{}")
     apps_repo.write("worker/app.py", "x")
-    reason = apps_repo.expect("deny", path=with_real_path(stub_dir("npm", 0)) + os.pathsep + stub_dir("uv", 1))
+    reason = apps_repo.expect("deny", path=with_real_path(stub_dir("npm", 0), stub_dir("uv", 1)))
     assert "worker" in reason
 
 
