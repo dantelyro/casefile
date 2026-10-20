@@ -3,11 +3,13 @@
 ruff and pytest, run through uv as development dependencies, adopted in their own milestone, the next after M1.
 Only development uses them: the hooks and scripts users run stay standard library (see D-048).
 
-### TOOL-001 · The code passes ruff      [MVP]
+### TOOL-001 · The code passes ruff      [MANUAL]
 Given the repository's Python code
-When `uv run ruff check` runs with ruff's default rules
+When `uv run ruff check` runs with ruff's default rules, in the commit gate (TOOL-002) and as its own CI
+step
 Then it exits 0: every finding is fixed in the code, and a `noqa` is allowed only with its reason, where
-the code is right as written.
+the code is right as written. No test runs ruff: the linter's exit is the check, and the reviewer checks
+each `noqa` for its reason.
 
 ### TOOL-002 · Lint and tests run before every commit      [MVP]
 Given `.claude/devflow.json`
