@@ -13,3 +13,7 @@
 - Every ruff finding is fixed in the code, with ruff's default rules (2026-10-19) → TOOL-001
 - ruff and pytest are uv dev dependencies in `pyproject.toml`, with `uv.lock` committed (2026-10-19)
   → TOOL-002, TOOL-005, see D-048
+- devflow drops the `[MVP]` tag and adds no test tag: what gets a test follows from the project's own
+  behaviour, never tools, config or prose; `[MANUAL]` means the developer tests it by hand because the
+  AI cannot; `rules_coverage.py` flags a rule with neither a test nor a stated reason (2026-10-20). To be
+  specified after M2.
