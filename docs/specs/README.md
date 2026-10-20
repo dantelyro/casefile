@@ -6,7 +6,7 @@ How this project is built:
 2. **Test second.** Before any code, a failing test whose name starts with the rule ID
    (`def test_GUARD_001_…`).
 3. **Code third.** The least code that makes it pass, then refactor.
-4. **Trace.** Every rule the project's code enforces has a test named after it (`rules_coverage.py`).
+4. **Trace.** Every rule that describes what the project's code does has a test named after it; a rule left untested states why on its plan line (`rules_coverage.py`).
 5. **Change.** To change behaviour: spec (a new or changed ID) → test → code. Never the other way round.
 
 This folder is the source of truth: if code and a spec disagree, the spec wins or is changed first.
@@ -32,8 +32,8 @@ finishes. A rule that exists because of a logged decision cites it (`see D-012`)
 stays in the entry.
 
 Most of devflow's behaviour is agent and skill prose, which a unit test cannot run: those rules are
-`[MANUAL]` and are checked by the reviewer, the trigger evals and each release's live test. Rules a
-hook or a script enforces are untagged and have a test.
+`[MANUAL]`: the developer tests them by hand when the milestone finishes. Rules a hook or a script
+carries out are untagged and have a test.
 
 ## Files
 

@@ -74,7 +74,7 @@ only if the input has designs. The first milestone is repository setup.
 
 ## 2. Approval — one step, everything at once
 
-Show, compactly: per spec file, the rules (`ID · title [tag]`); the milestone; the product
+Show, compactly: per spec file, the rules (`ID · title`, plus `[tag]` only when the rule has one); the milestone; the product
 decisions and decision entries, each marked as the developer's or proposed; the open questions,
 **asked together** as questions. On a project without `docs/decisions/` or `docs/product/`, say
 these folders will be created — one approval covers them.

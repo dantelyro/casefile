@@ -49,7 +49,7 @@ How this project is built:
 2. **Test second.** Before any code, a failing test whose name starts with the rule ID
    (`it("MATCH-003: …")`, `def test_MATCH_003_…`).
 3. **Code third.** The least code that makes it pass, then refactor.
-4. **Trace.** Every rule the project's code enforces has a test named after it (`rules_coverage.py`).
+4. **Trace.** Every rule that describes what the project's code does has a test named after it; a rule left untested states why on its plan line (`rules_coverage.py`).
 5. **Change.** To change behaviour: spec (a new or changed ID) → test → code. Never the other way round.
 
 This folder is the source of truth: if code and a spec disagree, the spec wins or is changed first.
