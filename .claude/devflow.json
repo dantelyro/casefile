@@ -5,7 +5,8 @@
     "devflow": {
       "path": ".",
       "test": "uv run pytest",
-      "install": "uv sync"
+      "install": "uv sync",
+      "lint": "uv run ruff check"
     }
   }
 }
