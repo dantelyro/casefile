@@ -212,6 +212,42 @@ def test_RULE_006_a_note_that_is_not_a_no_test_reason_does_not_count(repo):
     assert out["missing"] == ["MATCH-001"]
 
 
+def test_RULE_006_a_reason_left_of_the_arrow_does_not_count(repo):
+    plan_with(repo, ["- MATCH-001 (no test: x) → T1"])
+    out = coverage(repo)[1]
+    assert out["missing"] == ["MATCH-001"]
+    assert out["reasoned"] == []
+
+
+def test_RULE_006_a_reason_runs_to_the_last_parenthesis(repo):
+    plan_with(repo, ["- MATCH-001 → T1 (no test: prose (agent) checked by hand)"])
+    out = coverage(repo)[1]
+    assert out["reasoned"] == [{"rule": "MATCH-001", "reason": "prose (agent) checked by hand"}]
+
+
+def test_RULE_006_a_rule_on_several_lines_is_reasoned_if_any_line_has_a_reason(repo):
+    plan_with(repo, ["- MATCH-001 → T1", "- MATCH-001 → T2 (no test: prose)"])
+    out = coverage(repo)[1]
+    assert out["reasoned"] == [{"rule": "MATCH-001", "reason": "prose"}]
+    assert out["missing"] == []
+
+
+def test_RULE_006_manual_combined_with_another_tag_is_manual(repo):
+    write(repo, "docs/specs/12-matching.md", SPEC + "### MATCH-006 · Both     [VERIFY] [MANUAL]\n")
+    plan_with(repo, ["- MATCH-006 → T1"])
+    code, out, _ = coverage(repo)
+    assert code == 0
+    assert (out["manual"], out["later"]) == (["MATCH-006"], [])
+
+
+def test_RULE_006_the_text_output_names_reasons_and_the_manual_label(repo):
+    plan_with(repo, ["- MATCH-001 → T1 (no test: prose)", "- MATCH-004 → T1"])
+    proc = subprocess.run([sys.executable, str(SCRIPT), "docs/plans/M2.md"], cwd=repo,
+                          capture_output=True, text=True, encoding="utf-8", check=False)
+    assert "no test, with reason (1): MATCH-001 (prose)" in proc.stdout
+    assert "the developer tests by hand: MATCH-004" in proc.stdout
+
+
 def test_RULE_006_a_rule_still_tagged_mvp_is_checked_like_an_untagged_one(repo):
     write(repo, "docs/specs/12-matching.md", SPEC.replace("weigh 70%\n", "weigh 70%     [MVP]\n"))
     plan_with(repo, ["- MATCH-001 → T1"])
