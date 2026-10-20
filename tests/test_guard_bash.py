@@ -4,16 +4,16 @@ import json
 import pathlib
 import subprocess
 import sys
-import tempfile
-import unittest
 from unittest import mock
+
+import pytest
 
 HOOKS = pathlib.Path(__file__).resolve().parent.parent / "hooks"
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(HOOKS))
 
-import run  # noqa: E402
-from devflow_hooks import lib  # noqa: E402
+import run
+from devflow_hooks import lib
 
 MAIN = None
 OTHER_AGENTS = ("Explore", "general-purpose", "other-plugin:helper")
@@ -45,92 +45,91 @@ def decide(agent, command, tool="Bash", cwd=None):
     return hso["permissionDecision"], hso["permissionDecisionReason"]
 
 
-class Base(unittest.TestCase):
-    def expect(self, agents, commands, decision, tool="Bash", cwd=None):
-        for agent in agents:
-            for command in commands:
-                got, reason = decide(agent, command, tool, cwd)
-                self.assertEqual(got, decision, f"{agent!r}: {command!r} → {got}: {reason}")
+def expect(agents, commands, decision, tool="Bash", cwd=None):
+    for agent in agents:
+        for command in commands:
+            got, reason = decide(agent, command, tool, cwd)
+            assert got == decision, f"{agent!r}: {command!r} → {got}: {reason}"
 
 
-class Push(Base):
+class TestPush:
     PUSHES = ("git push", "git push origin main", "git push --force", "cd web && git push",
               "git status; git push", "git -C ../other push origin x", "git --no-pager push",
               "npm test\ngit push", "git status | tee x; git push", "{ git push; }",
               "if ($?) { git push }", "(git push)", "  git   push  ")
 
     def test_main_session_is_asked(self):
-        self.expect([MAIN], self.PUSHES, "ask")
+        expect([MAIN], self.PUSHES, "ask")
 
     def test_every_agent_is_denied(self):
-        self.expect(EVERY_AGENT, self.PUSHES, "deny")
+        expect(EVERY_AGENT, self.PUSHES, "deny")
 
     def test_powershell_push_too(self):
-        self.expect([MAIN], ["git push origin main"], "ask", tool="PowerShell")
-        self.expect(["devflow:implementer"], ["git push"], "deny", tool="PowerShell")
+        expect([MAIN], ["git push origin main"], "ask", tool="PowerShell")
+        expect(["devflow:implementer"], ["git push"], "deny", tool="PowerShell")
 
     def test_not_a_push(self):
-        self.expect(EVERYONE, ["git status", "echo git push", "gitpush", "git log --grep push"], "allow")
+        expect(EVERYONE, ["git status", "echo git push", "gitpush", "git log --grep push"], "allow")
         # commit and pull are not pushes; the read-only agents are refused them for another reason
-        self.expect((MAIN, "devflow:implementer") + OTHER_AGENTS,
-                    ['git commit -m "docs: never git push from agents"',
-                     "git commit -m 'git push later'", "git pull",
-                     'git commit -m "fix: x; git push comes later"',
-                     "git commit -m 'a && git push'"], "allow")
+        expect((MAIN, "devflow:implementer") + OTHER_AGENTS,
+               ['git commit -m "docs: never git push from agents"',
+                "git commit -m 'git push later'", "git pull",
+                'git commit -m "fix: x; git push comes later"',
+                "git commit -m 'a && git push'"], "allow")
 
     def test_reasons_say_what_to_do(self):
         _, reason = decide("devflow:implementer", "git push")
-        self.assertIn("developer", reason)
+        assert "developer" in reason
         _, reason = decide(MAIN, "git push")
-        self.assertIn("push", reason)
+        assert "push" in reason
 
 
-class ComposeVolumes(Base):
+class TestComposeVolumes:
     def test_nobody_removes_compose_volumes(self):
-        self.expect(EVERYONE, ("docker compose down -v", "docker compose down --volumes",
-                               "docker-compose down -v", "docker compose -p m1t13 down -v",
-                               "docker compose down --remove-orphans -v", "docker compose down -vt 5",
-                               "cd web; docker compose down -v; cd .."), "deny")
+        expect(EVERYONE, ("docker compose down -v", "docker compose down --volumes",
+                          "docker-compose down -v", "docker compose -p m1t13 down -v",
+                          "docker compose down --remove-orphans -v", "docker compose down -vt 5",
+                          "cd web; docker compose down -v; cd .."), "deny")
 
     def test_other_compose_commands_pass(self):
-        self.expect(EVERYONE, ("docker compose down", "docker compose down --remove-orphans",
-                               "docker compose up -d --build --wait", "docker compose build web",
-                               "docker run -v pgdata:/var/lib/postgresql/data postgres:16"), "allow")
+        expect(EVERYONE, ("docker compose down", "docker compose down --remove-orphans",
+                          "docker compose up -d --build --wait", "docker compose build web",
+                          "docker run -v pgdata:/var/lib/postgresql/data postgres:16"), "allow")
 
 
-class NoVerify(Base):
+class TestNoVerify:
     def test_nobody_skips_git_hooks(self):
-        self.expect(EVERYONE, ("git commit --no-verify -m x", "git push --no-verify",
-                               "git -C web commit -m x --no-verify", "git merge --no-verify feat"), "deny")
+        expect(EVERYONE, ("git commit --no-verify -m x", "git push --no-verify",
+                          "git -C web commit -m x --no-verify", "git merge --no-verify feat"), "deny")
 
     def test_mentioning_it_is_fine(self):
-        self.expect([MAIN], ['git commit -m "never use --no-verify"', "grep -r no-verify docs"], "allow")
+        expect([MAIN], ['git commit -m "never use --no-verify"', "grep -r no-verify docs"], "allow")
 
 
-class KillByName(Base):
+class TestKillByName:
     KILLS = ("taskkill /IM node.exe /F", "taskkill /f /im node.exe", "pkill -f node", "pkill node",
              "killall node", "Stop-Process -Name node", "Stop-Process -ProcessName node -Force",
              "Get-Process node | Stop-Process")
 
     def test_agents_may_not_kill_by_name(self):
-        self.expect(EVERY_AGENT, self.KILLS, "deny")
+        expect(EVERY_AGENT, self.KILLS, "deny")
 
     def test_main_session_may(self):
-        self.expect([MAIN], self.KILLS, "allow")
+        expect([MAIN], self.KILLS, "allow")
 
     def test_killing_one_pid_is_fine(self):
-        self.expect(EVERY_AGENT, ("kill 1234", "taskkill /PID 1234", "Stop-Process -Id 1234"), "allow")
+        expect(EVERY_AGENT, ("kill 1234", "taskkill /PID 1234", "Stop-Process -Id 1234"), "allow")
 
 
-class Reviewer(Base):
+class TestReviewer:
     def test_reads_and_tests(self):
-        self.expect(["devflow:reviewer"], (
+        expect(["devflow:reviewer"], (
             "git diff main...feat", "git log --oneline -5", "git show HEAD", "git status",
             "git switch --detach feat", "npm test 2>&1", "uv run pytest -q", "npm ci",
             "uv sync", "npm test > /dev/null", "npm test 2>/dev/null", "git branch --list"), "allow")
 
     def test_changes_nothing(self):
-        self.expect(["devflow:reviewer"], (
+        expect(["devflow:reviewer"], (
             "git add -A", "git commit -m x", "git merge feat", "git rebase main", "git reset HEAD~1",
             "git stash", "git checkout -- web/x.ts", "git branch -d feat",
             "rm web/x.ts", "mv a b", "echo hi > notes.txt", "cat x >> y", "Remove-Item x",
@@ -138,62 +137,69 @@ class Reviewer(Base):
             "deny")
 
 
-class Restore(Base):
+@pytest.fixture
+def repo(tmp_path):
+    """A repository with one commit, so a linked worktree can be added to it."""
+    path = tmp_path / "repo"
+    path.mkdir()
+    subprocess.run(["git", "init", "-q"], cwd=path, check=True)
+    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
+                    "--allow-empty", "-m", "i"], cwd=path, check=True)
+    return path
+
+
+@pytest.fixture
+def wt(repo):
+    path = repo / ".claude" / "worktrees" / "agent-1"
+    subprocess.run(["git", "worktree", "add", "-q", str(path)], cwd=repo, check=True)
+    return path
+
+
+def reviewer_in(wt, commands, decision):
+    expect(["devflow:reviewer"], commands, decision, cwd=wt)
+
+
+class TestRestore:
     """GUARD-003 and GUARD-004, run inside a real linked worktree (GUARD-005 decides elsewhere)."""
 
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.repo = pathlib.Path(self.tmp.name) / "repo"
-        self.repo.mkdir()
-        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True)
-        subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
-                        "--allow-empty", "-m", "i"], cwd=self.repo, check=True)
-        self.wt = self.repo / ".claude" / "worktrees" / "agent-1"
-        subprocess.run(["git", "worktree", "add", "-q", str(self.wt)], cwd=self.repo, check=True)
+    def test_GUARD_005_reviewer_restore_allowed_in_its_worktree(self, wt):
+        reviewer_in(wt, ("git restore web/x.ts",), "allow")
+        (wt / "web").mkdir()
+        expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow", cwd=wt / "web")
 
-    def tearDown(self):
-        self.tmp.cleanup()
-
-    def expect(self, agents, commands, decision, tool="Bash", cwd=None):
-        super().expect(agents, commands, decision, tool, cwd or self.wt)
-
-    def test_GUARD_005_reviewer_restore_allowed_in_its_worktree(self):
-        self.expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow", cwd=self.wt)
-        (self.wt / "web").mkdir()
-        self.expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow", cwd=self.wt / "web")
-
-    def test_GUARD_005_reviewer_restore_denied_outside_a_linked_worktree(self):
-        outside = pathlib.Path(self.tmp.name) / "plain"
+    @pytest.mark.parametrize("where", ["repo", "plain"])
+    def test_GUARD_005_reviewer_restore_denied_outside_a_linked_worktree(self, where, repo, wt, tmp_path):
+        outside = tmp_path / "plain"
         outside.mkdir()
-        for where in (self.repo, outside):
-            with self.subTest(cwd=str(where)):
-                got, reason = decide("devflow:reviewer", "git restore web/x.ts", cwd=where)
-                self.assertEqual(got, "deny", reason)
-                self.assertIn("worktree", reason)
-        failures = (mock.patch.object(lib.subprocess, "run", side_effect=OSError("no git")),
-                    mock.patch.object(lib.subprocess, "run",
-                                      return_value=mock.Mock(returncode=128, stdout="", stderr="fatal")))
-        for failing in failures:
-            with self.subTest(failing=failing):
-                with failing:
-                    got, reason = decide("devflow:reviewer", "git restore web/x.ts", cwd=self.wt)
-                self.assertEqual(got, "deny", reason)
-                self.assertIn("worktree", reason)
+        got, reason = decide("devflow:reviewer", "git restore web/x.ts",
+                             cwd={"repo": repo, "plain": outside}[where])
+        assert got == "deny", reason
+        assert "worktree" in reason
 
-    def test_GUARD_005_location_does_not_change_other_decisions(self):
-        self.expect(["devflow:reviewer"], ("git status",), "allow", cwd=self.repo)
-        self.expect(["devflow:planner"], ("git restore web/x.ts",), "deny", cwd=self.wt)
+    @pytest.mark.parametrize("failing", [
+        mock.Mock(side_effect=OSError("no git")),
+        mock.Mock(return_value=mock.Mock(returncode=128, stdout="", stderr="fatal")),
+    ], ids=["git-missing", "git-fails"])
+    def test_GUARD_005_reviewer_restore_denied_when_git_cannot_tell(self, failing, wt, monkeypatch):
+        monkeypatch.setattr(lib.subprocess, "run", failing)
+        got, reason = decide("devflow:reviewer", "git restore web/x.ts", cwd=wt)
+        assert got == "deny", reason
+        assert "worktree" in reason
 
-    def test_GUARD_003_reviewer_may_git_restore_paths(self):
-        self.expect(["devflow:reviewer"], (
+    def test_GUARD_005_location_does_not_change_other_decisions(self, repo, wt):
+        expect(["devflow:reviewer"], ("git status",), "allow", cwd=repo)
+        expect(["devflow:planner"], ("git restore web/x.ts",), "deny", cwd=wt)
+
+    def test_GUARD_003_reviewer_may_git_restore_paths(self, wt):
+        reviewer_in(wt, (
             "git restore web/x.ts", "git restore -- web/x.ts", "git restore web/a.ts web/b.ts",
             "git restore -- -odd-name.ts"), "allow")
 
-    def test_GUARD_003_restore_without_a_path_is_denied(self):
-        self.expect(["devflow:reviewer"], ("git restore", "git restore --"), "deny")
+    def test_GUARD_003_restore_without_a_path_is_denied(self, wt):
+        reviewer_in(wt, ("git restore", "git restore --"), "deny")
 
-    def test_GUARD_003_restore_with_staged_or_source_is_denied(self):
-        self.expect(["devflow:reviewer"], (
+    def test_GUARD_003_restore_with_staged_or_source_is_denied(self, wt):
+        reviewer_in(wt, (
             "git restore --staged web/x.ts", "git restore -S web/x.ts",
             "git restore --source HEAD~1 web/x.ts", "git restore -s HEAD~1 web/x.ts",
             "git restore --source=HEAD~1 web/x.ts", "git restore -sHEAD~1 web/x.ts",
@@ -202,93 +208,89 @@ class Restore(Base):
             'git restore "--staged" web/x.ts', "git restore '-s' HEAD~1 web/x.ts",
             'git restore --sta""ged web/x.ts'), "deny")
 
-    def test_GUARD_003_shell_escapes_other_flags_and_git_options_are_denied(self):
-        for command in (r"git restore --st\aged web/x.ts", "git restore $'--staged' web/x.ts",
-                        "git restore web/x.ts --$(echo staged)", "git -C ../other restore web/x.ts",
-                        "git restore --ours web/x.ts", "git restore web/x.ts `echo --staged`",
-                        "git --git-dir=../o/.git restore web/x.ts", "git restore -Wq web/x.ts",
-                        "git restore web/x.ts <(echo hi)", "git restore web/x.ts {--staged,}",
-                        "git restore web/x.ts *", "git restore ~/x.ts", "git restore web/x.ts !!",
-                        "git restore 'web/a(1).ts'", 'git restore "web/$x.ts"',
-                        "git restore web/x.ts ?", "git restore web/[xy].ts", "git restore web/x.ts #c"):
-            with self.subTest(command=command):
-                self.expect(["devflow:reviewer"], (command,), "deny")
+    @pytest.mark.parametrize("command", [
+        r"git restore --st\aged web/x.ts", "git restore $'--staged' web/x.ts",
+        "git restore web/x.ts --$(echo staged)", "git -C ../other restore web/x.ts",
+        "git restore --ours web/x.ts", "git restore web/x.ts `echo --staged`",
+        "git --git-dir=../o/.git restore web/x.ts", "git restore -Wq web/x.ts",
+        "git restore web/x.ts <(echo hi)", "git restore web/x.ts {--staged,}",
+        "git restore web/x.ts *", "git restore ~/x.ts", "git restore web/x.ts !!",
+        "git restore 'web/a(1).ts'", 'git restore "web/$x.ts"',
+        "git restore web/x.ts ?", "git restore web/[xy].ts", "git restore web/x.ts #c"])
+    def test_GUARD_003_shell_escapes_other_flags_and_git_options_are_denied(self, command, wt):
+        reviewer_in(wt, (command,), "deny")
 
-    def test_GUARD_003_listed_flags_are_allowed(self):
-        for command in ("git restore -W web/x.ts", "git restore -q -- web/x.ts",
-                        "git restore --worktree --quiet web/x.ts", "git restore -p web/x.ts",
-                        'git restore "web/my file.ts"', "git restore -W -q -- web/x.ts",
-                        "git restore web/a_b-c@2+x.ts"):
-            with self.subTest(command=command):
-                self.expect(["devflow:reviewer"], (command,), "allow")
+    @pytest.mark.parametrize("command", [
+        "git restore -W web/x.ts", "git restore -q -- web/x.ts",
+        "git restore --worktree --quiet web/x.ts", "git restore -p web/x.ts",
+        'git restore "web/my file.ts"', "git restore -W -q -- web/x.ts",
+        "git restore web/a_b-c@2+x.ts"])
+    def test_GUARD_003_listed_flags_are_allowed(self, command, wt):
+        reviewer_in(wt, (command,), "allow")
 
-    def test_GUARD_003_other_repository_changes_stay_denied(self):
-        self.expect(["devflow:reviewer"], (
+    def test_GUARD_003_other_repository_changes_stay_denied(self, wt):
+        reviewer_in(wt, (
             "git add -A", "git commit -m x", "git stash", "git checkout -- web/x.ts", "git reset HEAD~1",
             "rm web/x.ts", "sed -i s/a/b/ web/x.ts", "echo x > web/x.ts",
             "git restore web/x.ts > out.txt", "git restore web/x.ts && npm test"), "deny")
 
-    def test_GUARD_004_planner_may_not_git_restore(self):
-        self.expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow")
-        self.expect(["devflow:planner"], ("git restore web/x.ts",), "deny")
+    def test_GUARD_004_planner_may_not_git_restore(self, wt):
+        expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow", cwd=wt)
+        expect(["devflow:planner"], ("git restore web/x.ts",), "deny", cwd=wt)
 
-    def test_REV_007_reviewer_never_commits(self):
-        self.expect(["devflow:reviewer"], ("git commit -m x", "git commit -am x", "git add -A"), "deny")
+    def test_REV_007_reviewer_never_commits(self, wt):
+        reviewer_in(wt, ("git commit -m x", "git commit -am x", "git add -A"), "deny")
 
 
-class Implementer(Base):
+class TestImplementer:
     def test_works_on_its_branch(self):
-        self.expect(["devflow:implementer"], (
+        expect(["devflow:implementer"], (
             "git add -A", "git commit -m 'feat(M1/T1): x [MATCH-010]'", "npm test", "git status",
             "npm install zod", "uv add httpx", "git switch -c fix/x", "rm web/old.ts"), "allow")
 
     def test_does_not_merge_rewrite_or_touch_the_default_branch(self):
-        self.expect(["devflow:implementer"], (
+        expect(["devflow:implementer"], (
             "git merge main", "git rebase main", "git cherry-pick abc", "git reset --hard HEAD~1",
             "git switch main", "git checkout main", "git branch -D feat"), "deny")
 
 
-class OneCommandPerCall(Base):
+class TestOneCommandPerCall:
     def test_devflow_agents_never_chain(self):
-        self.expect(DEVFLOW_AGENTS, (
+        expect(DEVFLOW_AGENTS, (
             "npm run typecheck | tail; npm run lint | tail; git commit -m x", "cd web && npm test",
             "npm test || true", "npm test\nnpm run lint", "npx playwright test e2e | tail -20"), "deny")
 
     def test_one_command_quoted_separators_and_other_pipes_pass(self):
-        self.expect(DEVFLOW_AGENTS, ('git log --grep "a; b && c"', "git log --oneline | head -5",
-                                     "timeout 300 npm test"), "allow")
-        self.expect((MAIN,) + OTHER_AGENTS, ("npm test && npm run lint",), "allow")
+        expect(DEVFLOW_AGENTS, ('git log --grep "a; b && c"', "git log --oneline | head -5",
+                                "timeout 300 npm test"), "allow")
+        expect((MAIN,) + OTHER_AGENTS, ("npm test && npm run lint",), "allow")
 
 
-class NoWaitLoops(Base):
+class TestNoWaitLoops:
     def test_devflow_agents_do_not_poll(self):
-        self.expect(DEVFLOW_AGENTS, (
+        expect(DEVFLOW_AGENTS, (
             "sleep 100; cat out.log", "until grep -q done out.log; do sleep 5; done",
             "while true; do cat x; done", "sleep 1m", "Start-Sleep -Seconds 60"), "deny")
 
     def test_a_short_pause_and_everyone_else_pass(self):
-        self.expect(DEVFLOW_AGENTS, ("sleep 2", "timeout 120 npm test"), "allow")
-        self.expect((MAIN,) + OTHER_AGENTS, ("sleep 100", "until false; do sleep 5; done"), "allow")
+        expect(DEVFLOW_AGENTS, ("sleep 2", "timeout 120 npm test"), "allow")
+        expect((MAIN,) + OTHER_AGENTS, ("sleep 100", "until false; do sleep 5; done"), "allow")
 
 
-class Planner(Base):
+class TestPlanner:
     def test_reads_only(self):
-        self.expect(["devflow:planner"], ("git log --oneline", "git status", "ls docs"), "allow")
-        self.expect(["devflow:planner"], ("git commit -m x", "rm x", "echo x > plan.md"), "deny")
+        expect(["devflow:planner"], ("git log --oneline", "git status", "ls docs"), "allow")
+        expect(["devflow:planner"], ("git commit -m x", "rm x", "echo x > plan.md"), "deny")
 
 
-class OthersUnrestricted(Base):
+class TestOthersUnrestricted:
     def test_main_and_other_agents(self):
-        self.expect((MAIN,) + OTHER_AGENTS, ("git merge feat", "git reset --hard", "rm -rf build",
-                                             "echo hi > x.txt"), "allow")
+        expect((MAIN,) + OTHER_AGENTS, ("git merge feat", "git reset --hard", "rm -rf build",
+                                        "echo hi > x.txt"), "allow")
 
 
-class Robustness(Base):
+class TestRobustness:
     def test_no_command(self):
         code, out = run.dispatch("guard_bash", json.dumps({"hook_event_name": "PreToolUse",
-                                                          "tool_name": "Bash", "tool_input": {}}))
-        self.assertEqual((code, out), (0, ""))
-
-
-if __name__ == "__main__":
-    unittest.main()
+                                                           "tool_name": "Bash", "tool_input": {}}))
+        assert (code, out) == (0, "")
