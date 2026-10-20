@@ -15,6 +15,7 @@ sys.path.insert(0, str(HOOKS))
 
 import run  # noqa: E402
 from devflow_hooks import lib  # noqa: E402
+from devflow_hooks.pre_commit import TEST_FILE  # noqa: E402
 
 MAIN = None
 OTHER_AGENTS = ("Explore", "general-purpose", "other-plugin:helper")
@@ -167,6 +168,70 @@ class ReviewerWorktree(Base):
         got, reason = self.decide("devflow:reviewer", "web/a.ts")
         self.assertEqual(got, "deny")
         self.assertIn("worktree", reason)
+
+
+class ReviewerLimits(Base):
+    """GUARD-002: inside a real linked worktree, so a deny here is not GUARD-001's."""
+
+    make_worktree = ReviewerWorktree.make_worktree
+
+    TOOLS = (("Edit", "file"), ("Write", "file"), ("MultiEdit", "file"))
+
+    def configure(self, wt, cfg):  # the worktree holds its own copy of the committed settings
+        (wt / ".claude").mkdir(exist_ok=True)
+        (wt / ".claude" / "devflow.json").write_text(json.dumps(cfg), encoding="utf-8")
+
+    def denied(self, wt, paths):
+        for path in paths:
+            for tool, _ in self.TOOLS:
+                got, reason = self.decide("devflow:reviewer", str(wt / path), tool=tool, cwd=wt)
+                self.assertEqual(got, "deny", f"{tool} {path}: {reason}")
+
+    def allowed(self, wt, paths):
+        for path in paths:
+            for tool, _ in self.TOOLS:
+                got, reason = self.decide("devflow:reviewer", str(wt / path), tool=tool, cwd=wt)
+                self.assertEqual(got, "allow", f"{tool} {path}: {reason}")
+
+    def test_GUARD_002_reviewer_may_not_edit_test_files_in_its_worktree(self):
+        wt = self.make_worktree()
+        paths = ("tests/test_score.py", "worker/app/score_test.py", "web/score.test.ts", "web/e2e/login.spec.ts")
+        for p in paths:
+            self.assertTrue(TEST_FILE.search(p), p)  # the cases are what pre_commit calls a test file
+        self.denied(wt, paths)
+
+    def test_GUARD_002_reviewer_may_not_edit_claude_issues_plans_or_specs(self):
+        wt = self.make_worktree()
+        self.denied(wt, ("docs/issues/0001-x.md", "docs/plans/M1.md", "docs/specs/10-x.md",
+                         ".claude/settings.json"))
+
+    def test_GUARD_002_plans_and_specs_folders_come_from_config(self):
+        wt = self.make_worktree()
+        cfg = {"plans_dir": "plans", "specs_dir": "rules", "protected_paths": ["vendor/"]}
+        self.configure(wt, cfg)
+        self.denied(wt, ("plans/M1.md", "rules/10-x.md", "vendor/lib.js"))
+        self.allowed(wt, ("docs/plans/M1.md",))
+
+    def test_GUARD_002_the_defaults_apply_without_configuration(self):
+        wt = self.make_worktree()
+        self.denied(wt, ("docs/plans/M1.md", "docs/specs/10-x.md", "docs/issues/0001-x.md"))
+
+    def test_GUARD_002_reviewer_may_not_edit_protected_paths(self):
+        wt = self.make_worktree()
+        cfg = {"protected_paths": ["docs/product/", "vendor"]}
+        self.configure(wt, cfg)
+        self.denied(wt, ("docs/product/blueprint.md", "vendor/lib.js"))
+
+    def test_GUARD_002_product_code_next_to_them_is_allowed(self):
+        wt = self.make_worktree()
+        self.allowed(wt, ("web/score.ts", "worker/app/score.py", "README.md", "docs/testing.md"))
+
+    def test_REV_007_reviewer_never_writes_a_test(self):
+        wt = self.make_worktree()
+        for tool in ("Edit", "Write"):
+            for path in ("tests/test_score.py", "web/score.test.ts"):
+                got, _ = self.decide("devflow:reviewer", str(wt / path), tool=tool, cwd=wt)
+                self.assertEqual(got, "deny", f"{tool} {path}")
 
 
 class Planner(Base):
