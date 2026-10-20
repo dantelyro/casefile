@@ -4,8 +4,8 @@ import json
 import pathlib
 import subprocess
 import sys
-import tempfile
-import unittest
+
+import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "skills" / "implement" / "scripts" / "rules_coverage.py"
@@ -40,109 +40,111 @@ none
 """
 
 
-class Base(unittest.TestCase):
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.repo = pathlib.Path(self.tmp.name)
-        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=self.repo, check=True)
-        self.write("docs/specs/12-matching.md", SPEC)
-        self.write("docs/plans/M2.md", PLAN)
-
-    def tearDown(self):
-        self.tmp.cleanup()
-
-    def write(self, rel, text):
-        p = self.repo / rel
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(text, encoding="utf-8")
-
-    def coverage(self, plan="docs/plans/M2.md"):
-        proc = subprocess.run([sys.executable, str(SCRIPT), plan, "--json"], cwd=self.repo,
-                              capture_output=True, text=True, encoding="utf-8")
-        return proc.returncode, (json.loads(proc.stdout) if proc.stdout.strip() else None), proc.stderr
+def write(repo, rel, text):
+    p = repo / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(text, encoding="utf-8")
 
 
-class Coverage(Base):
-    def test_named_tests_in_both_styles(self):
-        self.write("web/score.test.ts", "it('MATCH-001: required skills weigh 70%', () => {})\n"
-                                        'test("MATCH-002 nice skills", () => {})\n')
-        self.write("worker/tests/test_title.py", "def test_MATCH_003_title_family():\n    pass\n")
-        code, out, err = self.coverage()
-        self.assertEqual(code, 0, err)
-        self.assertEqual(out["covered"], ["MATCH-001", "MATCH-002", "MATCH-003"])
-        self.assertEqual((out["missing"], out["manual"], out["later"]), ([], ["MATCH-004"], ["MATCH-005"]))
-
-    def test_a_missing_mvp_rule_fails(self):
-        self.write("web/score.test.ts", "it('MATCH-001: x', () => {})\n")
-        code, out, _ = self.coverage()
-        self.assertEqual(code, 1)
-        self.assertEqual(out["missing"], ["MATCH-002", "MATCH-003"])
-
-    def test_untracked_rules_are_reported_not_failed(self):
-        for name in ("MATCH-001", "MATCH-002", "MATCH-003"):
-            self.write(f"web/{name}.test.ts", f"it('{name}: x', () => {{}})\n")
-        code, out, _ = self.coverage()
-        self.assertEqual(code, 0)
-        self.assertEqual(out["untracked"], [{"rule": "CV-010", "tested": False}])
-        self.write("worker/tests/test_cv.py", "def test_CV_010_reads():\n    pass\n")
-        self.assertEqual(self.coverage()[1]["untracked"], [{"rule": "CV-010", "tested": True}])
+def coverage(repo, plan="docs/plans/M2.md"):
+    proc = subprocess.run([sys.executable, str(SCRIPT), plan, "--json"], cwd=repo,
+                          capture_output=True, text=True, encoding="utf-8", check=False)
+    return proc.returncode, (json.loads(proc.stdout) if proc.stdout.strip() else None), proc.stderr
 
 
-class NotATest(Base):
-    def test_mentions_outside_test_names_do_not_count(self):
-        self.write("web/score.ts", "// MATCH-001: implemented here\n")
-        self.write("web/score.test.ts", "// it('MATCH-002: commented out', () => {})\nconst x = 'MATCH-003: just text'\n")
-        self.write("worker/test_helpers.py", "def helper_MATCH_001():\n    pass\n")
-        out = self.coverage()[1]
-        self.assertEqual(out["covered"], [])
-
-    def test_test_shaped_calls_outside_test_files(self):
-        self.write("web/test-utils.ts", "export const sample = () => it('MATCH-001: not a test file', () => {})\n")
-        self.assertEqual(self.coverage()[1]["covered"], [])
-
-    def test_lookalike_ids_in_the_plan_are_not_in_scope(self):
-        self.write("docs/plans/M2.md", "# Plan: M2\n\n## Rules covered\n- MATCH-0011 → T1\n")
-        out = self.coverage()[1]
-        self.assertEqual((out["missing"], out["covered"], out["untracked"]), ([], [], []))
-
-    def test_ignored_folders_and_prefix_lookalikes(self):
-        self.write("web/node_modules/pkg/a.test.ts", "it('MATCH-001: x', () => {})\n")
-        self.write(".gitignore", "web/node_modules/\n")
-        self.write("web/a.test.ts", "it('MATCH-0011: x', () => {})\n")
-        self.assertEqual(self.coverage()[1]["covered"], [])
+@pytest.fixture
+def repo(tmp_path):
+    subprocess.run(["git", "init", "-q", "-b", "main"], cwd=tmp_path, check=True)
+    write(tmp_path, "docs/specs/12-matching.md", SPEC)
+    write(tmp_path, "docs/plans/M2.md", PLAN)
+    return tmp_path
 
 
-class Config(Base):
-    def test_specs_dir_from_config(self):
-        (self.repo / "docs/specs/12-matching.md").rename(self.repo / "docs/plans/../spec-elsewhere.md") \
-            if False else None
-        self.write("rules/12-matching.md", SPEC)
-        (self.repo / "docs/specs/12-matching.md").unlink()
-        self.write(".claude/devflow.json", '{"specs_dir": "rules"}')
-        self.write("web/a.test.ts", "it('MATCH-001: x', () => {})\n")
-        code, out, _ = self.coverage()
-        self.assertIn("MATCH-001", out["covered"])
-        self.assertEqual(out["manual"], ["MATCH-004"])
+# Coverage
+
+def test_named_tests_in_both_styles(repo):
+    write(repo, "web/score.test.ts", "it('MATCH-001: required skills weigh 70%', () => {})\n"
+                                     'test("MATCH-002 nice skills", () => {})\n')
+    write(repo, "worker/tests/test_title.py", "def test_MATCH_003_title_family():\n    pass\n")
+    code, out, err = coverage(repo)
+    assert code == 0, err
+    assert out["covered"] == ["MATCH-001", "MATCH-002", "MATCH-003"]
+    assert (out["missing"], out["manual"], out["later"]) == ([], ["MATCH-004"], ["MATCH-005"])
 
 
-class Errors(Base):
-    def test_plan_without_rules_covered(self):
-        self.write("docs/plans/M3.md", "# Plan: M3\n\n## Tasks\n")
-        code, out, _ = self.coverage("docs/plans/M3.md")
-        self.assertEqual(code, 1)
-        self.assertIn("Rules covered", out["errors"][0])
+def test_a_missing_mvp_rule_fails(repo):
+    write(repo, "web/score.test.ts", "it('MATCH-001: x', () => {})\n")
+    code, out, _ = coverage(repo)
+    assert code == 1
+    assert out["missing"] == ["MATCH-002", "MATCH-003"]
 
 
-class Siblings(Base):
-    def test_a_test_in_a_sibling_repository_covers_the_rule(self):
-        back = self.repo / "back"
-        back.mkdir()
-        subprocess.run(["git", "init", "-q", "-b", "main"], cwd=back, check=True)
-        (back / "api.test.ts").write_text("it('MATCH-001: required skills weigh 70%', () => {})\n", encoding="utf-8")
-        self.write(".claude/devflow.json", json.dumps({"repo": "frontend", "siblings": {"backend": "back"}}))
-        out = self.coverage()[1]
-        self.assertIn("MATCH-001", out["covered"])
+def test_untracked_rules_are_reported_not_failed(repo):
+    for name in ("MATCH-001", "MATCH-002", "MATCH-003"):
+        write(repo, f"web/{name}.test.ts", f"it('{name}: x', () => {{}})\n")
+    code, out, _ = coverage(repo)
+    assert code == 0
+    assert out["untracked"] == [{"rule": "CV-010", "tested": False}]
+    write(repo, "worker/tests/test_cv.py", "def test_CV_010_reads():\n    pass\n")
+    assert coverage(repo)[1]["untracked"] == [{"rule": "CV-010", "tested": True}]
 
 
-if __name__ == "__main__":
-    unittest.main()
+# Not a test
+
+def test_mentions_outside_test_names_do_not_count(repo):
+    write(repo, "web/score.ts", "// MATCH-001: implemented here\n")
+    write(repo, "web/score.test.ts", "// it('MATCH-002: commented out', () => {})\nconst x = 'MATCH-003: just text'\n")
+    write(repo, "worker/test_helpers.py", "def helper_MATCH_001():\n    pass\n")
+    out = coverage(repo)[1]
+    assert out["covered"] == []
+
+
+def test_test_shaped_calls_outside_test_files(repo):
+    write(repo, "web/test-utils.ts", "export const sample = () => it('MATCH-001: not a test file', () => {})\n")
+    assert coverage(repo)[1]["covered"] == []
+
+
+def test_lookalike_ids_in_the_plan_are_not_in_scope(repo):
+    write(repo, "docs/plans/M2.md", "# Plan: M2\n\n## Rules covered\n- MATCH-0011 → T1\n")
+    out = coverage(repo)[1]
+    assert (out["missing"], out["covered"], out["untracked"]) == ([], [], [])
+
+
+def test_ignored_folders_and_prefix_lookalikes(repo):
+    write(repo, "web/node_modules/pkg/a.test.ts", "it('MATCH-001: x', () => {})\n")
+    write(repo, ".gitignore", "web/node_modules/\n")
+    write(repo, "web/a.test.ts", "it('MATCH-0011: x', () => {})\n")
+    assert coverage(repo)[1]["covered"] == []
+
+
+# Config
+
+def test_specs_dir_from_config(repo):
+    write(repo, "rules/12-matching.md", SPEC)
+    (repo / "docs/specs/12-matching.md").unlink()
+    write(repo, ".claude/devflow.json", '{"specs_dir": "rules"}')
+    write(repo, "web/a.test.ts", "it('MATCH-001: x', () => {})\n")
+    _, out, _ = coverage(repo)
+    assert "MATCH-001" in out["covered"]
+    assert out["manual"] == ["MATCH-004"]
+
+
+# Errors
+
+def test_plan_without_rules_covered(repo):
+    write(repo, "docs/plans/M3.md", "# Plan: M3\n\n## Tasks\n")
+    code, out, _ = coverage(repo, "docs/plans/M3.md")
+    assert code == 1
+    assert "Rules covered" in out["errors"][0]
+
+
+# Siblings
+
+def test_a_test_in_a_sibling_repository_covers_the_rule(repo):
+    back = repo / "back"
+    back.mkdir()
+    subprocess.run(["git", "init", "-q", "-b", "main"], cwd=back, check=True)
+    (back / "api.test.ts").write_text("it('MATCH-001: required skills weigh 70%', () => {})\n", encoding="utf-8")
+    write(repo, ".claude/devflow.json", json.dumps({"repo": "frontend", "siblings": {"backend": "back"}}))
+    out = coverage(repo)[1]
+    assert "MATCH-001" in out["covered"]
