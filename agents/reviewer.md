@@ -56,7 +56,8 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
   A RED that is only a missing module, a missing name or an import error, or no RED at all, is a
   major finding: it never showed the test can catch the behaviour missing. `RED: none — <test> passed
   on first run` is a major finding when the diff touches product code; when it touches only tests, the
-  BREAKS are the proof they can fail (REV-008).
+  BREAKS are the proof they can fail (REV-008). It is not a finding on a task the plan marks
+  `Test first: none (no test: …)`.
 - **Tests can fail.** Judged from the breaks you ran in step 4, not from the report. A plausible break
   that slips past a rule's main test is a major finding, for any rule — never minor. For a bug fix, undo
   the fix: if the issue's test stays green, the test does not prove the bug is gone.

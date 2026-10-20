@@ -25,7 +25,8 @@ redo by hand what they report.
   else `main`).
 - The milestone has rules: its scope in the build order, and `### RULE-ID · …` headings in the
   specs for them; no tag is needed, and every rule is planned except `[LATER]` and `[VERIFY]` ones.
-  None → stop and say the specs come first.
+  None → stop and say the specs come first. Every rule `[LATER]` or `[VERIFY]` → stop too, and say
+  what each waits on.
 - `.claude/devflow.json` exists and `.claude/settings.json` has `"worktree": { "baseRef": "head" }`.
   Either missing → propose them as `review` does (step 2), write and commit them after the
   developer's yes. Without the setting, every agent branches from the remote and misses the specs,
@@ -96,7 +97,7 @@ tasks done and blocked (with reasons), issues opened and fixed during the milest
 scope as `rules_coverage.py` reports it (covered by a test, untested with its reason, or missing), the
 `[MANUAL]` rules as the developer's checklist to test by hand, the sibling tasks still open
 (`elsewhere`) and which repository builds them, and what the developer has to decide next, missing
-rules included.
+rules and `[VERIFY]` rules waiting on the developer's answer included.
 
 ## Rules
 

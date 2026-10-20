@@ -68,6 +68,7 @@ What exists already: <what the code already has that the tasks build on>
   rule states — a test value, an extra condition, a data shape — starts with `Planner choice:`>
 
 ## Rules covered
+- <RULE-ID>, <RULE-ID> → <task IDs>
 - TOOL-004 → T4
 - REV-001 → T4 (no test: agent prose, checked by hand)
 

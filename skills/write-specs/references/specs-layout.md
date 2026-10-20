@@ -46,8 +46,9 @@ Written once, for a new project:
 How this project is built:
 
 1. **Spec first.** Every feature has a file here. Each rule has an ID (`MATCH-003`).
-2. **Test second.** Before any code, a failing test whose name starts with the rule ID
-   (`it("MATCH-003: …")`, `def test_MATCH_003_…`).
+2. **Test second.** For a rule that describes what the project's code does, a failing test whose
+   name starts with the rule ID comes before any code (`it("MATCH-003: …")`,
+   `def test_MATCH_003_…`).
 3. **Code third.** The least code that makes it pass, then refactor.
 4. **Trace.** Every rule that describes what the project's code does has a test named after it; a rule left untested states why on its plan line (`rules_coverage.py`).
 5. **Change.** To change behaviour: spec (a new or changed ID) → test → code. Never the other way round.
