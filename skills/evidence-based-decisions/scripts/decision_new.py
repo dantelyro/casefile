@@ -13,7 +13,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from decision_next_id import next_id  # noqa: E402
+from decision_next_id import next_id
 
 
 def slug(title: str) -> str:

@@ -18,6 +18,7 @@ Open issues are read through fix-bug's issues_status.py, never parsed twice. Sta
 import argparse
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -25,7 +26,7 @@ import sys
 TASK = re.compile(r"^### ([A-Z]\d+[a-z]?) · (.+)$")  # T3, F1 (fix tasks), T3b
 FIELD = re.compile(r"^- (Status|Depends on|Parallel-safe with|Repo|Notes):\s*(.*)$")
 STATUS = re.compile(r"^(todo|in-progress)$|^done \(([0-9a-f]{7,40})\)$|^blocked: (.+)$")
-CHOICE = re.compile(r"Planner choice:\s*", re.I)
+CHOICE = re.compile(r"Planner choice:\s*", re.IGNORECASE)
 ISSUES_STATUS = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "..", "..", "fix-bug", "scripts", "issues_status.py")
 
@@ -38,10 +39,10 @@ def task_ids(text: str) -> list[str]:
 
 def plan_blockers(plan_text: str) -> set[str]:
     """IDs that open an item of the `## Blockers` section: `- B18 (needs Gabriel): ...`."""
-    m = re.search(r"^## Blockers\s*$(.*?)(?=^## |\Z)", plan_text, re.M | re.S)
+    m = re.search(r"^## Blockers\s*$(.*?)(?=^## |\Z)", plan_text, re.MULTILINE | re.DOTALL)
     if not m:
         return set()
-    return set(re.findall(r"^\s*[-*]\s+\**([A-Z]\d+[a-z]?)(?![\w-])", m.group(1), re.M))
+    return set(re.findall(r"^\s*[-*]\s+\**([A-Z]\d+[a-z]?)(?![\w-])", m.group(1), re.MULTILINE))
 
 
 def parse(plan_text: str) -> tuple[list[dict], list[str]]:
@@ -95,7 +96,7 @@ def config(root: str) -> dict:
 def take_sibling_statuses(tasks: list[dict], plan: str, errors: list[str]) -> list[dict]:
     """Marks the tasks another repository builds, with the status its own copy of the plan gives."""
     root = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True,
-                          text=True).stdout.strip() or os.getcwd()
+                          text=True, check=False).stdout.strip() or os.getcwd()
     cfg = config(root)
     siblings = cfg.get("siblings") or {}
     if not siblings:
@@ -117,7 +118,7 @@ def take_sibling_statuses(tasks: list[dict], plan: str, errors: list[str]) -> li
         if name not in copies:
             path = os.path.join(root, siblings[name], rel)
             try:
-                copies[name] = {s["id"]: s for s in parse(open(path, encoding="utf-8").read())[0]}
+                copies[name] = {s["id"]: s for s in parse(pathlib.Path(path).read_text(encoding="utf-8"))[0]}
             except OSError as e:
                 copies[name] = {}
                 errors.append(f"{name}: its copy of the plan, {path}, cannot be read: {e.strerror}")
@@ -135,7 +136,7 @@ def blocking_issues(plan: str, task: str) -> list[str]:
     if not os.path.isdir(os.path.join("docs", "issues")):
         return []
     out = subprocess.run([sys.executable, ISSUES_STATUS, "--blocks", plan, task, "--json"],
-                         capture_output=True, text=True, encoding="utf-8")
+                         capture_output=True, text=True, encoding="utf-8", check=False)
     try:
         return json.loads(out.stdout)["blocking"]
     except (ValueError, KeyError):
@@ -151,7 +152,7 @@ def main() -> None:
 
     plan = args.plan.replace("\\", "/")
     try:
-        text = open(plan, encoding="utf-8").read()
+        text = pathlib.Path(plan).read_text(encoding="utf-8")
     except OSError as e:
         print(json.dumps({"errors": [f"{plan}: {e.strerror}"]}) if args.json else f"ERROR {plan}: {e.strerror}")
         sys.exit(1)

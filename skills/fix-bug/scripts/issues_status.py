@@ -15,6 +15,7 @@ Standard library only (D-027).
 import argparse
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -30,7 +31,7 @@ BACKTICKED = re.compile(r"`([^`]+)`")
 
 def git(root, *args):
     return subprocess.run(["git", "-C", root, *args], capture_output=True, text=True,
-                          encoding="utf-8", errors="replace")
+                          encoding="utf-8", errors="replace", check=False)
 
 
 def repo_root() -> str:
@@ -53,7 +54,7 @@ def parse(path: str, name: str) -> tuple[dict | None, list[str]]:
     m = FILE.match(name)
     if not m:
         return None, [f"{name}: file name is not NNNN-kebab-slug.md"]
-    lines = open(path, encoding="utf-8").read().splitlines()
+    lines = pathlib.Path(path).read_text(encoding="utf-8").splitlines()
     title = TITLE.match(lines[0]) if lines else None
     if not title:
         return None, [f"{name}: first line must be `# I-NNNN — Title`"]
