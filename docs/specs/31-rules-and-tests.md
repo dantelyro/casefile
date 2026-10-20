@@ -17,7 +17,7 @@ Then every rule in it is planned except `[LATER]` and `[VERIFY]` ones; `implemen
 something to be confirmed before it is built: a fact about an outside system, or the developer's answer
 to a question the rule depends on; the tag comes off once it is confirmed.
 
-### RULE-003 · [MANUAL] is the developer's to test by hand      [MANUAL]
+### RULE-003 · MANUAL rules are the developer's to test by hand      [MANUAL]
 Given a rule the AI has no way to test (an agent's or skill's behaviour, a live run, how a screen
 feels)
 When it is specified and its milestone finishes

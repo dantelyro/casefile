@@ -161,15 +161,15 @@ def test_RULE_001_a_heading_with_no_title_does_not_parse(repo):
     "[LATER]",
     "Sign in     [mvp]",
     "Sign in [MVP] (old)",
+    "[MVP] Sign in",
+    "[MVP] Sign in     [LATER]",
+    "[mvp] Sign in",
+    "[SOON] Sign in",
+    "[MANUAL] is the developer's to test",
 ])
-def test_RULE_001_a_tag_not_set_off_or_a_title_of_only_tags_does_not_parse(repo, title):
+def test_RULE_001_a_bracketed_word_in_a_title_does_not_parse(repo, title):
     edit(repo, "docs/specs/10-auth.md", "Sign in with email", title)
     assert_error(repo, "docs/specs/10-auth.md:3", "AUTH-001", "does not parse")
-
-
-def test_RULE_001_a_title_may_open_with_a_bracketed_word(repo):
-    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "[MANUAL] is the developer's to test")
-    assert lint(repo)[1]["errors"] == []
 
 
 def test_RULE_001_the_mvp_error_cites_the_decision(repo):
