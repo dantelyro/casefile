@@ -14,7 +14,9 @@ and `[MVP]` is an error that says to remove the tag. No rule in `docs/specs/` ca
 Given a milestone's rules
 When the planner and `implement` take its scope
 Then every rule in it is planned except `[LATER]` and `[VERIFY]` ones; `implement` no longer requires
-`[MVP]` headings, and `write-specs` never writes `[MVP]`.
+`[MVP]` headings, and `write-specs` never writes `[MVP]`. `[VERIFY]` marks a rule that waits for
+something to be confirmed before it is built: a fact about an outside system, or the developer's answer
+to a question the rule depends on; the tag comes off once it is confirmed.
 
 ### RULE-003 · [MANUAL] is the developer's to test by hand      [MANUAL]
 Given a rule the AI has no way to test (an agent's or skill's behaviour, a live run, how a screen
