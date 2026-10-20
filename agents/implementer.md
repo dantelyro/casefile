@@ -60,7 +60,7 @@ TASK: <plan task or issue id>
 BRANCH: <your worktree branch>
 COMMIT: <hash or "none">
 RULES: <rule IDs covered by passing tests>
-RED: <per rule test: the failing assertion, quoted from the run>
+RED: <per rule test: the failing assertion, quoted from the run | none — <test> passed on first run>
 TESTS: <per app: test files, then command → unit and integration counts, separately>
 FILES: <files created or changed>
 NOTES: <what the reviewer should look at; why blocked; bugs found elsewhere>
