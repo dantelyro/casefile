@@ -126,10 +126,63 @@ class Reviewer(Base):
     def test_changes_nothing(self):
         self.expect(["devflow:reviewer"], (
             "git add -A", "git commit -m x", "git merge feat", "git rebase main", "git reset HEAD~1",
-            "git stash", "git checkout -- web/x.ts", "git restore web/x.ts", "git branch -d feat",
+            "git stash", "git checkout -- web/x.ts", "git branch -d feat",
             "rm web/x.ts", "mv a b", "echo hi > notes.txt", "cat x >> y", "Remove-Item x",
             "Set-Content x hi", "sed -i s/a/b/ web/x.ts", "git switch feat", "git cherry-pick abc"),
             "deny")
+
+
+class Restore(Base):
+    def test_GUARD_003_reviewer_may_git_restore_paths(self):
+        self.expect(["devflow:reviewer"], (
+            "git restore web/x.ts", "git restore -- web/x.ts", "git restore web/a.ts web/b.ts",
+            "git restore -- -odd-name.ts"), "allow")
+
+    def test_GUARD_003_restore_without_a_path_is_denied(self):
+        self.expect(["devflow:reviewer"], ("git restore", "git restore --"), "deny")
+
+    def test_GUARD_003_restore_with_staged_or_source_is_denied(self):
+        self.expect(["devflow:reviewer"], (
+            "git restore --staged web/x.ts", "git restore -S web/x.ts",
+            "git restore --source HEAD~1 web/x.ts", "git restore -s HEAD~1 web/x.ts",
+            "git restore --source=HEAD~1 web/x.ts", "git restore -sHEAD~1 web/x.ts",
+            "git restore -SW web/x.ts", "git restore --stag web/x.ts",
+            "git restore --sou=HEAD~1 web/x.ts", "git restore --so HEAD~1 web/x.ts",
+            'git restore "--staged" web/x.ts', "git restore '-s' HEAD~1 web/x.ts",
+            'git restore --sta""ged web/x.ts'), "deny")
+
+    def test_GUARD_003_shell_escapes_other_flags_and_git_options_are_denied(self):
+        for command in (r"git restore --st\aged web/x.ts", "git restore $'--staged' web/x.ts",
+                        "git restore web/x.ts --$(echo staged)", "git -C ../other restore web/x.ts",
+                        "git restore --ours web/x.ts", "git restore web/x.ts `echo --staged`",
+                        "git --git-dir=../o/.git restore web/x.ts", "git restore -Wq web/x.ts",
+                        "git restore web/x.ts <(echo hi)", "git restore web/x.ts {--staged,}",
+                        "git restore web/x.ts *", "git restore ~/x.ts", "git restore web/x.ts !!",
+                        "git restore 'web/a(1).ts'", 'git restore "web/$x.ts"',
+                        "git restore web/x.ts ?", "git restore web/[xy].ts", "git restore web/x.ts #c"):
+            with self.subTest(command=command):
+                self.expect(["devflow:reviewer"], (command,), "deny")
+
+    def test_GUARD_003_listed_flags_are_allowed(self):
+        for command in ("git restore -W web/x.ts", "git restore -q -- web/x.ts",
+                        "git restore --worktree --quiet web/x.ts", "git restore -p web/x.ts",
+                        'git restore "web/my file.ts"', "git restore -W -q -- web/x.ts",
+                        "git restore web/a_b-c@2+x.ts"):
+            with self.subTest(command=command):
+                self.expect(["devflow:reviewer"], (command,), "allow")
+
+    def test_GUARD_003_other_repository_changes_stay_denied(self):
+        self.expect(["devflow:reviewer"], (
+            "git add -A", "git commit -m x", "git stash", "git checkout -- web/x.ts", "git reset HEAD~1",
+            "rm web/x.ts", "sed -i s/a/b/ web/x.ts", "echo x > web/x.ts",
+            "git restore web/x.ts > out.txt", "git restore web/x.ts && npm test"), "deny")
+
+    def test_GUARD_004_planner_may_not_git_restore(self):
+        self.expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow")
+        self.expect(["devflow:planner"], ("git restore web/x.ts",), "deny")
+
+    def test_REV_007_reviewer_never_commits(self):
+        self.expect(["devflow:reviewer"], ("git commit -m x", "git commit -am x", "git add -A"), "deny")
 
 
 class Implementer(Base):
