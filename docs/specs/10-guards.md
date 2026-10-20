@@ -21,12 +21,21 @@ Then the write is denied. The reviewer breaks product code; it does not change t
 
 ### GUARD-003 · The reviewer may restore files with git restore      [MVP]
 Given `devflow:reviewer` runs a command
-When it is `git restore` with one or more paths, and without `--staged`, `-S`, `--source` or `-s`
+When the whole command is one `git restore` statement whose every word is one of the flags `-W`,
+`--worktree`, `-p`, `--patch`, `-q`, `--quiet`, `--`, or a path of plain characters (letters, digits,
+`. _ - / @ +`, and spaces only inside quotes), with at least one path
 Then it is allowed
-And `git restore` with none of those paths, or with any of those flags, is denied, as are `git add`,
-`commit`, `stash`, `checkout`, `reset`, file-changing shell and redirects into files.
+And any other `git restore` is denied — no path, any other flag (`--staged`, `-S`, `--source`, `-s`
+and their abbreviations among them), a git option before `restore`, or any other character — as are
+`git add`, `commit`, `stash`, `checkout`, `reset`, file-changing shell and redirects into files.
 
 ### GUARD-004 · The planner stays read-only      [MVP]
 Given `devflow:planner` runs a command
 When it is `git restore`
 Then it is denied, as every other repository-changing command is.
+
+### GUARD-005 · The reviewer restores only in its own worktree      [MVP]
+Given `devflow:reviewer` runs a `git restore` that GUARD-003 allows
+When its working folder (`cwd`) is not a linked worktree: the main checkout, outside any repository,
+or git cannot tell
+Then it is denied, the reason saying breaks happen only in the reviewer's own worktree. See D-045.
