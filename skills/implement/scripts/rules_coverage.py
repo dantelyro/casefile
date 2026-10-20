@@ -19,6 +19,7 @@ Files are the repository's and each sibling repository's (`siblings` in devflow.
 import argparse
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -45,18 +46,18 @@ def main() -> None:
     args = ap.parse_args()
 
     root = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True,
-                          text=True).stdout.strip() or os.getcwd()
+                          text=True, check=False).stdout.strip() or os.getcwd()
     cfg = config(root)
     rule = cfg.get("rule_id_pattern") or DEFAULT_RULE
     specs_dir = os.path.join(root, *(cfg.get("specs_dir") or "docs/specs").split("/"))
     errors = []
 
     try:
-        plan_text = open(args.plan, encoding="utf-8").read()
+        plan_text = pathlib.Path(args.plan).read_text(encoding="utf-8")
     except OSError as e:
         plan_text, errors = "", [f"{args.plan}: {e.strerror}"]
     scope: list[str] = []
-    m = re.search(r"^## Rules covered\s*$(.*?)(?=^## |\Z)", plan_text, re.M | re.S)
+    m = re.search(r"^## Rules covered\s*$(.*?)(?=^## |\Z)", plan_text, re.MULTILINE | re.DOTALL)
     if m:
         for line in m.group(1).splitlines():
             if line.startswith("- "):
@@ -69,23 +70,24 @@ def main() -> None:
     heading = re.compile(rf"^### ({rule})\b(.*)$")
     for name in sorted(os.listdir(specs_dir)) if os.path.isdir(specs_dir) else []:
         if name.endswith(".md") and name.lower() != "readme.md":
-            for line in open(os.path.join(specs_dir, name), encoding="utf-8").read().splitlines():
+            for line in pathlib.Path(specs_dir, name).read_text(encoding="utf-8").splitlines():
                 h = heading.match(line)
                 if h:
                     tags[h.group(1)] = set(TAG.findall(h.group(2)))
 
     repo_files = [(repo, subprocess.run(["git", "-C", repo, "ls-files", "--cached", "--others", "--exclude-standard"],
-                                        capture_output=True, text=True, encoding="utf-8").stdout.splitlines())
+                                        capture_output=True, text=True, encoding="utf-8",
+                                        check=False).stdout.splitlines())
                   for repo in [root] + [os.path.join(root, p) for p in (cfg.get("siblings") or {}).values()]]
     named: set[str] = set()
     js_name = re.compile(rf"""(?<![.\w])(?:it|test)(?:\.\w+)*\s*\(\s*["'`]({rule})[:\s]""")
-    py_name = re.compile(r"^\s*(?:async\s+)?def test_([A-Z]+)_(\d+)_", re.M)
+    py_name = re.compile(r"^\s*(?:async\s+)?def test_([A-Z]+)_(\d+)_", re.MULTILINE)
     for repo, files in repo_files:
         for rel in files:
             if not TEST_FILE.search(rel):
                 continue
             try:
-                text = open(os.path.join(repo, rel), encoding="utf-8").read()
+                text = pathlib.Path(repo, rel).read_text(encoding="utf-8")
             except (OSError, UnicodeDecodeError):
                 continue
             if rel.endswith(".py"):

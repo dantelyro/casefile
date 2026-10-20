@@ -40,15 +40,15 @@ def read(path: str) -> str:
 
 def build_order_section(text: str, html: bool) -> str | None:
     if html:
-        m = re.search(r"<(h[1-6]|span|div|p|header)\b[^>]*>\s*Build order\s*</\1>", text, re.I)
+        m = re.search(r"<(h[1-6]|span|div|p|header)\b[^>]*>\s*Build order\s*</\1>", text, re.IGNORECASE)
         if not m:
             return None
         end = text.find("</section>", m.end())
         return text[m.end(): end if end != -1 else len(text)]
-    m = re.search(r"^(#+)\s*Build order\s*$", text, re.M | re.I)
+    m = re.search(r"^(#+)\s*Build order\s*$", text, re.MULTILINE | re.IGNORECASE)
     if not m:
         return None
-    nxt = re.search(rf"^#{{1,{len(m.group(1))}}}\s", text[m.end():], re.M)
+    nxt = re.search(rf"^#{{1,{len(m.group(1))}}}\s", text[m.end():], re.MULTILINE)
     return text[m.end(): m.end() + nxt.start() if nxt else len(text)]
 
 
@@ -58,7 +58,7 @@ def main() -> None:
     a = ap.parse_args()
 
     root = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True,
-                          text=True).stdout.strip() or os.getcwd()
+                          text=True, check=False).stdout.strip() or os.getcwd()
     cfg = config(root)
     rule = cfg.get("rule_id_pattern") or DEFAULT_RULE
     specs_rel = (cfg.get("specs_dir") or "docs/specs").strip("/")
@@ -99,7 +99,7 @@ def main() -> None:
         if not os.path.exists(readme):
             errors.append(f"{specs_rel}/README.md: missing; it holds the file table")
         else:
-            listed = set(re.findall(r"^\|\s*\[[^\]]*\]\(([^)#\s]+\.md)\)", read(readme), re.M))
+            listed = set(re.findall(r"^\|\s*\[[^\]]*\]\(([^)#\s]+\.md)\)", read(readme), re.MULTILINE))
             for name in sorted(set(files) - listed):
                 errors.append(f"{specs_rel}/README.md: file table does not list {name}")
             for name in sorted(listed - set(files)):
@@ -121,7 +121,7 @@ def main() -> None:
     if os.path.exists(pd):
         text = read(pd)
         for target in re.findall(r"\]\(([^)\s]+)\)", text):
-            if re.match(r"^[a-z][a-z0-9+.-]*:", target, re.I):
+            if re.match(r"^[a-z][a-z0-9+.-]*:", target, re.IGNORECASE):
                 continue
             path = target.split("#")[0]
             if path and not os.path.exists(os.path.normpath(os.path.join(os.path.dirname(pd), path))):
