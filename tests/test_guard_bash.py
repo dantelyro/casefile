@@ -2,14 +2,18 @@
 
 import json
 import pathlib
+import subprocess
 import sys
+import tempfile
 import unittest
+from unittest import mock
 
 HOOKS = pathlib.Path(__file__).resolve().parent.parent / "hooks"
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(HOOKS))
 
 import run  # noqa: E402
+from devflow_hooks import lib  # noqa: E402
 
 MAIN = None
 OTHER_AGENTS = ("Explore", "general-purpose", "other-plugin:helper")
@@ -18,10 +22,12 @@ EVERY_AGENT = OTHER_AGENTS + DEVFLOW_AGENTS
 EVERYONE = (MAIN,) + EVERY_AGENT
 
 
-def event(agent, command, tool="Bash"):
+def event(agent, command, tool="Bash", cwd=None):
     e = json.loads((FIXTURES / "bash_main.json").read_text(encoding="utf-8"))
     e["tool_name"] = tool
     e["tool_input"] = {"command": command}
+    if cwd:
+        e["cwd"] = str(cwd)
     e.pop("agent_type", None)
     if agent:
         e["agent_type"] = agent
@@ -29,9 +35,9 @@ def event(agent, command, tool="Bash"):
     return e
 
 
-def decide(agent, command, tool="Bash"):
+def decide(agent, command, tool="Bash", cwd=None):
     """'allow', 'ask' or 'deny', plus the reason."""
-    code, out = run.dispatch("guard_bash", json.dumps(event(agent, command, tool)))
+    code, out = run.dispatch("guard_bash", json.dumps(event(agent, command, tool, cwd)))
     assert code == 0, (code, out)
     if not out:
         return "allow", ""
@@ -40,10 +46,10 @@ def decide(agent, command, tool="Bash"):
 
 
 class Base(unittest.TestCase):
-    def expect(self, agents, commands, decision, tool="Bash"):
+    def expect(self, agents, commands, decision, tool="Bash", cwd=None):
         for agent in agents:
             for command in commands:
-                got, reason = decide(agent, command, tool)
+                got, reason = decide(agent, command, tool, cwd)
                 self.assertEqual(got, decision, f"{agent!r}: {command!r} → {got}: {reason}")
 
 
@@ -133,6 +139,51 @@ class Reviewer(Base):
 
 
 class Restore(Base):
+    """GUARD-003 and GUARD-004, run inside a real linked worktree (GUARD-005 decides elsewhere)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.repo = pathlib.Path(self.tmp.name) / "repo"
+        self.repo.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True)
+        subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
+                        "--allow-empty", "-m", "i"], cwd=self.repo, check=True)
+        self.wt = self.repo / ".claude" / "worktrees" / "agent-1"
+        subprocess.run(["git", "worktree", "add", "-q", str(self.wt)], cwd=self.repo, check=True)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def expect(self, agents, commands, decision, tool="Bash", cwd=None):
+        super().expect(agents, commands, decision, tool, cwd or self.wt)
+
+    def test_GUARD_005_reviewer_restore_allowed_in_its_worktree(self):
+        self.expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow", cwd=self.wt)
+        (self.wt / "web").mkdir()
+        self.expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow", cwd=self.wt / "web")
+
+    def test_GUARD_005_reviewer_restore_denied_outside_a_linked_worktree(self):
+        outside = pathlib.Path(self.tmp.name) / "plain"
+        outside.mkdir()
+        for where in (self.repo, outside):
+            with self.subTest(cwd=str(where)):
+                got, reason = decide("devflow:reviewer", "git restore web/x.ts", cwd=where)
+                self.assertEqual(got, "deny", reason)
+                self.assertIn("worktree", reason)
+        failures = (mock.patch.object(lib.subprocess, "run", side_effect=OSError("no git")),
+                    mock.patch.object(lib.subprocess, "run",
+                                      return_value=mock.Mock(returncode=128, stdout="", stderr="fatal")))
+        for failing in failures:
+            with self.subTest(failing=failing):
+                with failing:
+                    got, reason = decide("devflow:reviewer", "git restore web/x.ts", cwd=self.wt)
+                self.assertEqual(got, "deny", reason)
+                self.assertIn("worktree", reason)
+
+    def test_GUARD_005_location_does_not_change_other_decisions(self):
+        self.expect(["devflow:reviewer"], ("git status",), "allow", cwd=self.repo)
+        self.expect(["devflow:planner"], ("git restore web/x.ts",), "deny", cwd=self.wt)
+
     def test_GUARD_003_reviewer_may_git_restore_paths(self):
         self.expect(["devflow:reviewer"], (
             "git restore web/x.ts", "git restore -- web/x.ts", "git restore web/a.ts web/b.ts",

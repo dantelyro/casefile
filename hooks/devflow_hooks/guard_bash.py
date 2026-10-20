@@ -6,6 +6,7 @@ its program and arguments. Claude Code's `if` filter is best-effort, so this hoo
 without one and checks every command itself.
 """
 
+import os
 import re
 
 from devflow_hooks import lib
@@ -164,7 +165,7 @@ def _read_only_violation(s: Statement) -> str | None:
 
 _RESTORE_FLAGS = {"-W", "--worktree", "-p", "--patch", "-q", "--quiet"}
 _PLAIN = r"[A-Za-z0-9._/@+-]+"
-_QUOTED_PATH = r"\"[A-Za-z0-9._/@+ -]*\"|'[A-Za-z0-9._/@+ -]*'"
+_QUOTED_PATH = r"\"[A-Za-z0-9._/@+ -]+\"|'[A-Za-z0-9._/@+ -]+'"
 _WORD = rf"(?:{_QUOTED_PATH}|{_PLAIN})"
 _RESTORE_COMMAND = re.compile(rf"git restore(?:[ \t]+{_WORD})+")
 
@@ -259,6 +260,9 @@ def main(event: dict) -> None:
         for s in parsed:
             why = _read_only_violation(s)
             if why and role == "reviewer" and _restores_worktree_paths(command):
+                if lib._linked_worktree_dir(event.get("cwd") or os.getcwd()) is None:
+                    lib.deny("the reviewer restores files only in its own worktree: breaks happen only "
+                             f"in a linked worktree, and this folder is not one. (`{shown}`)")
                 why = None
             if why:
                 lib.deny(f"the {role} only reads: {why}. (`{shown}`)")
