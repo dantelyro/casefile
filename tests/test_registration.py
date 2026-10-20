@@ -3,7 +3,6 @@
 import json
 import pathlib
 import re
-import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HOOKS = json.loads((ROOT / "hooks" / "hooks.json").read_text(encoding="utf-8"))["hooks"]
@@ -21,37 +20,35 @@ def entries():
                 yield event, group.get("matcher", ""), hook, m.group(1) if m else None
 
 
-class Registration(unittest.TestCase):
-    def test_every_command_uses_the_starter(self):
-        for event, matcher, hook, name in entries():
-            self.assertIsNotNone(name, hook["command"])
-            self.assertNotIn("shell", hook, "no shell: sh on macOS/Linux, Git Bash on Windows")
-            self.assertNotIn("args", hook)
-
-    def test_registered_names_and_modules_match(self):
-        self.assertEqual({name for *_, name in entries()}, MODULES)
-
-    def test_guards_fail_closed(self):
-        for event, matcher, hook, name in entries():
-            if name in GUARDS:
-                self.assertEqual(hook.get("onFailure"), "block", name)
-                self.assertIn("timeout", hook, name)
-            else:
-                self.assertNotIn("onFailure", hook, f"{name} only adds context and must never block")
-
-    def test_no_if_filters(self):
-        for event, matcher, hook, name in entries():
-            self.assertNotIn("if", hook, f"{name}: the `if` filter is best-effort; the hook checks itself")
-
-    def test_what_fires_where(self):
-        where = {(event, name): matcher for event, matcher, hook, name in entries()}
-        self.assertEqual(where[("SessionStart", "session_start")], "startup|clear|compact")
-        for name in ("guard_bash", "pre_commit"):
-            self.assertEqual(set(where[("PreToolUse", name)].split("|")), {"Bash", "PowerShell"})
-        for name in ("guard_paths", "design_check"):
-            self.assertEqual(set(where[("PreToolUse", name)].split("|")),
-                             {"Edit", "Write", "MultiEdit", "NotebookEdit"})
+def test_every_command_uses_the_starter():
+    for _event, _matcher, hook, name in entries():
+        assert name is not None, hook["command"]
+        assert "shell" not in hook, "no shell: sh on macOS/Linux, Git Bash on Windows"
+        assert "args" not in hook
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_registered_names_and_modules_match():
+    assert {name for *_, name in entries()} == MODULES
+
+
+def test_guards_fail_closed():
+    for _event, _matcher, hook, name in entries():
+        if name in GUARDS:
+            assert hook.get("onFailure") == "block", name
+            assert "timeout" in hook, name
+        else:
+            assert "onFailure" not in hook, f"{name} only adds context and must never block"
+
+
+def test_no_if_filters():
+    for _event, _matcher, hook, name in entries():
+        assert "if" not in hook, f"{name}: the `if` filter is best-effort; the hook checks itself"
+
+
+def test_what_fires_where():
+    where = {(event, name): matcher for event, matcher, _hook, name in entries()}
+    assert where[("SessionStart", "session_start")] == "startup|clear|compact"
+    for name in ("guard_bash", "pre_commit"):
+        assert set(where[("PreToolUse", name)].split("|")) == {"Bash", "PowerShell"}
+    for name in ("guard_paths", "design_check"):
+        assert set(where[("PreToolUse", name)].split("|")) == {"Edit", "Write", "MultiEdit", "NotebookEdit"}
