@@ -1,8 +1,10 @@
 """spec_lint.py [--json] — check that a project's specs hold together.
 
-- every rule heading parses: `### MATCH-010 · Title     [MVP]` (other `###` headings are not rules);
+- every rule heading parses: `### MATCH-010 · Title`, optionally followed by tags (other `###`
+  headings are not rules);
 - rule IDs are unique across the spec files;
-- every tag is MVP, LATER, VERIFY or MANUAL; a rule may carry several (`[MVP][VERIFY]`);
+- every tag is LATER, VERIFY or MANUAL, and a rule may carry several (`[LATER][VERIFY]`); `[MVP]` is
+  an error, since a rule needs no tag (D-049);
 - every rule ID named in the build order's section exists (`build_order`, default
   docs/product/blueprint.html; HTML or Markdown). No build order file yet is a warning;
 - every relative link, `D-NNN` and rule ID in docs/product/product-decisions.md reaches a file, a
@@ -21,7 +23,7 @@ import subprocess
 import sys
 
 DEFAULT_RULE = r"[A-Z]+-\d{3}"
-TAGS = {"MVP", "LATER", "VERIFY", "MANUAL"}
+TAGS = {"LATER", "VERIFY", "MANUAL"}
 DECISION = re.compile(r"(?<![\w-])D-(\d{3,})([a-z]?)(?![\w-])")
 
 
@@ -66,7 +68,7 @@ def main() -> None:
     specs_dir = os.path.join(root, *specs_rel.split("/"))
     rule_id = re.compile(rf"(?<![\w-])({rule})(?![\w-])")
     heading_id = re.compile(rf"^###\s+({rule})(?![\w-])")
-    heading = re.compile(rf"^###\s+({rule}) · (\S.*?)\s+((?:\[[A-Z]+\]\s*)+)$")
+    heading = re.compile(rf"^###\s+({rule}) · (\S.*?)(?:\s+((?:\[[A-Z]+\]\s*)+))?\s*$")
     errors: list[str] = []
     warnings: list[str] = []
     rules: dict[str, str] = {}
@@ -82,13 +84,17 @@ def main() -> None:
                 continue
             where = f"{specs_rel}/{name}:{no}"
             h = heading.match(line)
-            if not h:
+            # a square-bracket pair in the title (full-width too) is a tag that is not set off by a
+            # space, is in lower case or oddly spelt, is followed by text, or stands alone as the title
+            if not h or re.search(r"[\[［][^\]］]*[\]］]", h.group(2)):
                 errors.append(f"{where}: rule heading does not parse, expected "
-                              f"`### {heading_id.match(line).group(1)} · Title     [MVP]`")
+                              f"`### {heading_id.match(line).group(1)} · Title`")
                 continue
-            for tag in re.findall(r"\[([A-Z]+)\]", h.group(3)):
-                if tag not in TAGS:
-                    errors.append(f"{where}: {h.group(1)} has tag [{tag}]; use MVP, LATER, VERIFY or MANUAL")
+            for tag in re.findall(r"\[([A-Z]+)\]", h.group(3) or ""):
+                if tag == "MVP":
+                    errors.append(f"{where}: {h.group(1)} has tag [MVP]; remove it, a rule needs no tag (D-049)")
+                elif tag not in TAGS:
+                    errors.append(f"{where}: {h.group(1)} has tag [{tag}]; use LATER, VERIFY or MANUAL, or no tag")
             if h.group(1) in rules:
                 errors.append(f"{h.group(1)} is used twice: {rules[h.group(1)]} and {where}")
             else:

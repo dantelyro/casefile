@@ -20,7 +20,7 @@ README = """# Specs
 
 AUTH = """# Auth
 
-### AUTH-001 · Sign in with email     [MVP]
+### AUTH-001 · Sign in with email
 Given a user
 When they sign in
 Then they are in
@@ -31,7 +31,7 @@ Free text, not a rule.
 
 MATCHING = """# Matching
 
-### MATCH-001 · Required skills weigh 70%     [MVP]
+### MATCH-001 · Required skills weigh 70%
 ### MATCH-002 · A score is cached     [LATER]
 ### MATCH-003 · Scores for 1000 jobs in 200ms     [VERIFY]
 ### MATCH-004 · The score reads well     [MANUAL]
@@ -105,7 +105,7 @@ def test_a_consistent_project_passes(repo):
 
 
 def test_text_output(repo):
-    edit(repo, "docs/specs/10-auth.md", "[MVP]", "[MUST]")
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "Sign in with email     [MUST]")
     r = subprocess.run([sys.executable, str(SCRIPT)], cwd=repo, capture_output=True, text=True,
                        encoding="utf-8", check=False)
     assert r.returncode == 1
@@ -119,26 +119,77 @@ def test_a_rule_heading_without_the_separator_does_not_parse(repo):
     assert_error(repo, "docs/specs/10-auth.md:3", "AUTH-001")
 
 
-def test_a_rule_heading_without_a_tag_does_not_parse(repo):
-    edit(repo, "docs/specs/10-auth.md", "Sign in with email     [MVP]", "Sign in with email")
-    assert_error(repo, "docs/specs/10-auth.md:3")
-
-
-def test_a_rule_may_carry_more_than_one_tag(repo):
-    edit(repo, "docs/specs/10-auth.md", "[MVP]", "[MVP][VERIFY]")
+def test_RULE_001_a_rule_heading_without_a_tag_passes(repo):
+    code, out = lint(repo)
+    assert (code, out["errors"]) == (0, [])
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "Sign in with email   ")
     assert lint(repo)[1]["errors"] == []
-    edit(repo, "docs/specs/10-auth.md", "[MVP][VERIFY]", "[MVP] [SOON]")
-    assert_error(repo, "10-auth.md:3", "SOON")
 
 
-def test_an_unknown_tag_is_an_error(repo):
+def test_RULE_001_later_verify_and_manual_are_allowed_alone_and_together(repo):
+    for tags in ("[LATER][VERIFY]", "[MANUAL]", "[VERIFY] [MANUAL]"):
+        write(repo, "docs/specs/10-auth.md", AUTH.replace("Sign in with email", f"Sign in with email     {tags}"))
+        assert lint(repo)[1]["errors"] == [], tags
+
+
+def test_RULE_001_mvp_is_an_error_that_says_to_remove_the_tag(repo):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "Sign in with email     [MVP]")
+    assert_error(repo, "docs/specs/10-auth.md:3", "AUTH-001", "MVP", "remove")
+
+
+def test_RULE_001_mvp_next_to_an_allowed_tag_is_still_an_error(repo):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "Sign in with email     [MVP][VERIFY]")
+    assert_error(repo, "docs/specs/10-auth.md:3", "AUTH-001", "MVP", "remove")
+
+
+def test_RULE_001_an_unknown_tag_names_the_allowed_ones(repo):
     edit(repo, "docs/specs/12-matching.md", "[LATER]", "[SOON]")
-    assert_error(repo, "12-matching.md:4", "SOON")
+    assert_error(repo, "12-matching.md:4", "MATCH-002", "SOON", "LATER", "VERIFY", "MANUAL")
+
+
+def test_RULE_001_a_heading_with_no_title_does_not_parse(repo):
+    edit(repo, "docs/specs/10-auth.md", "AUTH-001 · Sign in with email", "AUTH-001 · ")
+    out = assert_error(repo, "docs/specs/10-auth.md:3", "AUTH-001", "does not parse")
+    hit = next(e for e in out["errors"] if "10-auth.md:3" in e)
+    assert hit.endswith("`### AUTH-001 · Title`")
+    assert "MVP" not in hit
+
+
+@pytest.mark.parametrize("title", [
+    "Sign in[MVP]",
+    "[MVP]",
+    "[LATER]",
+    "Sign in     [mvp]",
+    "Sign in [MVP] (old)",
+    "[MVP] Sign in",
+    "[MVP] Sign in     [LATER]",
+    "[mvp] Sign in",
+    "[SOON] Sign in",
+    "[MANUAL] is the developer's to test",
+    "Sign in [MVP ]",
+    "Sign in [ MVP ]",
+    "Sign in [MVP2]",
+    "Sign in [MVP-1]",
+    "Sign in ［MVP］",
+])
+def test_RULE_001_a_bracketed_word_in_a_title_does_not_parse(repo, title):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", title)
+    assert_error(repo, "docs/specs/10-auth.md:3", "AUTH-001", "does not parse")
+
+
+def test_RULE_001_the_mvp_error_cites_the_decision(repo):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "Sign in with email     [MVP]")
+    assert_error(repo, "AUTH-001", "MVP", "D-049")
+
+
+def test_RULE_001_an_unknown_tag_after_an_allowed_one_is_an_error(repo):
+    edit(repo, "docs/specs/10-auth.md", "Sign in with email", "Sign in with email     [VERIFY][SOON]")
+    assert_error(repo, "10-auth.md:3", "AUTH-001", "SOON")
 
 
 def test_an_id_used_twice_names_both_places(repo):
     write(repo, "docs/specs/README.md", README + "| [13-jobs.md](13-jobs.md) | Jobs |\n")
-    write(repo, "docs/specs/13-jobs.md", "# Jobs\n\n### MATCH-002 · Again     [MVP]\n")
+    write(repo, "docs/specs/13-jobs.md", "# Jobs\n\n### MATCH-002 · Again\n")
     assert_error(repo, "MATCH-002", "12-matching.md:4", "13-jobs.md:3")
 
 
