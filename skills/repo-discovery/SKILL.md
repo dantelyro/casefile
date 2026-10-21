@@ -130,7 +130,7 @@ reflect. If the project records a doc-reconciliation watermark, replay from it i
 State the shape, the map, how to run it, and — most usefully — **what you could not determine**:
 
 > Monorepo, npm workspaces: `api/` (NestJS + Fastify, TS ESM) and `web/` (React + Vite).
-> `CLAUDE.md` at root and `docs/architecture/` with a mental-model and decision log.
+> `CLAUDE.md` at root and `docs/architecture/` with an overview and decision log.
 > Run: `npm install` at root; `npm test` needs Postgres via `docker-compose.yml`.
 > Could not determine: whether `web/` is deployed separately — no CI workflow references it.
 

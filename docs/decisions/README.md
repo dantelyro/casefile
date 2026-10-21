@@ -66,6 +66,7 @@ so.
 | [D-047](0047-devflow-is-specified-in-its-own-write-specs.md) | devflow is specified in its own write-specs layout and built with implement | Accepted |
 | [D-048](0048-development-uses-uv-pytest-and-ruff-only-shipped.md) | Development uses uv, pytest and ruff; only shipped code stays standard library | Accepted |
 | [D-049](0049-devflow-drops-the-mvp-tag-and-adds-no.md) | devflow drops the MVP tag and adds no test tag; what gets a test follows from the project's own code | Accepted |
+| [D-050](0050-the-architecture-document-is-overview-md-built-from.md) | The architecture document is overview.md, built from fixed sections | Accepted |
 
 ## Conventions
 

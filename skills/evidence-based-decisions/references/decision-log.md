@@ -13,7 +13,7 @@ the log is about. Layout is not a judgement call: one decision per file, from en
 docs/
 ├── purpose.md               # what pain this solves, and what it is not
 ├── architecture/
-│   └── mental-model.md      # what exists, where it lives, module state
+│   └── overview.md          # how the code is organised, patterns, conventions, module state
 └── decisions/               # sibling of architecture/
     ├── README.md            # generated index: id · title · status
     ├── 0001-hexagonal-architecture-ports-adapters.md

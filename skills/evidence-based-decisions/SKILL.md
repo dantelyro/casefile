@@ -57,6 +57,11 @@ update. "Probably nothing changed" is the guess the watermark exists to replace;
 takes one second. Full mechanism, including recovery when the SHA stops resolving:
 `references/living-documents.md`.
 
+**A `mental-model.md` is replaced without asking.** Write `docs/architecture/overview.md` from the
+code in the format of `references/living-documents.md`, keeping what the old file says that is still
+true, delete `mental-model.md`, repoint every link to it, and set the watermark to `HEAD` — one
+commit. The developer decided this (D-050); the old format told readers nothing useful.
+
 ## No docs yet: propose, then ask
 
 A project with no project instructions, architecture document or decision log may keep this

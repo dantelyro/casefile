@@ -3,13 +3,23 @@
 The small set of files that are the project's source of truth, and the discipline that keeps them
 true.
 
+## Contents
+- The set
+- Purpose
+- The architecture overview
+- What belongs in project instructions
+- Correcting a false claim
+- The watermark: knowing what changed while you were away
+- Keeping status current
+- Commit messages as the third record
+
 ## The set
 
 | File | Answers | Read it |
 |---|---|---|
 | Project instructions (`CLAUDE.md`, `AGENTS.md`) | How to run, build, test; the gotchas that cost real time | Always — it is loaded for you |
 | Purpose (`docs/purpose.md`) | What pain this solves, for whom, and what it deliberately is not | Before scoping anything, and whenever a request seems out of scope |
-| Architecture / mental model | What exists, where it lives, module boundaries, per-module state | Before designing or building anything |
+| Architecture overview (`docs/architecture/overview.md`) | How the code is organised, which patterns it follows and how faithfully, the conventions to copy, per-module state | Before designing or building anything |
 | Decision log | Why it is this way, and what was given up | Scan for entries your approach would contradict |
 | Roadmap / phase spec | What to build next, and in what order | Before picking up work |
 | Captured external specs | What the third-party system actually accepts | Before the vendor's prose |
@@ -24,6 +34,43 @@ it deliberately does **not** do. A purpose document with no non-goals cannot set
 which is the only reason to have one.
 
 Short, and stable. It changes rarely; when it does, that is a decision and gets an entry.
+
+## The architecture overview
+
+What someone about to add code needs: where it goes, what shape to give it, and what to distrust.
+A list of what exists and where answers none of that. The watermark sits in its header (see "The
+watermark" below). Then these sections, in this order; omit one the project has nothing for (a
+CLI has no request flow) rather than filling it:
+
+1. **One sentence** — the architectural style and main patterns, named: "layered Express API with
+   repository pattern over Prisma and async jobs on BullMQ".
+2. **Folder structure** — a tree of the source folders, one comment per entry saying what goes
+   there. Mark generated folders as never-edit. Stop at folder level unless a single file is a
+   structural piece (composition root, bootstrap, auth hook).
+3. **Patterns** — a table of the patterns the code uses: Pattern · Where / evidence · Caveats.
+   Evidence is a path or a symbol. Caveats say how faithfully it is applied: "the repository
+   interfaces use ORM types".
+4. **SOLID check** — one row per principle, a verdict (✅ / 🟡 / ❌) and the evidence. A verdict
+   without a file or class behind it does not go in.
+5. **Request flow** — one numbered walkthrough per main use case, from the entry point to the side
+   effects, async boundaries marked, then the error mapping (which exception becomes which status).
+6. **Conventions** — a Topic · Convention table: file naming, imports, how to add an endpoint,
+   repository, dependency or job; then DB naming, auth, lint, tests, commits, branches. Each row is
+   a recipe someone can follow without asking.
+7. **Module state** — built, verified, stub or table-only, per "Keeping status current".
+8. **Known gaps** — defects and risks in code that exists, each read from the code and dated.
+9. **Environments** — branch → URL → deploy mechanism.
+
+Rules:
+
+- **Only state what exists.** No "DDD: no", "CQRS: none", "no event bus". An absence goes in only
+  as a gap in existing code (section 8), never as a pattern verdict.
+- **Name things by their real kind.** Queue jobs that are commands with one consumer each are a
+  "job queue (commands)", not "event-driven".
+- **Every claim points at code** — a path, class or config key. Prose that cannot be traced to the
+  repo belongs in `purpose.md` or nowhere.
+- **No why, no run commands.** Reasons live in the decision log, linked as D-NNN; how to run and
+  test lives in the project instructions, which point here for structure and conventions.
 
 ## What belongs in project instructions
 
@@ -78,7 +125,7 @@ is the one that gets read.
 At session start, replay the gap:
 
 ```bash
-DOC=docs/architecture/mental-model.md   # or the project instructions, if that is where it lives
+DOC=docs/architecture/overview.md       # or the project instructions, if that is where it lives
 WM=$(sed -n 's/.*reconciled through:[^`]*`\([0-9a-f]\{7,40\}\)`.*/\1/p' "$DOC" | head -1)
 
 if [ -z "$WM" ]; then

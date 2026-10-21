@@ -1,0 +1,12 @@
+# D-050 — The architecture document is overview.md, built from fixed sections
+
+**Status:** Accepted (2026-10-21).
+**Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session, 2026-10-21, in the developer's words quoted under Context, then 'yes' to the stricter section list and rules a session in push-microservice wrote.
+
+**Context:** living-documents.md named the architecture document a 'mental model' and described it only as 'what exists, where it lives, module boundaries, per-module state', with no structure. The documents it produced told a reader nothing useful. The developer: 'i find that the mental-model is horrible is it is, it tells nothing useful i made a new one in the push-microversive repo called overview it a much better approach'. That file (prover/push-microservice docs/architecture/overview.md, abb84d6) is organised as: one-sentence architecture, annotated folder tree, patterns with how faithfully they are followed and a SOLID check, request flows, conventions with recipes for each common addition, module state, dated known gaps, environments.
+
+**Options:** (a) rename to docs/architecture/overview.md and state its sections in living-documents.md, taken from push-microservice's overview; (b) keep the name and only add a section list; (c) ship a template file the skill copies.
+
+**Decision:** (a). The file is docs/architecture/overview.md; living-documents.md lists its nine sections in order (one sentence, folder tree, patterns, SOLID check, request flow, conventions, module state, known gaps, environments) and four rules: only state what exists, name things by their real kind, every claim points at code, no why and no run commands. The section list and rules come from a push-microservice session; the watermark, same-change and non-overlap rules it also stated are not repeated, because living-documents.md already holds them (D-008), and a section the project has nothing for is omitted rather than required. and decision-log.md and repo-discovery use the new name. Why and how-to-run stay out of it (decision log, project instructions).
+
+**Trade-offs:** A project's existing mental-model.md is deleted and replaced by an overview built from the code, without asking (the developer: 'if the ai see a mental-model he will delete it and put the new overview without asking'); its history stays in git. A fixed section list can push filler into small projects, so a section with nothing to say is omitted. (b) keeps a name that describes nothing; (c) adds a file that drifts from the prose describing it.

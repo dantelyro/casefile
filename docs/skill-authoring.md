@@ -1,6 +1,6 @@
 # Skill authoring — what Anthropic documents
 
-**Verified against:** Claude Code `2.1.304` — 2026-10-19
+**Verified against:** Claude Code `2.1.306` — 2026-10-21
 
 Facts about how skills load and behave, taken from Anthropic's own pages. This file records what
 the vendor says; the rules devflow layers on top live in `CLAUDE.md`. Each fact cites its page so a
@@ -108,6 +108,7 @@ version bump can be checked against the source rather than against this summary.
   `${CLAUDE_SKILL_DIR}` is the skill's own subdirectory, not the plugin root. [CC]
 - Plugin skills do not load in cloud sessions when the plugin is enabled only in user settings or
   declared in the repo's `.claude/settings.json`. [CC]
+- Plugins that Claude Desktop mounts by path lose their `allowed-tools` when managed settings set `allowManagedPermissionRulesOnly` (v2.1.305). [CL]
 - Subagents preload at most 32 skills from their `skills` field (v2.1.295). [CL]
 - Startup with many plugins takes far fewer file-system calls for command and agent files (v2.1.302);
   the PowerShell tool finds commands in a plugin's `bin/` folder (v2.1.302). [CL]
@@ -163,7 +164,7 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   `disallowedTools`, `skills`, `memory`, `background`, `omitClaudeMd`, `isolation` (only
   `"worktree"`), `color`. **Ignored:** `permissionMode`, `hooks`, `mcpServers`, `initialPrompt` — an
   agent's rules have to be plugin hooks. Malformed frontmatter loads the agent with every field
-  ignored. [PL] Which branch a plugin agent's worktree starts from is not documented. Subagents that were messaged
+  ignored. [PL] Which branch a plugin agent's worktree starts from is not documented. New worktrees in a bare repository sometimes started from local HEAD instead of the default branch, and unchanged subagent worktrees were sometimes not cleaned up; fixed in v2.1.305. [CL] Subagents that were messaged
   or resumed sometimes forgot their latest work; fixed in v2.1.304. Fork subagents (`subagent_type:
   "fork"`) are on by default in `claude -p` (v2.1.302). [CL]
 - `claude --plugin-dir <path>` loads a plugin for one session without installing it; the plugin is
