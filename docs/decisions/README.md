@@ -67,6 +67,9 @@ so.
 | [D-048](0048-development-uses-uv-pytest-and-ruff-only-shipped.md) | Development uses uv, pytest and ruff; only shipped code stays standard library | Accepted |
 | [D-049](0049-devflow-drops-the-mvp-tag-and-adds-no.md) | devflow drops the MVP tag and adds no test tag; what gets a test follows from the project's own code | Accepted |
 | [D-050](0050-the-architecture-document-is-overview-md-built-from.md) | The architecture document is overview.md, built from fixed sections | Accepted |
+| [D-051](0051-product-decisions-say-who-settled-them-with-or.md) | Product decisions say who settled them, with ✅ or ❌ | Accepted |
+| [D-052](0052-devflow-keeps-its-documents-in-its-current-format.md) | devflow keeps its documents in its current format, with no docs skill | Accepted |
+| [D-053](0053-a-skills-behaviour-is-tested-by-an-eval.md) | A skill's behaviour is tested by an eval, and MANUAL marks what the developer approves | Accepted |
 
 ## Conventions
 

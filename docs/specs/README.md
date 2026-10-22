@@ -43,8 +43,8 @@ carries out are untagged and have a test.
 | [20-reviewer.md](20-reviewer.md) | `devflow:reviewer` |
 | [21-implementer.md](21-implementer.md) | `devflow:implementer` |
 | [30-write-specs.md](30-write-specs.md) | The `write-specs` skill |
-| [40-docs-reconciliation.md](40-docs-reconciliation.md) | The docs reconciliation skill |
 | [31-rules-and-tests.md](31-rules-and-tests.md) | What tags mean and what gets a test |
+| [32-evidence-skill.md](32-evidence-skill.md) | The `evidence-based-decisions` skill and `session_start` |
 | [50-tooling.md](50-tooling.md) | Shipped code stays standard library |
 
 Behaviour shipped before these files (through 0.19.1) is described in `history/`, one design per

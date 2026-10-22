@@ -18,13 +18,15 @@ something to be confirmed before it is built: a fact about an outside system, or
 to a question the rule depends on; the tag comes off once it is confirmed. A milestone whose rules are all `[LATER]` or `[VERIFY]` stops
 `implement`, which says what each waits on.
 
-### RULE-003 · MANUAL rules are the developer's to test by hand      [MANUAL]
-Given a rule the AI has no way to test (an agent's or skill's behaviour, a live run, how a screen
-feels)
+### RULE-003 · MANUAL marks what the developer tests and approves
+Given a rule that neither a test nor an eval can check (how a screen feels, a live system a run cannot
+reach, the developer's own judgement), or a rule the developer marks as critical
 When it is specified and its milestone finishes
-Then it is tagged `[MANUAL]`, the tag is defined that way in `specs-layout.md` and the specs README,
-and `implement`'s finish report lists those rules as the developer's checklist, and lists `[VERIFY]`
-rules waiting on the developer's answer under what the developer decides next.
+Then it is tagged `[MANUAL]`, and a critical rule keeps its test or eval as well; the tag is defined
+that way in `specs-layout.md` and the specs README; `implement`'s finish report lists those rules as
+the developer's checklist, and the milestone is done only after the developer's ok on each; `[VERIFY]`
+rules waiting on the developer's answer are listed under what the developer decides next. Claude may
+suggest a rule is critical, and it is tagged only on the developer's yes. See D-053.
 
 ### RULE-004 · Tests cover what the project's code does      [MANUAL]
 Given a rule in a milestone
@@ -47,3 +49,20 @@ Given a rule in a plan's scope that is not `[LATER]`, `[VERIFY]` or `[MANUAL]`
 When `rules_coverage.py` runs
 Then the rule is covered when a test is named after it, reasoned when its plan line states a reason
 in `(no test: …)`, and missing otherwise, with exit 1.
+
+### RULE-007 · A skill's or agent's behaviour is tested by an eval named after the rule
+Given a rule that describes what a skill or agent does
+When the planner plans it
+Then it plans an eval at `evals/<RULE-ID>-<slug>/` whose grader checks what shows the rule held: a file
+the run wrote, its final reply, or its tool calls. See D-053.
+
+### RULE-008 · rules_coverage counts an eval as a rule's test
+Given an eval directory named `<RULE-ID>-<slug>` under `evals/`
+When `rules_coverage.py` runs
+Then that rule is covered, as if a test were named after it.
+
+### RULE-009 · Evals run once per task, under a cost cap
+Given a task whose rules have evals
+When the implementer finishes it, and when the reviewer checks it
+Then each runs the task's evals with `--ablation none --runs 2 --max-cost-usd 2`, and reports a run
+the cap stopped as unfinished, never as passed; commits and CI never run evals. See D-053.
