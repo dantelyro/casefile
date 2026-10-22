@@ -31,5 +31,6 @@ pointer to the skill. See D-052.
 Given documents `session_start` named as out of date
 When the skill runs
 Then it rewrites each in the current format without asking, keeping what is still true, in one commit;
-a product decision whose decider the record cannot show is asked, never marked ✅. Critical: the
-developer approves it on a real repository. See D-052, D-050.
+a product decision whose decider the record cannot show is asked, never marked ✅: its line moves to
+`open-questions.md` as "Who decided …?" and returns to `product-decisions.md` with ✅ or ❌ once
+answered. Critical: the developer approves it on a real repository. See D-052, D-050.
