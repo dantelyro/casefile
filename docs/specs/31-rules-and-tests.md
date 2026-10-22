@@ -67,4 +67,7 @@ When the implementer has committed it
 Then the main session runs the task's evals on the task's worktree with `--ablation none --runs 2
 --max-cost-usd 2` and hands the result to the reviewer, who judges it with the change; a run the cap
 stopped is reported as unfinished, never as passed; commits and CI never run evals. Agents do not run
-evals: Claude Code refuses `claude plugin eval` inside an agent's worktree. See D-053.
+evals: Claude Code refuses `claude plugin eval` inside an agent's worktree. An eval whose case grants a
+shell tool (Bash or PowerShell) runs only where Claude Code has its sandbox (macOS, Linux, WSL2); on
+native Windows it is reported as not run, never as passed, and `implement`'s finish report lists it for
+the developer to run there. See D-053.
