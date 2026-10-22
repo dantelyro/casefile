@@ -3,7 +3,7 @@ name: probe-session-start
 description: "probe: does the SessionStart hook fire under plugin eval"
 tags: [probe]
 runs: 2
-max_turns: 2
+max_turns: 5
 allowed_tools: []
 ---
 
