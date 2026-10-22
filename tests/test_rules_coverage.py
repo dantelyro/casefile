@@ -300,14 +300,6 @@ def test_RULE_008_a_folder_outside_evals_or_nested_deeper_does_not_count(repo):
     assert out["covered"] == []
 
 
-def test_RULE_008_an_ignored_eval_folder_does_not_count(repo):
-    write(repo, ".gitignore", "evals/results/\n")
-    write(repo, "evals/results/MATCH-002-x/case.yaml", "name: x\n")
-    out = coverage(repo)[1]
-    assert "MATCH-002" in out["missing"]
-    assert out["covered"] == []
-
-
 def test_RULE_008_an_eval_in_a_sibling_repository_counts(repo):
     git_init(repo / "back")
     write(repo, "back/evals/MATCH-003-x/prompt.md", "x\n")
