@@ -296,9 +296,20 @@ def test_SPEC_008_a_legend_after_a_decision_line_is_an_error(repo):
     assert_error(repo, PD, "legend")
 
 
-def test_SPEC_008_a_legend_with_no_name_is_an_error(repo):
-    edit(repo, PD, LEGEND, "✅ decided by  · ❌ rejected by dantelyro")
+@pytest.mark.parametrize("legend", [
+    "✅ decided by  · ❌ rejected by dantelyro",
+    "✅ decided by dantelyro · ❌ rejected by ",
+    "✅ decided by dantelyro · ❌ rejected by",
+])
+def test_SPEC_008_a_legend_with_no_name_is_an_error(repo, legend):
+    edit(repo, PD, LEGEND, legend)
     assert_error(repo, PD, "legend")
+
+
+def test_SPEC_008_indented_nested_items_are_not_decision_lines(repo):
+    edit(repo, PD, "- ✅ Brazil first", "- ✅ Brazil first\n  - nested item with no icon")
+    code, out = lint(repo)
+    assert (code, out["errors"]) == (0, [])
 
 
 # File table
