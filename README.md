@@ -39,7 +39,7 @@ changes against their specs, and hooks that hold the rules every time.
 | `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `devflow:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
 | `write-specs` | Turns a feature description, or the notes of a brainstorm that has ended, into spec rules with IDs (`### JOBS-020 · Title`), product decisions, decision entries, open questions and a new milestone in the build order. It drafts everything, asks the open questions together, and writes nothing until you say yes; `spec_lint.py` checks the specs hold together. Never starts or interrupts a brainstorm. |
 | `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `devflow:planner` writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does — and after your approval each task is built by `devflow:implementer` in its own worktree, several in parallel when they touch different files, reviewed by `devflow:reviewer` and merged after your yes. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
-| `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `devflow:implementer` reproduces it with a failing test and fixes it on its own branch, `devflow:reviewer` checks it, and it is merged after your yes ([`shared/merge.md`](shared/merge.md)). `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
+| `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `devflow:implementer` reproduces it with a failing test and fixes it on its own branch, `devflow:reviewer` checks it, and it is merged after your yes ([`shared/merge.md`](plugins/devflow/shared/merge.md)). `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
 | `evidence-based-decisions` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
 The two compose: `repo-discovery` answers what an existing project **is**, and
@@ -106,7 +106,7 @@ session**, and no first message ever says so. Its other triggers are facts about
 project keeps a decision log; the docs are behind `HEAD` — which cannot be recognised before
 reading the repo, and reading the repo is what the skill is for.
 
-So the session-start hook (`hooks/devflow_hooks/session_start.py`) injects the trigger the prompt cannot supply: a short directive naming
+So the session-start hook (`plugins/devflow/hooks/devflow_hooks/session_start.py`) injects the trigger the prompt cannot supply: a short directive naming
 the skill, emitted on `startup`, `clear` and `compact`. It injects a **pointer, not the skill
 body** — the `Skill` tool loads the content on demand, keeping the per-session cost to a few
 hundred tokens rather than the whole file.
@@ -115,51 +115,54 @@ hundred tokens rather than the whole file.
 
 ```
 .claude-plugin/
-  marketplace.json      # makes this repo a marketplace
-  plugin.json           # makes it a plugin too — source is "./"
-hooks/
-  hooks.json            # auto-discovered; no plugin.json entry needed
-  run-hook              # sh starter: finds Python 3.10+, runs run.py
-  run.py                # runs one hook; refuses the call if the hook fails
-  devflow_hooks/        # the hooks, standard-library Python
+  marketplace.json      # makes this repo a marketplace; its entry's source is ./plugins/devflow
 tests/                  # uv run pytest
-evals/                  # trigger evals, billed: claude plugin eval . --ablation none --scaffold
-agents/
-  implementer.md        # devflow:implementer: one task or issue, test-first, in its own worktree
-  planner.md            # devflow:planner: one milestone into test-first tasks; writes only its plan
-  reviewer.md           # devflow:reviewer
-shared/
-  merge.md              # the merge procedure, linked from every skill that merges
-skills/
-  fix-bug/
-    SKILL.md
-    scripts/issues_status.py
-  implement/
-    SKILL.md
-    scripts/plan_status.py      # the next batch, stuck tasks, tasks waiting on an issue
-    scripts/rules_coverage.py   # each rule it checks: tested, untested with a reason, or missing
-  write-specs/
-    SKILL.md
-    references/specs-layout.md  # the layout, rule format, README and product files
-    scripts/spec_lint.py        # headings, unique IDs, tags, build order, links, file table
-  review/
-    SKILL.md
-  repo-discovery/
-    SKILL.md
-  evidence-based-decisions/
-    SKILL.md
-    references/         # loaded on demand, not with the skill
-    scripts/            # decision_next_id.py, decision_new.py, decision_index.py
-      decision-log.md
-      living-documents.md
-      verifying-external-systems.md
+plugins/devflow/        # the plugin: the only folder that ships
+  .claude-plugin/
+    plugin.json         # makes it a plugin
+  hooks/
+    hooks.json          # auto-discovered; no plugin.json entry needed
+    run-hook            # sh starter: finds Python 3.10+, runs run.py
+    run.py              # runs one hook; refuses the call if the hook fails
+    devflow_hooks/      # the hooks, standard-library Python
+  evals/                # trigger evals, billed: claude plugin eval plugins/devflow --ablation none --scaffold
+  agents/
+    implementer.md      # devflow:implementer: one task or issue, test-first, in its own worktree
+    planner.md          # devflow:planner: one milestone into test-first tasks; writes only its plan
+    reviewer.md         # devflow:reviewer
+  shared/
+    merge.md            # the merge procedure, linked from every skill that merges
+  skills/
+    fix-bug/
+      SKILL.md
+      scripts/issues_status.py
+    implement/
+      SKILL.md
+      scripts/plan_status.py      # the next batch, stuck tasks, tasks waiting on an issue
+      scripts/rules_coverage.py   # each rule it checks: tested, untested with a reason, or missing
+    write-specs/
+      SKILL.md
+      references/specs-layout.md  # the layout, rule format, README and product files
+      scripts/spec_lint.py        # headings, unique IDs, tags, build order, links, file table
+    review/
+      SKILL.md
+    repo-discovery/
+      SKILL.md
+    evidence-based-decisions/
+      SKILL.md
+      references/       # loaded on demand, not with the skill
+      scripts/          # decision_next_id.py, decision_new.py, decision_index.py
+        decision-log.md
+        living-documents.md
+        verifying-external-systems.md
 docs/
   decisions/            # why this repo is the way it is; one file per decision
     README.md           # generated index: id, title, status
 ```
 
-This repo is both the marketplace and the single plugin it offers — the marketplace entry points
-at `./`, so the two manifests sit side by side in one `.claude-plugin/` folder rather than nested.
+This repo is both the marketplace and the home of the single plugin it offers. The marketplace
+entry points at `./plugins/devflow`, and only that folder ships; tests, docs and `uv` stay at the
+root (D-054).
 
 A skill's `SKILL.md` is what gets loaded when it triggers, so it stays small. Anything long —
 formats, procedures, reference material — goes in `references/` and is read only when the work
@@ -170,7 +173,7 @@ it offers, `plugin.json` declares the `devflow` plugin itself.
 
 ## Adding a plugin
 
-A second plugin needs its own folder, since `devflow` occupies the root:
+A second plugin gets its own folder next to `devflow`:
 
 1. Create `plugins/<name>/.claude-plugin/plugin.json` with `name`, `description`
    and `version`.

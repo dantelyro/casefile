@@ -8,7 +8,7 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "skills" / "implement" / "scripts" / "plan_status.py"
+SCRIPT = ROOT / "plugins" / "devflow" / "skills" / "implement" / "scripts" / "plan_status.py"
 
 
 def task(n, status="todo", depends="none", parallel="none", title=None):

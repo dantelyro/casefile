@@ -8,7 +8,7 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "skills" / "write-specs" / "scripts" / "spec_lint.py"
+SCRIPT = ROOT / "plugins" / "devflow" / "skills" / "write-specs" / "scripts" / "spec_lint.py"
 
 README = """# Specs
 

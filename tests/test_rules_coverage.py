@@ -8,7 +8,7 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "skills" / "implement" / "scripts" / "rules_coverage.py"
+SCRIPT = ROOT / "plugins" / "devflow" / "skills" / "implement" / "scripts" / "rules_coverage.py"
 
 SPEC = """# Matching
 
@@ -295,9 +295,22 @@ def test_RULE_008_an_eval_for_another_rule_does_not_count(repo):
 def test_RULE_008_a_folder_outside_evals_or_nested_deeper_does_not_count(repo):
     write(repo, "evals/sub/MATCH-001-x/case.yaml", "name: x\n")
     write(repo, "docs/MATCH-002-x/case.yaml", "name: x\n")
-    write(repo, "web/evals/MATCH-003-x/case.yaml", "name: x\n")
+    write(repo, "plugins/devflow/evals/sub/MATCH-003-x/case.yaml", "name: x\n")
     out = coverage(repo)[1]
     assert out["covered"] == []
+
+
+def test_RULE_008_a_folder_only_ending_in_evals_does_not_count(repo):
+    write(repo, "plugins/devflow/myevals/MATCH-001-x/case.yaml", "name: x\n")
+    write(repo, "myevals/MATCH-002-x/case.yaml", "name: x\n")
+    out = coverage(repo)[1]
+    assert out["covered"] == []
+
+
+def test_RULE_008_an_eval_in_an_evals_folder_inside_a_plugin_counts(repo):
+    write(repo, "plugins/devflow/evals/MATCH-001-x/case.yaml", "name: x\n")
+    out = coverage(repo)[1]
+    assert out["covered"] == ["MATCH-001"]
 
 
 def test_RULE_008_an_eval_in_a_sibling_repository_counts(repo):

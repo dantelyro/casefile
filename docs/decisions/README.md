@@ -17,7 +17,7 @@ so.
 | Id | Title | Status |
 | --- | --- | --- |
 | [D-001](0001-skill-content-splits-across-two-loading-tiers.md) | Skill content splits across two loading tiers | Accepted |
-| [D-002](0002-the-repository-root-is-the-plugin.md) | The repository root is the plugin | Accepted |
+| [D-002](0002-the-repository-root-is-the-plugin.md) | The repository root is the plugin | SUPERSEDED by D-054 |
 | [D-003](0003-a-sessionstart-hook-injects-the-trigger.md) | A SessionStart hook injects the trigger a description cannot match | Accepted |
 | [D-004](0004-the-hook-injects-a-pointer-not-the-skill-body.md) | The hook injects a pointer, not the skill body | Accepted |
 | [D-005](0005-hook-scripts-are-extensionless-behind-a-polyglot-wrapper.md) | Hook scripts are extensionless, behind a cmd/bash polyglot wrapper | SUPERSEDED by D-028 |
@@ -70,6 +70,7 @@ so.
 | [D-051](0051-product-decisions-say-who-settled-them-with-or.md) | Product decisions say who settled them, with ✅ or ❌ | Accepted |
 | [D-052](0052-devflow-keeps-its-documents-in-its-current-format.md) | devflow keeps its documents in its current format, with no docs skill | Accepted |
 | [D-053](0053-a-skills-behaviour-is-tested-by-an-eval.md) | A skill's behaviour is tested by an eval, and MANUAL marks what the developer approves | Accepted |
+| [D-054](0054-the-shipped-plugin-lives-in-plugins-devflow-development.md) | The shipped plugin lives in plugins/devflow; development stays at the root | Accepted |
 
 ## Conventions
 
