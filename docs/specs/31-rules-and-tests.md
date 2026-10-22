@@ -63,6 +63,8 @@ Then that rule is covered, as if a test were named after it.
 
 ### RULE-009 · Evals run once per task, under a cost cap
 Given a task whose rules have evals
-When the implementer finishes it, and when the reviewer checks it
-Then each runs the task's evals with `--ablation none --runs 2 --max-cost-usd 2`, and reports a run
-the cap stopped as unfinished, never as passed; commits and CI never run evals. See D-053.
+When the implementer has committed it
+Then the main session runs the task's evals on the task's worktree with `--ablation none --runs 2
+--max-cost-usd 2` and hands the result to the reviewer, who judges it with the change; a run the cap
+stopped is reported as unfinished, never as passed; commits and CI never run evals. Agents do not run
+evals: Claude Code refuses `claude plugin eval` inside an agent's worktree. See D-053.
