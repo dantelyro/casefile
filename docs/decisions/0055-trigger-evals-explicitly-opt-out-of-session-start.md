@@ -3,6 +3,8 @@
 **Status:** Accepted (2026-10-22).
 **Decided by:** dantelyro — Grade 1: approved Add the eval-only opt-out (Recommended) in the 2026-10-22 session
 
+**Implemented by:** `fa22729`.
+
 **Context:** M4 T1 observed SessionStart firing during Claude plugin eval, so a forced evidence skill invocation contaminates EVID-001 and EVID-002 trigger checks (B1). The developer approved Add the eval-only opt-out in this session on 2026-10-22. The eval documentation permits EVAL_ environment keys.
 
 **Options:** (a) Explicit EVAL_ flag disabling session-start context for selected cases; (b) weaken graders to ignore skill exclusion; (c) keep trigger rules manual.
