@@ -300,6 +300,13 @@ def test_RULE_008_a_folder_outside_evals_or_nested_deeper_does_not_count(repo):
     assert out["covered"] == []
 
 
+def test_RULE_008_a_folder_only_ending_in_evals_does_not_count(repo):
+    write(repo, "plugins/devflow/myevals/MATCH-001-x/case.yaml", "name: x\n")
+    write(repo, "myevals/MATCH-002-x/case.yaml", "name: x\n")
+    out = coverage(repo)[1]
+    assert out["covered"] == []
+
+
 def test_RULE_008_an_eval_in_an_evals_folder_inside_a_plugin_counts(repo):
     write(repo, "plugins/devflow/evals/MATCH-001-x/case.yaml", "name: x\n")
     out = coverage(repo)[1]
