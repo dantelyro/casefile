@@ -71,6 +71,7 @@ so.
 | [D-052](0052-devflow-keeps-its-documents-in-its-current-format.md) | devflow keeps its documents in its current format, with no docs skill | Accepted |
 | [D-053](0053-a-skills-behaviour-is-tested-by-an-eval.md) | A skill's behaviour is tested by an eval, and MANUAL marks what the developer approves | Accepted |
 | [D-054](0054-the-shipped-plugin-lives-in-plugins-devflow-development.md) | The shipped plugin lives in plugins/devflow; development stays at the root | Accepted |
+| [D-055](0055-trigger-evals-explicitly-opt-out-of-session-start.md) | Trigger evals explicitly opt out of session-start context | Accepted |
 
 ## Conventions
 

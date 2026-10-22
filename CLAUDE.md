@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `eb7f238` — 2026-10-21
+**Docs reconciled through:** `fa22729` — 2026-10-22
 
 ## What this repo is
 
@@ -26,9 +26,13 @@ uv sync
 uv run pytest
 uv run ruff check
 
-# Trigger evals for the skills (billed, so on demand; results/ is gitignored). --scaffold runs each
-# case's fixture.sh, which sets up a small repo: in an empty folder runs give up before choosing a skill
-claude plugin eval plugins/devflow --ablation none --no-publish --scaffold
+# After each task's commit, the MAIN SESSION runs its evals once on that task's worktree and
+# hands the results to the reviewer; agents cannot invoke the eval CLI in their worktrees.
+# Use --case with the task's case glob. Results/ is gitignored; --scaffold runs fixture.sh.
+timeout 900 claude plugin eval plugins/devflow --case '<RULE-ID>-*' --ablation none --runs 2 --max-cost-usd 2 --no-publish --scaffold
+# A capped/partial run is unfinished, never passed. Commits and CI never run evals.
+# Shell-enabled cases need macOS/Linux/WSL2; on native Windows report not run and list them
+# for the developer's Fedora run. Full-suite runs are still on demand (omit --case).
 
 # Exercise a hook exactly as Claude Code invokes it, with a captured event
 CLAUDE_PLUGIN_ROOT="$PWD/plugins/devflow" sh plugins/devflow/hooks/run-hook session_start < tests/fixtures/session_start_startup.json | python -m json.tool
@@ -111,6 +115,9 @@ Each of these is load-bearing; the comments in the files say so too.
 - **Emit exactly one context field.** Claude Code reads both `additionalContext` and
   `hookSpecificOutput.additionalContext` without deduplicating, so `session_start` emits the nested
   form under Claude Code (`CLAUDE_PLUGIN_ROOT` set) and the top-level form elsewhere.
+- **Trigger evals opt out explicitly.** Only `EVAL_DEVFLOW_SKIP_SESSION_START=1` suppresses the
+  session-start context; EVID-001/002 cases set it to test request matching without the forced
+  startup skill call. Normal sessions and all guard hooks are unchanged (D-055).
 - **Devflow agents get one command per call.** `guard_bash` denies `;`, `&&`, `||`, several lines,
   `| tail` and `sleep`/`until` loops for devflow's own agents (`devflow:*`), so a hung check cannot hide
   inside a chain (D-043).

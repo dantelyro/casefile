@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: EVID-003-empty-project-to-write-specs
+context:
+  scaffold_script: fixture.sh

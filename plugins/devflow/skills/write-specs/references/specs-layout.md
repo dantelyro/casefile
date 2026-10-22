@@ -30,9 +30,11 @@ Then required skills contribute 70 of the 100 points
 The ID is the area's prefix and a three-digit number. A rule needs no tag: it is built in its
 milestone. Tags, which a rule may combine: `[LATER]` planned, not built yet · `[VERIFY]` waits for
 something to be confirmed before it is built: a fact about an outside system, or the developer's
-answer to a question the rule depends on · `[MANUAL]` the AI has no way to test it (an agent's or
-skill's behaviour, a live run, how a screen feels); the developer tests it by hand when its milestone
-finishes. A rule for a screen links its file under `docs/product/design/`; a component rule links
+answer to a question the rule depends on · `[MANUAL]` neither a test nor an eval can check it (how a screen
+feels, a live system a run cannot reach, the developer's own judgement), or the developer marked it
+critical, so it keeps its test or eval as well; the developer approves each when its milestone
+finishes. A rule about what a skill or agent does has an eval named after it
+(`evals/<RULE-ID>-<slug>/`). A rule for a screen links its file under `docs/product/design/`; a component rule links
 the component under `docs/product/design-system/`. A rule that exists because of a logged decision
 cites it (`see D-012`); the reasoning stays in the entry.
 
@@ -70,11 +72,16 @@ Every spec file has a row in the table, and every row a file (`spec_lint.py` che
 ## `docs/product/product-decisions.md`
 
 One line per answer: the answer, its date, the rules it produced. No reasoning — that lives in the
-rule or the decision entry.
+rule or the decision entry. Under the heading, write the legend naming the developer
+(`git config user.name`); each decision line starts `- ✅ ` (accepted) or `- ❌ ` (rejected).
 
 ```
-- Brazil first, PT-BR only at launch (2026-10-01) → PROD-010, [AUTH-001](../specs/10-auth.md)
-- Saved jobs never expire (2026-10-16) → JOBS-020, see D-012
+# Product decisions
+
+✅ decided by Ana Souza · ❌ rejected by Ana Souza
+
+- ✅ Brazil first, PT-BR only at launch (2026-10-01) → PROD-010, [AUTH-001](../specs/10-auth.md)
+- ❌ Saved jobs expire after 30 days (2026-10-16) → JOBS-020, see D-012
 ```
 
 ## `docs/product/open-questions.md`

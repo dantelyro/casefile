@@ -1,13 +1,14 @@
 ---
 name: evidence-based-decisions
 description: >
-  Use at the start of a session in a project that keeps a decision log, architecture document
-  or reconciliation watermark; when initialising a project that keeps none of them (/init); or
-  when building against a system you do not control — third-party or government API, vendor
-  SDK, undocumented protocol. Triggers on: picking up work after someone else has committed,
-  vendor docs disagreeing with observed behaviour, a green test suite that failed in production
-  anyway, deciding whether something is "done", recording why an approach was chosen,
-  superseding an earlier decision, or finding a claim in a project document that is false.
+  Creates, reconciles and updates project documentation when asked to "create the docs",
+  "reconcile the docs", "update the docs" or "update the docs to devflow's format". Also applies
+  at session start in a project with a decision log, architecture document or reconciliation
+  watermark; when initialising one without them (/init); and when integrating with an outside
+  API, SDK or protocol. Triggers on picking up others' commits, vendor docs contradicting live
+  behaviour, production failures despite green tests, deciding whether work is done, recording
+  or superseding decisions, and false claims in project documents. Not for writing specs for a
+  feature (write-specs).
 model: sonnet
 ---
 
@@ -57,10 +58,17 @@ update. "Probably nothing changed" is the guess the watermark exists to replace;
 takes one second. Full mechanism, including recovery when the SHA stops resolving:
 `references/living-documents.md`.
 
-**A `mental-model.md` is replaced without asking.** Write `docs/architecture/overview.md` from the
-code in the format of `references/living-documents.md`, keeping what the old file says that is still
-true, delete `mental-model.md`, repoint every link to it, and set the watermark to `HEAD` — one
-commit. The developer decided this (D-050); the old format told readers nothing useful.
+**Rewrite documents the session-start hook names as out of date without asking** (D-052).
+Keep what is still true and make one commit for the migration. Replace `docs/mental-model.md`
+with `docs/architecture/overview.md` in the format of
+[`references/living-documents.md`](references/living-documents.md), delete the old file, repoint
+every link and set the watermark to `HEAD` (D-050). Bring product decisions to the current format
+in [`${CLAUDE_PLUGIN_ROOT}/skills/write-specs/references/specs-layout.md`](../write-specs/references/specs-layout.md).
+Resolve each decision's decider from the record, using the attribution procedure in
+[`references/decision-log.md`](references/decision-log.md), rather than treating the migration's
+author as its decider. A decision with no attributable decider moves to
+`docs/product/open-questions.md` as "Who decided …?"; ask the developer, never mark it ✅.
+Once answered, return it to `product-decisions.md` with ✅ or ❌ as the answer warrants.
 
 ## No docs yet: propose, then ask
 
@@ -74,8 +82,7 @@ for an answer — files nobody wanted are worse than no files.
   stack, entry points. That is Grade 1 and 2 evidence, and it beats any actor's account of what
   the project probably is.
 - **No code, no docs.** There is nothing to read, so nothing here can be seeded with evidence. Say
-  that no devflow skill writes a new project's specs yet, and ask the developer what the project is
-  before creating anything.
+  that `write-specs` starts a new project's specs, and create nothing.
 
 Seeding an empty directory from this skill would describe a project from nothing, which is the
 mistake this entire skill exists to prevent.

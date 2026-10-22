@@ -34,3 +34,10 @@ Then it rewrites each in the current format without asking, keeping what is stil
 a product decision whose decider the record cannot show is asked, never marked ✅: its line moves to
 `open-questions.md` as "Who decided …?" and returns to `product-decisions.md` with ✅ or ❌ once
 answered. Critical: the developer approves it on a real repository. See D-052, D-050.
+
+### EVID-006 · Trigger evals can opt out of session-start context
+Given an eval case that explicitly sets `EVAL_DEVFLOW_SKIP_SESSION_START=1`
+When the session-start hook runs
+Then it emits no context, so the case tests the user's request rather than a forced skill call.
+An absent flag or any value other than `1` keeps the ordinary session-start behavior; guard hooks
+are unaffected. See D-055.

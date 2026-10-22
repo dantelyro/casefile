@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: EVID-001-reconcile-the-docs
+context:
+  scaffold_script: fixture.sh

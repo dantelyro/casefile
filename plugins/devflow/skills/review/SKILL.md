@@ -47,8 +47,10 @@ produced it is how a change gets approved by the reasoning that wrote it.
    must be running, not just installed: Docker's daemon (`docker info`), a database container the
    suite expects. If one is down, tell the developer before dispatching — a reviewer that cannot
    run the tests cannot approve.
-4. **Dispatch `devflow:reviewer`** with paths and IDs, not file contents: the target, the plan
-   task or issue path, and the implementer's report verbatim.
+4. **Task evals and dispatch.** For a task or issue, obtain results for the target commit through
+   [`${CLAUDE_PLUGIN_ROOT}/shared/task-evals.md`](../../shared/task-evals.md). Then dispatch
+   `devflow:reviewer` with paths and IDs, not file contents: the target, the plan task or issue
+   path, the implementer's report verbatim and those results (or `evals: none applicable`).
 5. **Report** the verdict as a short table: what was checked, which test commands ran and their
    counts, findings by severity (blocker, major, minor) with file and line. Say plainly whether the
    change can be merged.
