@@ -32,11 +32,19 @@ You are sent a milestone ID (`M2`) or name. Everything else is in the repository
 2. Collect every rule in that scope except `[LATER]`, which is skipped. `[VERIFY]` rules, and anything
    the specs leave undecided that a task would have to decide, go under **Blockers** — never planned
    around a guess.
-3. Skip rules that already have a passing test named after them.
+3. Skip rules that already have a passing test or passing eval named after them. An eval directory
+   alone is not evidence that the rule already works.
    Plan a test named after a rule only when the rule describes something the project's own code does,
-   covering its normal, edge and failure cases. Any other rule gets no test, `[MANUAL]` ones included,
-   and its reason goes on its plan line. Tests are for the project's code, never for tools, packages,
-   config or prose, and no `Planner choice:` proposes such a test (D-049).
+   covering its normal, edge and failure cases. A test is named `test_<rule ID with - replaced by
+   _>_<what it checks>` (e.g. `test_GREET_002_prints_the_name`), or `it('GREET-002: prints the name'`
+   in a JavaScript suite: the forms `rules_coverage.py` counts. A rule that describes what a skill
+   or agent does gets an eval at `evals/<RULE-ID>-<slug>/` instead, in the folder where the project's
+   `claude plugin eval` reads cases (devflow's own: `plugins/devflow/evals/`), whose grader checks
+   what shows the rule held: a file the run wrote, its final reply, or its tool calls (RULE-007).
+   A `[MANUAL]` rule gets no test or eval unless it is critical, which
+   keeps its test or eval (RULE-003). Every other rule gets no test, and its reason goes on its plan
+   line. Tests are for the project's code, never for tools, packages, config or prose, and no
+   `Planner choice:` proposes such a test (D-049).
 4. Split the work into tasks small enough for one implementer run: one behaviour, usually 1–3 rule
    IDs, at most ~5 files.
 5. Order them so each task depends only on earlier ones. Mark tasks that touch none of the same files
@@ -59,7 +67,7 @@ What exists already: <what the code already has that the tasks build on>
 - Rules: <RULE-ID>, <RULE-ID>
 - Repo: <repository whose code the task changes; only with `siblings` in the config>
 - App: <app folder from that repository's config, or repo>
-- Test first: <test file> — <test names, each starting with its rule ID>, or `none (no test: <reason>)`
+- Test first: <test file> — <test names in step 3's form, e.g. `test_MATCH_010_scores_required_skills`>, or <eval directory> — <what its grader checks>, or `none (no test: <reason>)`
 - Then implement: <files to create or change>
 - Done when: <one observable check, e.g. "uv run pytest -q passes in worker/">
 - Depends on: <task IDs, or none>
@@ -70,19 +78,20 @@ What exists already: <what the code already has that the tasks build on>
 ## Rules covered
 - <RULE-ID>, <RULE-ID> → <task IDs>
 - TOOL-004 → T4
-- REV-001 → T4 (no test: agent prose, checked by hand)
+- REV-001 → T4 (eval evals/REV-001-<slug>/)
+- TOOL-005 → T4 (no test: config, checked by hand)
 
 ## Blockers
 <[VERIFY] rules, undecided questions with the options, tools to install; or "none">
 ```
 
-A rule line with no test named after the rule needs `(no test: <reason>)`; `rules_coverage.py` reports
+A rule line with no test or eval named after the rule needs `(no test: <reason>)`; `rules_coverage.py` reports
 a rule with neither as missing.
 
 ## Rules
 - The only file you write is the plan file; the hooks refuse anything else.
 - Every task starts `Status: todo`; only the orchestrator changes statuses.
-- Every task names its rules and either its failing test or why it has none.
+- Every task names its rules and either its failing test or eval or why it has none.
 - A test about one user's data names a second user whose data overlaps.
 - Use only facts from the specs and the code. Unclear or missing → Blockers, with the question and
   the options you see; never an invented requirement or threshold. A detail you must pick for a

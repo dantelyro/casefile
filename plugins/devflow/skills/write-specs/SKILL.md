@@ -64,10 +64,13 @@ only if the input has designs. The first milestone is repository setup.
 | A question nobody answered | a line in `open-questions.md`, and a question at the approval step |
 
 - **Never fill a gap.** What the input does not decide stays a question. A fact about the outside
-  world you are not sure of → `[VERIFY]`. A rule the AI has no way to test → `[MANUAL]`. Never write
-  `[MVP]`: an untagged rule is built.
+  world you are not sure of → `[VERIFY]`. A rule neither a test nor an eval can check → `[MANUAL]`
+  (per the layout's definition). You may suggest a rule is critical; tag it only on the developer's
+  yes. Never write `[MVP]`: an untagged rule is built.
 - **Nothing is accepted by silence.** Every product decision and decision entry you derived rather
-  than read from the developer's own words is shown as *proposed*.
+  than read from the developer's own words is shown as *proposed*. Ask each inferred product
+  decision as its own yes-or-no question: yes records ✅, no records ❌, and no answer leaves it in
+  `open-questions.md`. Approval of the whole draft never answers those individual questions.
 - Decision entries follow the evidence skill's log:
   [`${CLAUDE_PLUGIN_ROOT}/skills/evidence-based-decisions/references/decision-log.md`](../evidence-based-decisions/references/decision-log.md).
   Never restate its format here.
@@ -90,8 +93,10 @@ renumbering, a different tag — show what changed against the approved draft an
 writing: the yes covered the draft as it stood.
 
 1. Spec files, the specs README's file table, the build order.
-2. `product-decisions.md` and `open-questions.md` (formats in `references/specs-layout.md`). An
-   answered question's line moves from open questions to product decisions.
+2. `product-decisions.md` and `open-questions.md` (formats in `references/specs-layout.md`). Open
+   product decisions with the legend `✅ decided by <name> · ❌ rejected by <name>` immediately
+   under the heading, taking `<name>` from `git config user.name`; every decision line starts
+   `- ✅ ` or `- ❌ `. An answered question's line moves from open questions to product decisions.
 3. Each decision entry with `evidence-based-decisions/scripts/decision_new.py` (it writes
    `Proposed`); set `Accepted` on the ones the developer confirmed; then `decision_index.py`.
 4. Designs: the developer names the artifact ("the design system", "the job list screen").

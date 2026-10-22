@@ -58,8 +58,10 @@ Get the id and file prefix from the script, never by counting by hand:
    The current branch must be the default branch: the worktree starts from whatever is checked out.
    Then dispatch `devflow:implementer` with the issue path only. It writes the failing
    test, confirms it fails for the right reason, fixes, and commits on its own branch.
-3. **Review.** Dispatch `devflow:reviewer` with the issue path and the implementer's report
-   verbatim.
+3. **Review.** Obtain any applicable rule eval results through
+   [`${CLAUDE_PLUGIN_ROOT}/shared/task-evals.md`](../../shared/task-evals.md), then dispatch
+   `devflow:reviewer` with the issue path, the implementer's report verbatim and those results
+   (or `evals: none applicable`).
 4. **Fix loop.** `changes-requested` → send the blocker and major findings to **the same**
    implementer (continue it, so it keeps its worktree), to fix in a new commit and report again.
    At most 2 rounds; then stop and show the developer the findings.

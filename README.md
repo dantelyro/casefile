@@ -38,7 +38,7 @@ changes against their specs, and hooks that hold the rules every time.
 | `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
 | `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `devflow:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
 | `write-specs` | Turns a feature description, or the notes of a brainstorm that has ended, into spec rules with IDs (`### JOBS-020 · Title`), product decisions, decision entries, open questions and a new milestone in the build order. It drafts everything, asks the open questions together, and writes nothing until you say yes; `spec_lint.py` checks the specs hold together. Never starts or interrupts a brainstorm. |
-| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `devflow:planner` writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does — and after your approval each task is built by `devflow:implementer` in its own worktree, several in parallel when they touch different files, reviewed by `devflow:reviewer` and merged after your yes. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
+| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `devflow:planner` writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does — and after your approval each task is built by `devflow:implementer` in its own worktree, several in parallel when they touch different files, reviewed by `devflow:reviewer` and merged after your yes. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` reports each rule it checks as covered by a test or eval, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
 | `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `devflow:implementer` reproduces it with a failing test and fixes it on its own branch, `devflow:reviewer` checks it, and it is merged after your yes ([`shared/merge.md`](plugins/devflow/shared/merge.md)). `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
 | `evidence-based-decisions` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
@@ -125,13 +125,14 @@ plugins/devflow/        # the plugin: the only folder that ships
     run-hook            # sh starter: finds Python 3.10+, runs run.py
     run.py              # runs one hook; refuses the call if the hook fails
     devflow_hooks/      # the hooks, standard-library Python
-  evals/                # trigger evals, billed: claude plugin eval plugins/devflow --ablation none --scaffold
+  evals/                # task evals: main session runs after commit, before review; never CI/commit hooks
   agents/
     implementer.md      # devflow:implementer: one task or issue, test-first, in its own worktree
     planner.md          # devflow:planner: one milestone into test-first tasks; writes only its plan
     reviewer.md         # devflow:reviewer
   shared/
     merge.md            # the merge procedure, linked from every skill that merges
+    task-evals.md       # main-session eval execution and results passed to the reviewer
   skills/
     fix-bug/
       SKILL.md
@@ -139,11 +140,11 @@ plugins/devflow/        # the plugin: the only folder that ships
     implement/
       SKILL.md
       scripts/plan_status.py      # the next batch, stuck tasks, tasks waiting on an issue
-      scripts/rules_coverage.py   # each rule it checks: tested, untested with a reason, or missing
+      scripts/rules_coverage.py   # covered by a test or rule-named eval, reasoned, or missing
     write-specs/
       SKILL.md
       references/specs-layout.md  # the layout, rule format, README and product files
-      scripts/spec_lint.py        # headings, unique IDs, tags, build order, links, file table
+      scripts/spec_lint.py        # headings, IDs, tags, build order, links, file table, decision icons/legend
     review/
       SKILL.md
     repo-discovery/
@@ -185,6 +186,13 @@ Plugins are enabled independently per project, so splitting unrelated skills
 into separate plugins is usually worth the extra manifest.
 
 ## Local development
+
+After each task's commit, the main session runs that task's evals on its worktree with
+`--ablation none --runs 2 --max-cost-usd 2 --no-publish --scaffold --case '<RULE-ID>-*'`,
+then gives the results to the reviewer. Agents cannot run the eval CLI inside their worktrees.
+Capped or partial runs are unfinished, never passed. Commits and CI never run evals; a full-suite
+run remains on demand. Cases granting Bash or PowerShell need macOS, Linux or WSL2; native Windows
+runs report them as not run, for the developer to run on Fedora.
 
 Register the working copy as a marketplace to test changes before pushing:
 

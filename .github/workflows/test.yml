@@ -28,8 +28,9 @@ jobs:
       - run: uv run --locked --python "${{ steps.py.outputs.python-path }}" pytest -v
 
   validate:
-    # Manifests, agent and skill frontmatter. Needs no login. The trigger evals (plugins/devflow/evals/) are billed,
-    # so they run on demand: claude plugin eval plugins/devflow --ablation none
+    # Manifests, agent and skill frontmatter. Needs no login. CI and commits never run billed evals.
+    # The main session runs each task's evals after commit: --ablation none --runs 2 --max-cost-usd 2.
+    # It hands results to the reviewer; capped runs are unfinished. Full-suite runs stay on demand.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

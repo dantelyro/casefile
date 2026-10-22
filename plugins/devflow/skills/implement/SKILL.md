@@ -72,10 +72,13 @@ developer. Commit there touching only that file (`git -C <sibling> commit -- <pl
    findings carried over from earlier tasks that touch the same files. Keep each agent's id. A plan
    change that reaches a running task (after the developer's ruling) goes to its implementer as text;
    never tell an agent to merge, rebase or sync with the default branch.
-3. **Review.** `STATUS: blocked` → the task becomes `blocked: <reason>`, and the developer hears why.
-   `STATUS: done` → dispatch `devflow:reviewer` with the plan path, the task and the full report.
+3. **Evals and review.** `STATUS: blocked` → the task becomes `blocked: <reason>`, and the developer
+   hears why. After an implementer's commit, follow
+   [`${CLAUDE_PLUGIN_ROOT}/shared/task-evals.md`](../../shared/task-evals.md), then dispatch
+   `devflow:reviewer` with the plan path, task, full report and main-session eval results.
 4. **Fix loop.** `changes-requested` → the blocker and major findings go to **the same implementer**
-   (continue it, so it keeps its worktree): fix, re-run, add a new commit, report again. Two rounds
+   (continue it, so it keeps its worktree): fix, re-run, add a new commit, report again. The main
+   session then repeats the task eval step for the new commit before another review. Two rounds
    without approval → `blocked: review not passing`, findings shown to the developer.
 5. **Merge** each approved task after the developer's yes, following
    [`${CLAUDE_PLUGIN_ROOT}/shared/merge.md`](../../shared/merge.md).
@@ -94,8 +97,11 @@ every batch until the issue is fixed. A bug inside a task's own unmerged branch 
 When `plan_status.py` reports nothing ready and nothing in progress, run
 `implement/scripts/rules_coverage.py <plan>` and `fix-bug/scripts/issues_status.py`, and report:
 tasks done and blocked (with reasons), issues opened and fixed during the milestone, every rule in
-scope as `rules_coverage.py` reports it (covered by a test, untested with its reason, or missing), the
-`[MANUAL]` rules as the developer's checklist to test by hand, the sibling tasks still open
+scope as `rules_coverage.py` reports it (covered by a test or rule-named eval, untested with its reason,
+or missing), each task eval's actual result (an eval's existence is not a passing run), all unrun
+shell-enabled cases with the command for the developer to run on Fedora, the
+`[MANUAL]` rules as the developer's checklist to test by hand (the milestone is done only after the
+developer's ok on each), the sibling tasks still open
 (`elsewhere`) and which repository builds them, and what the developer has to decide next, missing
 rules and `[VERIFY]` rules waiting on the developer's answer included.
 
@@ -105,8 +111,8 @@ rules and `[VERIFY]` rules waiting on the developer's answer included.
   reviewer's job. Keep your context small.
 - Something unexpected — a report not in its format, a merge conflict, a spec contradiction → stop and
   ask; don't improvise.
-- **Never run git or anything else inside an agent's worktree**; the one exception is the cleanup in
-  `merge.md` after a merge. An agent's worktree is its own; what needs doing there goes to the agent.
+- **Never run git or anything else inside an agent's worktree** except the main-session task-eval
+  commands in step 2.3 and cleanup in `merge.md` after a merge. Other work there goes to the agent.
 - **A blanket yes covers merges and resuming only** ("merge each one the reviewer approves", "yes to
   all"). A spec gap, a spec-silent choice a reviewer flagged, and any change to an approved plan each
   need the developer's ruling on that point. Record it in the plan quoting them: `Ruled by the

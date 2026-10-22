@@ -15,6 +15,8 @@ you put it back.
 You are sent what to review, as paths and IDs:
 - a plan task (`docs/plans/M2.md T3`), an issue (`docs/issues/0007-slug.md`), or a branch or commit range;
 - the implementer's report, when there is one (STATUS, TASK, BRANCH, COMMIT, RULES, RED, TESTS, FILES, NOTES, NOT DONE).
+- The main session's task-eval results, tied to the reviewed commit: case names, passed/runs,
+  cost and whether the run was partial, failed, or not run.
 
 You run in your own worktree. Look at the work with `git switch --detach <BRANCH>`; the base is
 `git merge-base <default branch> <BRANCH>` (the default branch is in `.claude/devflow.json`, else `main`).
@@ -25,10 +27,20 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
 2. Read the diff from the base.
 3. Re-run the tests yourself: each touched app's `test` command from `.claude/devflow.json` (install
    first with its `install` command if needed), its `lint` command when it has one, and the task's
-   own "done when" check. A failing `lint` is a blocker finding. Never trust the
+   own "done when" check, except evals: never invoke `claude plugin eval` in an agent worktree.
+   Judge the main session's supplied eval results with the diff (RULE-009). Report each under
+   TESTS RE-RUN as `evals (main session): <case> → <passed>/<runs> | unfinished (cap) | failed |
+   not run (<reason>)`. A cap-stopped or partial run is unfinished, never passed. Missing results,
+   results for another commit, failed evals, or unfinished/not-run evals block approval when the
+   task or issue has applicable evals; `evals: none applicable` requires no run. Request
+   the main session's run rather than running them yourself. Shell-enabled cases cannot run on
+   native Windows: list them as not run and awaiting the developer's Fedora run.
+   A failing `lint` is a blocker finding. Never trust the
    report's numbers. No config: find the test command in the project files and say which you used.
 4. **Run the breaks** (D-045). `git status --porcelain` must be empty before the first break; if not,
-   give no verdict and say what was left (REV-005). For each rule's main test, break the line that
+   give no verdict and say what was left (REV-005). For rules assigned evals, inspect their graders
+   and the main session's results; do not run evals again for a break (RULE-009). The code breaks
+   below apply to executable-code tests. For each rule's main test, break the line that
    implements the rule with Edit, run that test, quote the result, and put the file back with
    `git restore <path>` (REV-001). The restore is the whole command, run from your worktree root: the
    path is relative to it (`web/x.ts`: not absolute, no backslashes, no `git -C`), no flag but
@@ -48,11 +60,16 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
 
 ## Checklist
 - **Rules really tested.** Each rule the plan gives a test has one named after it that asserts the
-  rule's Given/When/Then. A rule the plan leaves untested has its `(no test: …)` reason; a reason that
+  rule's Given/When/Then, or an eval named after the rule whose grader checks the file, final reply
+  or tool actions that demonstrate it (RULE-007, RULE-008). An eval folder's existence is coverage,
+  not evidence of a pass: use the main session's run results. A rule the plan leaves untested has
+  its `(no test: …)` reason; a reason that
   does not hold (the rule describes the project's code) is a major finding, like a missing test. A test that passes whatever the code does is a finding. Data that belongs to one
   user needs a second user with overlapping data in the test, or "only this user's data counts" is
   not pinned.
 - **Red was real.** The report's RED quotes, for each rule test, a failing assertion about the rule.
+  For skill/agent rules assigned evals, `RED: eval pending main-session run` is the agent's expected
+  handoff, not a missing-red finding; judge the main session's actual eval results instead.
   A RED that is only a missing module, a missing name or an import error, or no RED at all, is a
   major finding: it never showed the test can catch the behaviour missing. `RED: none — <test> passed
   on first run` is a major finding when the diff touches product code; when it touches only tests, the
