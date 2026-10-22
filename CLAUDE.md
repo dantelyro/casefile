@@ -35,9 +35,10 @@ CLAUDE_PLUGIN_ROOT="$PWD" sh hooks/run-hook session_start < tests/fixtures/sessi
 ```
 
 **Every shipped change bumps `version` in `.claude-plugin/plugin.json` and in `pyproject.toml`; the
-two change together.** Claude Code refreshes
-known marketplaces on startup, so a bump is what makes installed copies pick the change up;
-without one, nothing updates. Git history shows the convention: minor for a new skill or hook,
+two change together.** An installed copy takes a new version only when the version string
+changes; without a bump, nothing updates. Even then it arrives only through auto-update, which is
+off by default for a third-party marketplace like this one (the README says how to turn it on), or
+through `/plugin marketplace update dantelyro`. Git history shows the convention: minor for a new skill or hook,
 patch for wording.
 
 The plugin `description` is duplicated in `plugin.json` and `marketplace.json` — one of the two
