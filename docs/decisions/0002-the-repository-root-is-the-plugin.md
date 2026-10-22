@@ -5,7 +5,7 @@
 > connection between root placement and update behaviour is **inferred** from the diff and the
 > README. To be confirmed.
 
-**Status:** Superseded by D-054 (accepted 2026-08-07).
+**Status:** **SUPERSEDED by D-054 (2026-10-22)** — a root plugin puts `.venv/`'s hard links inside the plugin folder, which `claude plugin eval` refuses; the update-behaviour reason for the hoist was never confirmed.
 **Decided by:** dantelyro <beyondmind9@gmail.com> — resolved by blaming `42d8300`, the `feat`
 commit that moved the manifest and retargeted `source`.
 **Implemented by:** `42d8300` — 2026-08-07.
@@ -29,3 +29,6 @@ current reality and the asymmetry is documented rather than discovered.
 **The open question this exposes, deliberately not decided here:** whether a second plugin should
 trigger a move back to a uniform nested layout, or live alongside the root plugin as an
 exception.
+
+**Changed by:**
+- 2026-10-22 · dantelyro — superseded by D-054; the root layout blocked `claude plugin eval` (hard links in .venv/), and the update-behaviour link was inferred, never observed.
