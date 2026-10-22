@@ -9,6 +9,8 @@
   docs/product/blueprint.html; HTML or Markdown). No build order file yet is a warning;
 - every relative link, `D-NNN` and rule ID in docs/product/product-decisions.md reaches a file, a
   decision entry or a rule that exists;
+- docs/product/product-decisions.md opens, under its heading, with the legend `✅ decided by <name> ·
+  ❌ rejected by <name>`, and every `- ` line starts `- ✅ ` or `- ❌ ` (SPEC-008);
 - the specs README's file table lists exactly the spec files.
 
 Folders come from .claude/devflow.json (`specs_dir`, `build_order`, `rule_id_pattern`). Exit 1 on
@@ -24,6 +26,7 @@ import sys
 
 DEFAULT_RULE = r"[A-Z]+-\d{3}"
 TAGS = {"LATER", "VERIFY", "MANUAL"}
+LEGEND = re.compile(r"^✅ decided by \S.*? · ❌ rejected by \S.*?\s*$")
 DECISION = re.compile(r"(?<![\w-])D-(\d{3,})([a-z]?)(?![\w-])")
 
 
@@ -132,6 +135,15 @@ def main() -> None:
             path = target.split("#")[0]
             if path and not os.path.exists(os.path.normpath(os.path.join(os.path.dirname(pd), path))):
                 errors.append(f"{pd_rel}: links to {path}, which does not exist")
+        lines = text.splitlines()
+        h1 = next((i for i, ln in enumerate(lines) if ln.startswith("# ")), -1)
+        first = next((ln for ln in lines[h1 + 1:] if ln.strip()), "")
+        if not LEGEND.match(first):
+            errors.append(f"{pd_rel}: no legend line `✅ decided by <name> · ❌ rejected by <name>` "
+                          "under the heading")
+        for no, ln in enumerate(lines, 1):
+            if ln.startswith("- ") and not ln.startswith(("- ✅ ", "- ❌ ")):
+                errors.append(f"{pd_rel}:{no}: a decision line must start with ✅ or ❌")
         log = os.path.join(root, "docs", "decisions")
         names = os.listdir(log) if os.path.isdir(log) else []
         entries = {m.group(1) for m in (re.match(r"^(\d{4}[a-z]?)-.+\.md$", n) for n in names) if m}

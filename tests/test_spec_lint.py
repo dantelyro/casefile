@@ -49,10 +49,14 @@ BLUEPRINT = """<html><body>
 </body></html>
 """
 
-DECISIONS = """# Product decisions
+LEGEND = "✅ decided by dantelyro · ❌ rejected by dantelyro"
 
-- Brazil first (2026-10-01) → [AUTH-001](../specs/10-auth.md#auth-001), see D-001.
-- Required skills dominate (2026-10-02) → MATCH-001.
+DECISIONS = f"""# Product decisions
+
+{LEGEND}
+
+- ✅ Brazil first (2026-10-01) → [AUTH-001](../specs/10-auth.md#auth-001), see D-001.
+- ❌ Required skills dominate (2026-10-02) → MATCH-001.
 """
 
 
@@ -256,6 +260,45 @@ def test_outside_links_are_not_checked(repo):
 def test_no_product_decisions_file_is_fine(repo):
     (repo / "docs/product/product-decisions.md").unlink()
     assert lint(repo) == (0, {"rules": 5, "errors": [], "warnings": []})
+
+
+PD = "docs/product/product-decisions.md"
+
+
+def test_SPEC_008_a_file_with_the_legend_and_icons_passes(repo):
+    code, out = lint(repo)
+    assert (code, out["errors"]) == (0, [])
+
+
+def test_SPEC_008_a_line_without_an_icon_is_an_error_naming_the_line(repo):
+    edit(repo, PD, "- ❌ Required", "- Required")
+    assert_error(repo, PD + ":6", "✅")
+
+
+def test_SPEC_008_an_icon_without_the_space_after_it_is_an_error(repo):
+    edit(repo, PD, "- ✅ Brazil first", "- ✅Brazil first")
+    assert_error(repo, PD + ":5", "✅")
+
+
+def test_SPEC_008_wrapped_continuation_lines_are_not_decision_lines(repo):
+    edit(repo, PD, "- ✅ Brazil first", "- ✅ Brazil first\n  wrapped text with no icon")
+    code, out = lint(repo)
+    assert (code, out["errors"]) == (0, [])
+
+
+def test_SPEC_008_a_file_without_the_legend_is_an_error(repo):
+    edit(repo, PD, LEGEND + "\n\n", "")
+    assert_error(repo, PD, "legend")
+
+
+def test_SPEC_008_a_legend_after_a_decision_line_is_an_error(repo):
+    edit(repo, PD, LEGEND + "\n\n", "- ✅ Early line\n\n" + LEGEND + "\n\n")
+    assert_error(repo, PD, "legend")
+
+
+def test_SPEC_008_a_legend_with_no_name_is_an_error(repo):
+    edit(repo, PD, LEGEND, "✅ decided by  · ❌ rejected by dantelyro")
+    assert_error(repo, PD, "legend")
 
 
 # File table
