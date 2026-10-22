@@ -14,8 +14,9 @@ optional: [LATER], [VERIFY], [MANUAL]).
 
 A test is named after a rule when a test file holds `it('MATCH-010: …'` / `test("MATCH-010 …"`
 (Jest, Vitest, Playwright) or `def test_MATCH_010_…` (pytest, unittest). Comments do not count.
-An eval directory counts as a test too: a direct child of `evals/` at a repository's root named
-`MATCH-010-<slug>` that holds at least one file (RULE-008).
+An eval directory counts as a test too: a direct child of a folder named `evals/` (at a
+repository's root or nested, as in `plugins/x/evals/`) named `MATCH-010-<slug>` that holds at
+least one file (RULE-008).
 Files are the repository's and each sibling repository's (`siblings` in devflow.json), minus what
 .gitignore ignores. Standard library only.
 """
@@ -93,7 +94,7 @@ def main() -> None:
     named: set[str] = set()
     js_name = re.compile(rf"""(?<![.\w])(?:it|test)(?:\.\w+)*\s*\(\s*["'`]({rule})[:\s]""")
     py_name = re.compile(r"^\s*(?:async\s+)?def test_([A-Z]+)_(\d+)_", re.MULTILINE)
-    eval_dir = re.compile(rf"^evals/({rule})-[^/]+/.")
+    eval_dir = re.compile(rf"^(?:.*/)?evals/({rule})-[^/]+/.")
     for repo, files in repo_files:
         for rel in files:
             e = eval_dir.match(rel)
