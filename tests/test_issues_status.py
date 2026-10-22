@@ -8,7 +8,7 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "skills" / "fix-bug" / "scripts" / "issues_status.py"
+SCRIPT = ROOT / "plugins" / "devflow" / "skills" / "fix-bug" / "scripts" / "issues_status.py"
 
 
 def issue(num, title, status="open", blocks="none", test="`web/x.test.ts` — `BUG-7: upload keeps the file`"):

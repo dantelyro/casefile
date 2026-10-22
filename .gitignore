@@ -2,6 +2,6 @@
 Thumbs.db
 node_modules/
 __pycache__/
-evals/results/
+plugins/devflow/evals/results/
 .claude/worktrees/
 .venv/

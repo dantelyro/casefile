@@ -5,7 +5,7 @@
 > connection between root placement and update behaviour is **inferred** from the diff and the
 > README. To be confirmed.
 
-**Status:** Accepted (2026-08-07).
+**Status:** Superseded by D-054 (accepted 2026-08-07).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — resolved by blaming `42d8300`, the `feat`
 commit that moved the manifest and retargeted `source`.
 **Implemented by:** `42d8300` — 2026-08-07.

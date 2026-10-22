@@ -9,7 +9,7 @@ import sys
 
 import pytest
 
-HOOKS = pathlib.Path(__file__).resolve().parent.parent / "hooks"
+HOOKS = pathlib.Path(__file__).resolve().parent.parent / "plugins" / "devflow" / "hooks"
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(HOOKS))
 
