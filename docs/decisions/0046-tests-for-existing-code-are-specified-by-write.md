@@ -1,6 +1,6 @@
 # D-046 — Tests for existing code are specified by write-specs and built by implement; there is no separate test-writing skill
 
-**Status:** Accepted (2026-10-19).
+**Status:** **SUPERSEDED by D-056 (2026-10-23)** — tests for existing code are dropped with their specs (SPEC-001..005), not built.
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session, 2026-10-19: "write-spec will also write spec about test only spec. just like it does with the rest so that means i dont need a write-test skill?", and "yes write it".
 
 **Context:** Adding tests to an existing codebase had no devflow path. On devflow 0.16.1 a milestone of tests for existing screens went through implement as ordinary tasks, and broke only on the missing red and the unrun breaks (D-045). Every devflow test is named after a spec rule (D-034), and existing code usually has none; behaviour read off code shows what it does, never what it must do.
@@ -10,3 +10,6 @@
 **Decision:** (c), the developer's call. write-specs reads the named scope and drafts one rule per observed behaviour, each shown as proposed; behaviour that looks wrong is never drafted as a rule but asked at the approval step, and becomes a rule or an issue. The milestone holds tests-only tasks, proved by the reviewer's breaks. Rules: SPEC-001 to SPEC-005 (docs/specs/30-write-specs.md). D-035 is unchanged: the main session never writes tests.
 
 **Trade-offs:** Adding a few tests to one module takes specs, a plan and agents, the weight of any feature. write-specs' description gains a second kind of input, which changes when it triggers and needs eval cases.
+
+**Changed by:**
+- 2026-10-23 · dantelyro — superseded by D-056; the milestone and its rules were dropped after M4 was reverted.

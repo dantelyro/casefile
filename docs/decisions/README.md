@@ -62,11 +62,12 @@ so.
 | [D-043](0043-devflow-agents-run-one-command-per-call-with.md) | Devflow agents run one command per call, with a timeout, and never wait in a loop | Accepted |
 | [D-044](0044-what-no-spec-rule-states-is-a-planner.md) | What no spec rule states is a planner choice the developer accepts or cuts | Accepted |
 | [D-045](0045-the-reviewer-runs-the-breaks-in-its-own.md) | The reviewer runs the breaks in its own worktree; the implementer no longer proves its own tests | Accepted |
-| [D-046](0046-tests-for-existing-code-are-specified-by-write.md) | Tests for existing code are specified by write-specs and built by implement; there is no separate test-writing skill | Accepted |
+| [D-046](0046-tests-for-existing-code-are-specified-by-write.md) | Tests for existing code are specified by write-specs and built by implement; there is no separate test-writing skill | SUPERSEDED by D-056 |
 | [D-047](0047-devflow-is-specified-in-its-own-write-specs.md) | devflow is specified in its own write-specs layout and built with implement | Accepted |
 | [D-048](0048-development-uses-uv-pytest-and-ruff-only-shipped.md) | Development uses uv, pytest and ruff; only shipped code stays standard library | Accepted |
 | [D-049](0049-devflow-drops-the-mvp-tag-and-adds-no.md) | devflow drops the MVP tag and adds no test tag; what gets a test follows from the project's own code | Accepted |
 | [D-050](0050-the-architecture-document-is-overview-md-built-from.md) | The architecture document is overview.md, built from fixed sections | Accepted |
+| [D-056](0056-m4-is-reverted-and-specs-for-existing-code.md) | M4 is reverted, and specs for existing code and the docs reconciliation skill are dropped | Accepted |
 
 ## Conventions
 

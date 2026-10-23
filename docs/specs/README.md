@@ -42,8 +42,6 @@ carries out are untagged and have a test.
 | [10-guards.md](10-guards.md) | What the hooks let each devflow agent do |
 | [20-reviewer.md](20-reviewer.md) | `devflow:reviewer` |
 | [21-implementer.md](21-implementer.md) | `devflow:implementer` |
-| [30-write-specs.md](30-write-specs.md) | The `write-specs` skill |
-| [40-docs-reconciliation.md](40-docs-reconciliation.md) | The docs reconciliation skill |
 | [31-rules-and-tests.md](31-rules-and-tests.md) | What tags mean and what gets a test |
 | [50-tooling.md](50-tooling.md) | Shipped code stays standard library |
 

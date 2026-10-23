@@ -4,9 +4,9 @@
   earlier designs stay in `docs/specs/history/` (2026-10-19), see D-047
 - The reviewer, not the implementer, proves tests can fail (2026-10-19) → REV-001, IMPL-001, see D-045
 - Tests for existing code go through `write-specs` and `implement`, with no separate skill
-  (2026-10-19) → SPEC-001, see D-046
+  (2026-10-19), see D-046; dropped with its specs (2026-10-23), see D-056
 - Documents are brought into devflow's layout by a separate skill, not by hand and not by the
-  evidence skill (2026-10-19) → DOCS-001
+  evidence skill (2026-10-19); dropped with that skill (2026-10-23), see D-056
 - The repo adopts ruff and pytest, run through uv, as the milestone right after M1, ahead of specs for existing code
   (2026-10-19) → TOOL-004, see D-048
 - The test suite is rewritten in pytest's style, not only run by pytest (2026-10-19), see D-048
