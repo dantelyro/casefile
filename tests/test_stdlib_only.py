@@ -4,7 +4,7 @@ import ast
 import pathlib
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent / "plugins" / "devflow"
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 OWN = {"devflow_hooks", "run"}
 
 

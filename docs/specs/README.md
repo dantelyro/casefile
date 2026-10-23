@@ -26,15 +26,14 @@ Then the write is denied
 The ID is the area's prefix and a three-digit number. A rule needs no tag: it is built in its
 milestone. Tags, which a rule may combine: `[LATER]` planned, not built yet · `[VERIFY]` waits for
 something to be confirmed before it is built: a fact about an outside system, or the developer's
-answer to a question the rule depends on · `[MANUAL]` neither a test nor an eval can check it (how a screen
-feels, a live system a run cannot reach, the developer's own judgement), or the developer marked it
-critical, so it keeps its test or eval as well; the developer approves each when its milestone
+answer to a question the rule depends on · `[MANUAL]` the AI has no way to test it (an agent's or
+skill's behaviour, a live run, how a screen feels); the developer tests it by hand when its milestone
 finishes. A rule that exists because of a logged decision cites it (`see D-012`); the reasoning
 stays in the entry.
 
-Most of devflow's behaviour is agent and skill prose, which a unit test cannot run: a rule about what
-a skill or agent does has an eval named after it (`evals/<RULE-ID>-<slug>/`). Rules a hook or a script
-carries out have a test.
+Most of devflow's behaviour is agent and skill prose, which a unit test cannot run: those rules are
+`[MANUAL]`: the developer tests them by hand when the milestone finishes. Rules a hook or a script
+carries out are untagged and have a test.
 
 ## Files
 
@@ -44,8 +43,8 @@ carries out have a test.
 | [20-reviewer.md](20-reviewer.md) | `devflow:reviewer` |
 | [21-implementer.md](21-implementer.md) | `devflow:implementer` |
 | [30-write-specs.md](30-write-specs.md) | The `write-specs` skill |
+| [40-docs-reconciliation.md](40-docs-reconciliation.md) | The docs reconciliation skill |
 | [31-rules-and-tests.md](31-rules-and-tests.md) | What tags mean and what gets a test |
-| [32-evidence-skill.md](32-evidence-skill.md) | The `evidence-based-decisions` skill and `session_start` |
 | [50-tooling.md](50-tooling.md) | Shipped code stays standard library |
 
 Behaviour shipped before these files (through 0.19.1) is described in `history/`, one design per

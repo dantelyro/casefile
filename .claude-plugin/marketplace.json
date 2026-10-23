@@ -13,7 +13,7 @@
         "name": "dantelyro"
       },
       "category": "development",
-      "source": "./plugins/devflow",
+      "source": "./",
       "homepage": "https://github.com/dantelyro/devflow"
     }
   ]

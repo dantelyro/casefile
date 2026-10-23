@@ -1,4 +1,0 @@
-schema_version: "1.1"
-name: EVID-005-rewrites-old-documents
-context:
-  scaffold_script: fixture.sh

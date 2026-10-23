@@ -8,7 +8,7 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SCRIPTS = sorted((ROOT / "plugins" / "devflow" / "skills").glob("*/scripts/*.py"))
+SCRIPTS = sorted((ROOT / "skills").glob("*/scripts/*.py"))
 
 
 def test_there_are_skill_scripts_to_check():

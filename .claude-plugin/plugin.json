@@ -1,0 +1,28 @@
+{
+  "name": "devflow",
+  "description": "Workflow skills and guards for building with agents: orienting in an unfamiliar repo, recording decisions with the evidence behind them, turning a feature or a finished brainstorm into spec rules and a milestone, building a milestone of spec rules task by task with planner, implementer and reviewer agents, fixing bugs test-first from docs/issues/, reviewing changes against their specs, and hooks that hold the rules every time.",
+  "version": "0.22.1",
+  "author": {
+    "name": "dantelyro"
+  },
+  "homepage": "https://github.com/dantelyro/devflow",
+  "repository": "https://github.com/dantelyro/devflow",
+  "license": "MIT",
+  "keywords": [
+    "specs",
+    "context",
+    "documentation",
+    "workflow",
+    "codebase",
+    "architecture",
+    "decision-log",
+    "adr",
+    "onboarding",
+    "code-review",
+    "hooks",
+    "guardrails",
+    "bug-fixing",
+    "tdd",
+    "orchestration"
+  ]
+}

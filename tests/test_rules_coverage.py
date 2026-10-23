@@ -8,7 +8,7 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "plugins" / "devflow" / "skills" / "implement" / "scripts" / "rules_coverage.py"
+SCRIPT = ROOT / "skills" / "implement" / "scripts" / "rules_coverage.py"
 
 SPEC = """# Matching
 
@@ -254,75 +254,3 @@ def test_RULE_006_a_rule_still_tagged_mvp_is_checked_like_an_untagged_one(repo):
     code, out, _ = coverage(repo)
     assert code == 1
     assert out["missing"] == ["MATCH-001"]
-
-
-# RULE-008: an eval named after a rule is its test
-
-def git_init(path):
-    path.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["git", "init", "-q", "-b", "main"], cwd=path, check=True)
-
-
-def test_RULE_008_an_eval_named_after_a_rule_covers_it(repo):
-    write(repo, "evals/MATCH-001-weights/case.yaml", "name: x\n")
-    _, out, err = coverage(repo)
-    assert out["covered"] == ["MATCH-001"], err
-    assert "MATCH-001" not in out["missing"]
-
-
-def test_RULE_008_an_eval_and_a_test_together_cover_it_once(repo):
-    write(repo, "evals/MATCH-001-weights/case.yaml", "name: x\n")
-    write(repo, "evals/MATCH-001-other/prompt.md", "x\n")
-    write(repo, "web/a.test.ts", "it('MATCH-001: x', () => {})\n")
-    out = coverage(repo)[1]
-    assert out["covered"] == ["MATCH-001"]
-
-
-def test_RULE_008_an_eval_folder_without_a_slug_does_not_count(repo):
-    write(repo, "evals/MATCH-001/case.yaml", "name: x\n")
-    write(repo, "evals/MATCH-002-/case.yaml", "name: x\n")
-    out = coverage(repo)[1]
-    assert out["covered"] == []
-
-
-def test_RULE_008_an_eval_for_another_rule_does_not_count(repo):
-    write(repo, "evals/MATCH-0011-x/case.yaml", "name: x\n")
-    write(repo, "evals/MATCH-002-x/case.yaml", "name: x\n")
-    out = coverage(repo)[1]
-    assert out["covered"] == ["MATCH-002"]
-
-
-def test_RULE_008_a_folder_outside_evals_or_nested_deeper_does_not_count(repo):
-    write(repo, "evals/sub/MATCH-001-x/case.yaml", "name: x\n")
-    write(repo, "docs/MATCH-002-x/case.yaml", "name: x\n")
-    write(repo, "plugins/devflow/evals/sub/MATCH-003-x/case.yaml", "name: x\n")
-    out = coverage(repo)[1]
-    assert out["covered"] == []
-
-
-def test_RULE_008_a_folder_only_ending_in_evals_does_not_count(repo):
-    write(repo, "plugins/devflow/myevals/MATCH-001-x/case.yaml", "name: x\n")
-    write(repo, "myevals/MATCH-002-x/case.yaml", "name: x\n")
-    out = coverage(repo)[1]
-    assert out["covered"] == []
-
-
-def test_RULE_008_an_eval_in_an_evals_folder_inside_a_plugin_counts(repo):
-    write(repo, "plugins/devflow/evals/MATCH-001-x/case.yaml", "name: x\n")
-    out = coverage(repo)[1]
-    assert out["covered"] == ["MATCH-001"]
-
-
-def test_RULE_008_an_eval_in_a_sibling_repository_counts(repo):
-    git_init(repo / "back")
-    write(repo, "back/evals/MATCH-003-x/prompt.md", "x\n")
-    write(repo, ".claude/devflow.json", json.dumps({"repo": "frontend", "siblings": {"backend": "back"}}))
-    out = coverage(repo)[1]
-    assert out["covered"] == ["MATCH-003"]
-
-
-def test_RULE_008_a_manual_rule_with_an_eval_stays_manual(repo):
-    write(repo, "evals/MATCH-004-look/case.yaml", "name: x\n")
-    out = coverage(repo)[1]
-    assert out["manual"] == ["MATCH-004"]
-    assert "MATCH-004" not in out["covered"]

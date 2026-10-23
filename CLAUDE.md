@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `fa22729` — 2026-10-22
+**Docs reconciled through:** `eb7f238` — 2026-10-21
 
 ## What this repo is
 
@@ -26,19 +26,15 @@ uv sync
 uv run pytest
 uv run ruff check
 
-# After each task's commit, the MAIN SESSION runs its evals once on that task's worktree and
-# hands the results to the reviewer; agents cannot invoke the eval CLI in their worktrees.
-# Use --case with the task's case glob. Results/ is gitignored; --scaffold runs fixture.sh.
-timeout 900 claude plugin eval plugins/devflow --case '<RULE-ID>-*' --ablation none --runs 2 --max-cost-usd 2 --no-publish --scaffold
-# A capped/partial run is unfinished, never passed. Commits and CI never run evals.
-# Shell-enabled cases need macOS/Linux/WSL2; on native Windows report not run and list them
-# for the developer's Fedora run. Full-suite runs are still on demand (omit --case).
+# Trigger evals for the skills (billed, so on demand; results/ is gitignored). --scaffold runs each
+# case's fixture.sh, which sets up a small repo: in an empty folder runs give up before choosing a skill
+claude plugin eval . --ablation none --no-publish --scaffold
 
 # Exercise a hook exactly as Claude Code invokes it, with a captured event
-CLAUDE_PLUGIN_ROOT="$PWD/plugins/devflow" sh plugins/devflow/hooks/run-hook session_start < tests/fixtures/session_start_startup.json | python -m json.tool
+CLAUDE_PLUGIN_ROOT="$PWD" sh hooks/run-hook session_start < tests/fixtures/session_start_startup.json | python -m json.tool
 ```
 
-**Every shipped change bumps `version` in `plugins/devflow/.claude-plugin/plugin.json` and in `pyproject.toml`; the
+**Every shipped change bumps `version` in `.claude-plugin/plugin.json` and in `pyproject.toml`; the
 two change together.** An installed copy takes a new version only when the version string
 changes; without a bump, nothing updates. Even then it arrives only through auto-update, which is
 off by default for a third-party marketplace like this one (the README says how to turn it on), or
@@ -50,14 +46,10 @@ intentional duplications in the repo, with `version` above. Change both together
 
 ## Architecture
 
-**The plugin is `plugins/devflow/`; the root is for development.** `marketplace.json` stays at the
-root in `.claude-plugin/` and points its one entry at `source: "./plugins/devflow"`. Only that folder
-ships: its `.claude-plugin/plugin.json`, `agents/`, `hooks/`, `skills/`, `shared/` and `evals/`.
-`tests/`, `docs/`, `pyproject.toml`, `uv.lock` and `.github/` stay at the root, so `.venv/`'s hard
-links are outside the plugin (`claude plugin eval` refuses a plugin folder holding one) and evals sit
-inside it (the eval dir must stay inside the plugin root). A second plugin is
-`plugins/<name>/.claude-plugin/plugin.json` plus its own entry. See D-054, which supersedes D-002.
-Paths below are relative to `plugins/devflow/` unless they start with `docs/`, `tests/` or `.claude/`.
+**Root is the plugin.** `marketplace.json` points its one entry at `source: "./"`, so
+`.claude-plugin/` holds both manifests side by side rather than nesting the plugin under
+`plugins/`. A *second* plugin would therefore need `plugins/<name>/.claude-plugin/plugin.json`
+and its own `marketplace.json` entry — the root is taken. See D-002.
 
 **`hooks/hooks.json` is auto-discovered.** No `plugin.json` entry references it. Its command
 path is built from `${CLAUDE_PLUGIN_ROOT}`.
@@ -115,9 +107,6 @@ Each of these is load-bearing; the comments in the files say so too.
 - **Emit exactly one context field.** Claude Code reads both `additionalContext` and
   `hookSpecificOutput.additionalContext` without deduplicating, so `session_start` emits the nested
   form under Claude Code (`CLAUDE_PLUGIN_ROOT` set) and the top-level form elsewhere.
-- **Trigger evals opt out explicitly.** Only `EVAL_DEVFLOW_SKIP_SESSION_START=1` suppresses the
-  session-start context; EVID-001/002 cases set it to test request matching without the forced
-  startup skill call. Normal sessions and all guard hooks are unchanged (D-055).
 - **Devflow agents get one command per call.** `guard_bash` denies `;`, `&&`, `||`, several lines,
   `| tail` and `sleep`/`until` loops for devflow's own agents (`devflow:*`), so a hung check cannot hide
   inside a chain (D-043).
@@ -170,7 +159,7 @@ verified once and never re-checked becomes a belief about an old version (D-024)
 `docs/decisions/` holds the *why* behind the arrangements above — one file per decision, indexed
 in `docs/decisions/README.md`. It was seeded retroactively on 2026-08-27, so every existing entry
 is marked as a reconstruction. Record new decisions in the same change that implements them, per
-`plugins/devflow/skills/evidence-based-decisions/references/decision-log.md`.
+`skills/evidence-based-decisions/references/decision-log.md`.
 
 devflow is specified in its own `write-specs` layout and built with `implement` (D-047): rules with
 IDs in `docs/specs/`, the build order in `docs/product/blueprint.md`, milestone plans in

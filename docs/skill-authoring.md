@@ -1,6 +1,6 @@
 # Skill authoring — what Anthropic documents
 
-**Verified against:** Claude Code `2.1.308` — 2026-10-22
+**Verified against:** Claude Code `2.1.307` — 2026-10-21
 
 Facts about how skills load and behave, taken from Anthropic's own pages. This file records what
 the vendor says; the rules devflow layers on top live in `CLAUDE.md`. Each fact cites its page so a

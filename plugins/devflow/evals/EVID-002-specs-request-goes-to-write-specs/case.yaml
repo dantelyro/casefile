@@ -1,4 +1,0 @@
-schema_version: "1.1"
-name: EVID-002-specs-request-goes-to-write-specs
-context:
-  scaffold_script: fixture.sh

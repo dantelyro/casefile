@@ -8,7 +8,7 @@ import subprocess
 import sys
 import types
 
-HOOKS = pathlib.Path(__file__).resolve().parent.parent / "plugins" / "devflow" / "hooks"
+HOOKS = pathlib.Path(__file__).resolve().parent.parent / "hooks"
 sys.path.insert(0, str(HOOKS))
 
 import run  # needs HOOKS on sys.path first

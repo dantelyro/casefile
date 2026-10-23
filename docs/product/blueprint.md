@@ -12,7 +12,6 @@ Releases shipped through 0.19.1 predate these specs; their designs are in `docs/
   GUARD-005, REV-001, REV-002, REV-003, REV-004, REV-005, REV-006, REV-007, REV-008, IMPL-001, IMPL-002.
 - **M2 — Ruff and pytest** (0.21.0): TOOL-004; the tooling itself is a decision, not rules.
 - **M3 — Rules and tests** (0.22.0): RULE-001, RULE-002, RULE-003, RULE-004, RULE-005, RULE-006.
-- **M4 — Decision icons, the docs trigger and evals as tests** (0.23.0): SPEC-006, SPEC-007,
-  SPEC-008, RULE-003, RULE-007, RULE-008, RULE-009, EVID-001, EVID-002, EVID-003, EVID-004, EVID-005,
-  EVID-006.
-- **M5 — Specs for existing code** (0.24.0): SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005.
+- **M4 — Specs for existing code** (0.23.0): SPEC-001, SPEC-002, SPEC-003, SPEC-004, SPEC-005.
+- **M5 — Docs reconciliation** (later): DOCS-001, DOCS-002, DOCS-003, DOCS-004, DOCS-005,
+  DOCS-006, DOCS-007, DOCS-008.
