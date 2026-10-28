@@ -19,3 +19,10 @@
 - Development tooling is not a spec rule: ruff, pytest, uv and the commit gate are recorded in decisions
   (D-048) and CLAUDE.md, and M2's four tooling rules leave the specs (2026-10-20); TOOL-004 stays,
   because shipped code being standard library is what users rely on
+- The evidence skill checks documents' claims with a script at every reconciliation and audits them in
+  full on request; claims about outside systems carry the version they were verified against
+  (2026-10-28) → CLAIM-001..012, see D-062
+- A line holding `<!-- claim-ok -->` is not checked by the claim script (2026-10-28) → CLAIM-005
+- The claim script scans `CLAUDE.md`, `AGENTS.md`, the architecture overview and `README.md` by
+  default, replaced by `claim_docs` in `.claude/casefile.json` (2026-10-28) → CLAIM-008
+- The claim audit is milestone M6; M4 and M5 are not reused (2026-10-28), see D-056

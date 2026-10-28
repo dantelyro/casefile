@@ -10,3 +10,6 @@
   `force-for-plugin` (always on, no shell, but it replaces the user's style). Needs a live probe first:
   a throwaway plugin whose hook command does not exist, capturing what Claude receives on a refused edit
   and what a failing `SessionStart` shows. Blocks nothing yet. Answers: the probe, then the developer.
+- Should the claim script check counts such as "six skills and three agents" against the folders?
+  Only casefile writes such claims, and the full audit (CLAIM-010) reads them. Blocks nothing.
+  Answers: the developer.
