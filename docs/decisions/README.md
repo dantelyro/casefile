@@ -71,6 +71,7 @@ so.
 | [D-057](0057-the-session-start-pointer-waits-for-the-first.md) | The session-start pointer waits for the first change, in one output form | Accepted |
 | [D-058](0058-reconciliation-diffs-the-watermark-gap-instead-of-replaying.md) | Reconciliation diffs the watermark gap instead of replaying the log | Accepted |
 | [D-059](0059-the-evidence-skill-is-named-evidence.md) | The evidence skill is named evidence | Accepted |
+| [D-060](0060-the-plugin-is-named-casefile.md) | The plugin is named casefile | Accepted |
 
 ## Conventions
 

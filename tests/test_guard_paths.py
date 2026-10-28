@@ -15,13 +15,13 @@ FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(HOOKS))
 
 import run
-from devflow_hooks import lib
-from devflow_hooks.pre_commit import TEST_FILE
+from casefile_hooks import lib
+from casefile_hooks.pre_commit import TEST_FILE
 
 MAIN = None
 OTHER_AGENTS = ("Explore", "general-purpose", "other-plugin:helper")
-DEVFLOW_AGENTS = ("devflow:reviewer", "devflow:implementer", "devflow:planner")
-EVERY_AGENT = OTHER_AGENTS + DEVFLOW_AGENTS
+CASEFILE_AGENTS = ("casefile:reviewer", "casefile:implementer", "casefile:planner")
+EVERY_AGENT = OTHER_AGENTS + CASEFILE_AGENTS
 
 CONFIG = {"protected_paths": ["docs/specs/", "docs/product/", "docs/issues/"]}
 
@@ -31,7 +31,7 @@ def make_repo(root, config):
     subprocess.run(["git", "init", "-q"], cwd=root, check=True)
     if config is not None:
         (root / ".claude").mkdir()
-        (root / ".claude" / "devflow.json").write_text(json.dumps(config), encoding="utf-8")
+        (root / ".claude" / "casefile.json").write_text(json.dumps(config), encoding="utf-8")
     return root
 
 
@@ -52,7 +52,7 @@ def repo(tmp_path):
 
 @pytest.fixture
 def bare_repo(tmp_path):
-    """A repository with no `.claude/devflow.json`."""
+    """A repository with no `.claude/casefile.json`."""
     return make_repo(tmp_path / "repo", None)
 
 
@@ -96,7 +96,7 @@ class TestMainSession:
 
 class TestClaudeFolder:
     def test_no_agent_changes_claude_folder(self, repo):
-        expect(repo, EVERY_AGENT, (".claude/settings.json", ".claude/devflow.json",
+        expect(repo, EVERY_AGENT, (".claude/settings.json", ".claude/casefile.json",
                                    ".claude/hooks/x.py", ".claude/agents/reviewer.md"), "deny")
 
     def test_nor_the_user_claude_folder(self, repo):
@@ -104,14 +104,14 @@ class TestClaudeFolder:
         expect(repo, EVERY_AGENT, (home_claude,), "deny")
 
     def test_reason_says_what_to_do(self, repo):
-        _, reason = decide(repo, "devflow:implementer", ".claude/settings.json")
+        _, reason = decide(repo, "casefile:implementer", ".claude/settings.json")
         assert "Report" in reason
 
 
 class TestReviewer:
     def test_writes_nothing(self, repo):
-        expect(repo, ["devflow:reviewer"], ("web/a.ts", "docs/plans/M1.md", "notes.txt"), "deny")
-        expect(repo, ["devflow:reviewer"], ("nb.ipynb",), "deny", tool="NotebookEdit")
+        expect(repo, ["casefile:reviewer"], ("web/a.ts", "docs/plans/M1.md", "notes.txt"), "deny")
+        expect(repo, ["casefile:reviewer"], ("nb.ipynb",), "deny", tool="NotebookEdit")
 
 
 EDITS = (("Edit", "web/a.ts"), ("Write", "web/a.ts"), ("MultiEdit", "web/a.ts"),
@@ -121,26 +121,26 @@ EDITS = (("Edit", "web/a.ts"), ("Write", "web/a.ts"), ("MultiEdit", "web/a.ts"),
 class TestReviewerWorktree:
     @pytest.mark.parametrize(("tool", "path"), EDITS)
     def test_GUARD_001_reviewer_may_edit_product_code_in_a_linked_worktree(self, tool, path, repo, wt):
-        got, reason = decide(repo, "devflow:reviewer", str(wt / path), tool=tool, cwd=wt)
+        got, reason = decide(repo, "casefile:reviewer", str(wt / path), tool=tool, cwd=wt)
         assert got == "allow", f"{tool} {path}: {reason}"
 
     @pytest.mark.usefixtures("wt")  # a linked worktree exists, so the main checkout must still be refused
     @pytest.mark.parametrize(("tool", "path"), EDITS)
     def test_GUARD_001_reviewer_is_denied_in_the_main_checkout(self, tool, path, repo):
-        got, reason = decide(repo, "devflow:reviewer", path, tool=tool)
+        got, reason = decide(repo, "casefile:reviewer", path, tool=tool)
         assert got == "deny", f"{tool} {path}: {reason}"
 
     def test_GUARD_001_reviewer_is_denied_outside_any_repository(self, repo, tmp_path):
         other = tmp_path / "elsewhere"
         other.mkdir()
-        got, _ = decide(repo, "devflow:reviewer", str(other / "x.txt"), cwd=other)
+        got, _ = decide(repo, "casefile:reviewer", str(other / "x.txt"), cwd=other)
         assert got == "deny"
 
     def test_GUARD_001_reviewer_is_denied_in_another_repositorys_worktree(self, repo, wt, tmp_path):
         other = make_repo(tmp_path / "other", None)
         commit_empty(other)
         other_wt = add_worktree(other, tmp_path / "other-wt")
-        got, _ = decide(repo, "devflow:reviewer", str(other_wt / "web" / "a.ts"), cwd=wt)
+        got, _ = decide(repo, "casefile:reviewer", str(other_wt / "web" / "a.ts"), cwd=wt)
         assert got == "deny"
 
     @pytest.mark.parametrize(("tool", "path"), [
@@ -150,17 +150,17 @@ class TestReviewerWorktree:
         implementer_wt = add_worktree(repo, repo / ".claude" / "worktrees" / "agent-2")
         # Claude Code sets CLAUDE_PROJECT_DIR to the main repo, which makes the path repo-relative.
         monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(repo))
-        got, reason = decide(repo, "devflow:reviewer", str(implementer_wt / path), tool=tool, cwd=wt)
+        got, reason = decide(repo, "casefile:reviewer", str(implementer_wt / path), tool=tool, cwd=wt)
         assert got == "deny", f"{tool} {path}: {reason}"
         assert "worktree" in reason
 
     def test_GUARD_001_a_relative_path_resolves_against_the_cwd(self, repo, wt):
-        got, reason = decide(repo, "devflow:reviewer", "web/a.ts", cwd=wt, raw_path=True)
+        got, reason = decide(repo, "casefile:reviewer", "web/a.ts", cwd=wt, raw_path=True)
         assert got == "allow", reason
 
     def test_GUARD_001_the_files_directory_is_judged_not_the_session_cwd(self, repo, wt, monkeypatch):
         monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(repo))
-        got, _ = decide(repo, "devflow:reviewer", str(repo / "web" / "a.ts"), cwd=wt)
+        got, _ = decide(repo, "casefile:reviewer", str(repo / "web" / "a.ts"), cwd=wt)
         assert got == "deny"
 
     @pytest.mark.parametrize("flag", ["--git-dir", "--git-common-dir"])
@@ -177,11 +177,11 @@ class TestReviewerWorktree:
             return real(cmd, *a, **kw)
 
         monkeypatch.setattr(lib.subprocess, "run", run_git)
-        got, _ = decide(repo, "devflow:reviewer", str(wt / "web" / "a.ts"), cwd=wt)
+        got, _ = decide(repo, "casefile:reviewer", str(wt / "web" / "a.ts"), cwd=wt)
         assert got == "deny", f"{flag} {fake}"
 
     def test_GUARD_001_reason_says_breaks_happen_only_in_the_reviewers_own_worktree(self, repo):
-        got, reason = decide(repo, "devflow:reviewer", "web/a.ts")
+        got, reason = decide(repo, "casefile:reviewer", "web/a.ts")
         assert got == "deny"
         assert "worktree" in reason
 
@@ -194,12 +194,12 @@ class TestReviewerLimits:
     @staticmethod
     def configure(wt, cfg):  # the worktree holds its own copy of the committed settings
         (wt / ".claude").mkdir(exist_ok=True)
-        (wt / ".claude" / "devflow.json").write_text(json.dumps(cfg), encoding="utf-8")
+        (wt / ".claude" / "casefile.json").write_text(json.dumps(cfg), encoding="utf-8")
 
     def check(self, repo, wt, paths, decision):
         for path in paths:
             for tool in self.TOOLS:
-                got, reason = decide(repo, "devflow:reviewer", str(wt / path), tool=tool, cwd=wt)
+                got, reason = decide(repo, "casefile:reviewer", str(wt / path), tool=tool, cwd=wt)
                 assert got == decision, f"{tool} {path}: {reason}"
 
     def test_GUARD_002_reviewer_may_not_edit_test_files_in_its_worktree(self, repo, wt):
@@ -230,50 +230,50 @@ class TestReviewerLimits:
     @pytest.mark.parametrize("tool", ["Edit", "Write"])
     @pytest.mark.parametrize("path", ["tests/test_score.py", "web/score.test.ts"])
     def test_REV_007_reviewer_never_writes_a_test(self, tool, path, repo, wt):
-        got, _ = decide(repo, "devflow:reviewer", str(wt / path), tool=tool, cwd=wt)
+        got, _ = decide(repo, "casefile:reviewer", str(wt / path), tool=tool, cwd=wt)
         assert got == "deny", f"{tool} {path}"
 
 
 class TestPlanner:
     def test_only_its_plan_file(self, repo):
-        expect(repo, ["devflow:planner"], ("docs/plans/M1.md", "docs/plans/saved-jobs.md"), "allow")
-        expect(repo, ["devflow:planner"], ("docs/specs/12-matching.md", "web/a.ts",
+        expect(repo, ["casefile:planner"], ("docs/plans/M1.md", "docs/plans/saved-jobs.md"), "allow")
+        expect(repo, ["casefile:planner"], ("docs/specs/12-matching.md", "web/a.ts",
                                            "docs/plans/sub/x.md", "docs/plans/M1.txt"), "deny")
 
     def test_plans_dir_from_config(self, repo):
-        (repo / ".claude" / "devflow.json").write_text('{"plans_dir": "plans"}', encoding="utf-8")
-        expect(repo, ["devflow:planner"], ("plans/M1.md",), "allow")
-        expect(repo, ["devflow:planner"], ("docs/plans/M1.md",), "deny")
+        (repo / ".claude" / "casefile.json").write_text('{"plans_dir": "plans"}', encoding="utf-8")
+        expect(repo, ["casefile:planner"], ("plans/M1.md",), "allow")
+        expect(repo, ["casefile:planner"], ("docs/plans/M1.md",), "deny")
 
 
 class TestImplementer:
     def test_writes_code_not_protected_paths(self, repo):
-        expect(repo, ["devflow:implementer"], ("web/features/score.ts", "worker/app/parse.py",
+        expect(repo, ["casefile:implementer"], ("web/features/score.ts", "worker/app/parse.py",
                                                "docs/plans/M1.md", "README.md"), "allow")
-        expect(repo, ["devflow:implementer"], ("docs/specs/12-matching.md", "docs/product/blueprint.html",
+        expect(repo, ["casefile:implementer"], ("docs/specs/12-matching.md", "docs/product/blueprint.html",
                                                "docs/issues/0001-x.md"), "deny")
 
     def test_reason_says_report_blocked(self, repo):
-        _, reason = decide(repo, "devflow:implementer", "docs/specs/x.md")
+        _, reason = decide(repo, "casefile:implementer", "docs/specs/x.md")
         assert "STATUS: blocked" in reason
 
     def test_outside_the_repository(self, repo):
-        got, reason = decide(repo, "devflow:implementer", os.path.join(tempfile.gettempdir(), "x.txt"))
+        got, reason = decide(repo, "casefile:implementer", os.path.join(tempfile.gettempdir(), "x.txt"))
         assert got == "deny"
         assert "outside" in reason
 
     def test_paths_in_an_agent_worktree_folder_use_their_repo_path(self, repo):
         wt = repo / ".claude" / "worktrees" / "agent-1"
-        expect(repo, ["devflow:implementer"], (str(wt / "docs" / "specs" / "x.md"),), "deny")
-        expect(repo, ["devflow:implementer"], (str(wt / "web" / "a.ts"),), "allow")
+        expect(repo, ["casefile:implementer"], (str(wt / "docs" / "specs" / "x.md"),), "deny")
+        expect(repo, ["casefile:implementer"], (str(wt / "web" / "a.ts"),), "allow")
 
     def test_inside_a_real_worktree(self, repo, tmp_path):
         commit_empty(repo)
         wt = add_worktree(repo, tmp_path / "wt")
         (wt / ".claude").mkdir(exist_ok=True)
-        (wt / ".claude" / "devflow.json").write_text(json.dumps(CONFIG), encoding="utf-8")
-        expect(repo, ["devflow:implementer"], (str(wt / "docs" / "specs" / "x.md"),), "deny", cwd=wt)
-        expect(repo, ["devflow:implementer"], (str(wt / "web" / "a.ts"),), "allow", cwd=wt)
+        (wt / ".claude" / "casefile.json").write_text(json.dumps(CONFIG), encoding="utf-8")
+        expect(repo, ["casefile:implementer"], (str(wt / "docs" / "specs" / "x.md"),), "deny", cwd=wt)
+        expect(repo, ["casefile:implementer"], (str(wt / "web" / "a.ts"),), "allow", cwd=wt)
 
 
 class TestOtherAgents:
@@ -284,20 +284,20 @@ class TestOtherAgents:
 
 class TestNoConfig:
     def test_defaults_protect_claude_and_issues(self, bare_repo):
-        expect(bare_repo, ["devflow:implementer"], ("docs/specs/x.md",), "allow")
-        expect(bare_repo, ["devflow:implementer"], (".claude/x.json", "docs/issues/0001-x.md"), "deny")
+        expect(bare_repo, ["casefile:implementer"], ("docs/specs/x.md",), "allow")
+        expect(bare_repo, ["casefile:implementer"], (".claude/x.json", "docs/issues/0001-x.md"), "deny")
 
     def test_issues_are_the_main_sessions_to_write(self, bare_repo):
         expect(bare_repo, [MAIN], ("docs/issues/0001-x.md",), "allow")
-        expect(bare_repo, OTHER_AGENTS, ("docs/issues/0001-x.md",), "allow")  # only devflow's rules for devflow agents
-        _, reason = decide(bare_repo, "devflow:implementer", "docs/issues/0001-x.md")
+        expect(bare_repo, OTHER_AGENTS, ("docs/issues/0001-x.md",), "allow")  # only casefile's rules for casefile agents
+        _, reason = decide(bare_repo, "casefile:implementer", "docs/issues/0001-x.md")
         assert "NOTES" in reason
 
 
 class TestBrokenConfig:
     def test_agents_are_refused_main_is_not(self, repo):
-        (repo / ".claude" / "devflow.json").write_text("{ nope", encoding="utf-8")
-        got, reason = decide(repo, "devflow:implementer", "web/a.ts")
+        (repo / ".claude" / "casefile.json").write_text("{ nope", encoding="utf-8")
+        got, reason = decide(repo, "casefile:implementer", "web/a.ts")
         assert got == "deny"
-        assert ".claude/devflow.json" in reason
-        expect(repo, [MAIN], (".claude/devflow.json",), "allow")
+        assert ".claude/casefile.json" in reason
+        expect(repo, [MAIN], (".claude/casefile.json",), "allow")

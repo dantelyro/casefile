@@ -13,12 +13,12 @@ FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(HOOKS))
 
 import run
-from devflow_hooks import lib
+from casefile_hooks import lib
 
 MAIN = None
 OTHER_AGENTS = ("Explore", "general-purpose", "other-plugin:helper")
-DEVFLOW_AGENTS = ("devflow:reviewer", "devflow:implementer", "devflow:planner")
-EVERY_AGENT = OTHER_AGENTS + DEVFLOW_AGENTS
+CASEFILE_AGENTS = ("casefile:reviewer", "casefile:implementer", "casefile:planner")
+EVERY_AGENT = OTHER_AGENTS + CASEFILE_AGENTS
 EVERYONE = (MAIN,) + EVERY_AGENT
 
 
@@ -66,19 +66,19 @@ class TestPush:
 
     def test_powershell_push_too(self):
         expect([MAIN], ["git push origin main"], "ask", tool="PowerShell")
-        expect(["devflow:implementer"], ["git push"], "deny", tool="PowerShell")
+        expect(["casefile:implementer"], ["git push"], "deny", tool="PowerShell")
 
     def test_not_a_push(self):
         expect(EVERYONE, ["git status", "echo git push", "gitpush", "git log --grep push"], "allow")
         # commit and pull are not pushes; the read-only agents are refused them for another reason
-        expect((MAIN, "devflow:implementer") + OTHER_AGENTS,
+        expect((MAIN, "casefile:implementer") + OTHER_AGENTS,
                ['git commit -m "docs: never git push from agents"',
                 "git commit -m 'git push later'", "git pull",
                 'git commit -m "fix: x; git push comes later"',
                 "git commit -m 'a && git push'"], "allow")
 
     def test_reasons_say_what_to_do(self):
-        _, reason = decide("devflow:implementer", "git push")
+        _, reason = decide("casefile:implementer", "git push")
         assert "developer" in reason
         _, reason = decide(MAIN, "git push")
         assert "push" in reason
@@ -123,13 +123,13 @@ class TestKillByName:
 
 class TestReviewer:
     def test_reads_and_tests(self):
-        expect(["devflow:reviewer"], (
+        expect(["casefile:reviewer"], (
             "git diff main...feat", "git log --oneline -5", "git show HEAD", "git status",
             "git switch --detach feat", "npm test 2>&1", "uv run pytest -q", "npm ci",
             "uv sync", "npm test > /dev/null", "npm test 2>/dev/null", "git branch --list"), "allow")
 
     def test_changes_nothing(self):
-        expect(["devflow:reviewer"], (
+        expect(["casefile:reviewer"], (
             "git add -A", "git commit -m x", "git merge feat", "git rebase main", "git reset HEAD~1",
             "git stash", "git checkout -- web/x.ts", "git branch -d feat",
             "rm web/x.ts", "mv a b", "echo hi > notes.txt", "cat x >> y", "Remove-Item x",
@@ -156,7 +156,7 @@ def wt(repo):
 
 
 def reviewer_in(wt, commands, decision):
-    expect(["devflow:reviewer"], commands, decision, cwd=wt)
+    expect(["casefile:reviewer"], commands, decision, cwd=wt)
 
 
 class TestRestore:
@@ -165,13 +165,13 @@ class TestRestore:
     def test_GUARD_005_reviewer_restore_allowed_in_its_worktree(self, wt):
         reviewer_in(wt, ("git restore web/x.ts",), "allow")
         (wt / "web").mkdir()
-        expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow", cwd=wt / "web")
+        expect(["casefile:reviewer"], ("git restore web/x.ts",), "allow", cwd=wt / "web")
 
     @pytest.mark.parametrize("where", ["repo", "plain"])
     def test_GUARD_005_reviewer_restore_denied_outside_a_linked_worktree(self, where, repo, wt, tmp_path):
         outside = tmp_path / "plain"
         outside.mkdir()
-        got, reason = decide("devflow:reviewer", "git restore web/x.ts",
+        got, reason = decide("casefile:reviewer", "git restore web/x.ts",
                              cwd={"repo": repo, "plain": outside}[where])
         assert got == "deny", reason
         assert "worktree" in reason
@@ -182,13 +182,13 @@ class TestRestore:
     ], ids=["git-missing", "git-fails"])
     def test_GUARD_005_reviewer_restore_denied_when_git_cannot_tell(self, failing, wt, monkeypatch):
         monkeypatch.setattr(lib.subprocess, "run", failing)
-        got, reason = decide("devflow:reviewer", "git restore web/x.ts", cwd=wt)
+        got, reason = decide("casefile:reviewer", "git restore web/x.ts", cwd=wt)
         assert got == "deny", reason
         assert "worktree" in reason
 
     def test_GUARD_005_location_does_not_change_other_decisions(self, repo, wt):
-        expect(["devflow:reviewer"], ("git status",), "allow", cwd=repo)
-        expect(["devflow:planner"], ("git restore web/x.ts",), "deny", cwd=wt)
+        expect(["casefile:reviewer"], ("git status",), "allow", cwd=repo)
+        expect(["casefile:planner"], ("git restore web/x.ts",), "deny", cwd=wt)
 
     def test_GUARD_003_reviewer_may_git_restore_paths(self, wt):
         reviewer_in(wt, (
@@ -235,8 +235,8 @@ class TestRestore:
             "git restore web/x.ts > out.txt", "git restore web/x.ts && npm test"), "deny")
 
     def test_GUARD_004_planner_may_not_git_restore(self, wt):
-        expect(["devflow:reviewer"], ("git restore web/x.ts",), "allow", cwd=wt)
-        expect(["devflow:planner"], ("git restore web/x.ts",), "deny", cwd=wt)
+        expect(["casefile:reviewer"], ("git restore web/x.ts",), "allow", cwd=wt)
+        expect(["casefile:planner"], ("git restore web/x.ts",), "deny", cwd=wt)
 
     def test_REV_007_reviewer_never_commits(self, wt):
         reviewer_in(wt, ("git commit -m x", "git commit -am x", "git add -A"), "deny")
@@ -244,43 +244,43 @@ class TestRestore:
 
 class TestImplementer:
     def test_works_on_its_branch(self):
-        expect(["devflow:implementer"], (
+        expect(["casefile:implementer"], (
             "git add -A", "git commit -m 'feat(M1/T1): x [MATCH-010]'", "npm test", "git status",
             "npm install zod", "uv add httpx", "git switch -c fix/x", "rm web/old.ts"), "allow")
 
     def test_does_not_merge_rewrite_or_touch_the_default_branch(self):
-        expect(["devflow:implementer"], (
+        expect(["casefile:implementer"], (
             "git merge main", "git rebase main", "git cherry-pick abc", "git reset --hard HEAD~1",
             "git switch main", "git checkout main", "git branch -D feat"), "deny")
 
 
 class TestOneCommandPerCall:
-    def test_devflow_agents_never_chain(self):
-        expect(DEVFLOW_AGENTS, (
+    def test_casefile_agents_never_chain(self):
+        expect(CASEFILE_AGENTS, (
             "npm run typecheck | tail; npm run lint | tail; git commit -m x", "cd web && npm test",
             "npm test || true", "npm test\nnpm run lint", "npx playwright test e2e | tail -20"), "deny")
 
     def test_one_command_quoted_separators_and_other_pipes_pass(self):
-        expect(DEVFLOW_AGENTS, ('git log --grep "a; b && c"', "git log --oneline | head -5",
+        expect(CASEFILE_AGENTS, ('git log --grep "a; b && c"', "git log --oneline | head -5",
                                 "timeout 300 npm test"), "allow")
         expect((MAIN,) + OTHER_AGENTS, ("npm test && npm run lint",), "allow")
 
 
 class TestNoWaitLoops:
-    def test_devflow_agents_do_not_poll(self):
-        expect(DEVFLOW_AGENTS, (
+    def test_casefile_agents_do_not_poll(self):
+        expect(CASEFILE_AGENTS, (
             "sleep 100; cat out.log", "until grep -q done out.log; do sleep 5; done",
             "while true; do cat x; done", "sleep 1m", "Start-Sleep -Seconds 60"), "deny")
 
     def test_a_short_pause_and_everyone_else_pass(self):
-        expect(DEVFLOW_AGENTS, ("sleep 2", "timeout 120 npm test"), "allow")
+        expect(CASEFILE_AGENTS, ("sleep 2", "timeout 120 npm test"), "allow")
         expect((MAIN,) + OTHER_AGENTS, ("sleep 100", "until false; do sleep 5; done"), "allow")
 
 
 class TestPlanner:
     def test_reads_only(self):
-        expect(["devflow:planner"], ("git log --oneline", "git status", "ls docs"), "allow")
-        expect(["devflow:planner"], ("git commit -m x", "rm x", "echo x > plan.md"), "deny")
+        expect(["casefile:planner"], ("git log --oneline", "git status", "ls docs"), "allow")
+        expect(["casefile:planner"], ("git commit -m x", "rm x", "echo x > plan.md"), "deny")
 
 
 class TestOthersUnrestricted:

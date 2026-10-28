@@ -43,7 +43,7 @@ def repo_root() -> str:
 
 def default_branch(root: str) -> str:
     try:
-        with open(os.path.join(root, ".claude", "devflow.json"), encoding="utf-8") as f:
+        with open(os.path.join(root, ".claude", "casefile.json"), encoding="utf-8") as f:
             return json.load(f).get("default_branch") or "main"
     except (OSError, ValueError):
         return "main"

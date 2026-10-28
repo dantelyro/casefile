@@ -31,7 +31,7 @@ skill's behaviour, a live run, how a screen feels); the developer tests it by ha
 finishes. A rule that exists because of a logged decision cites it (`see D-012`); the reasoning
 stays in the entry.
 
-Most of devflow's behaviour is agent and skill prose, which a unit test cannot run: those rules are
+Most of casefile's behaviour is agent and skill prose, which a unit test cannot run: those rules are
 `[MANUAL]`: the developer tests them by hand when the milestone finishes. Rules a hook or a script
 carries out are untagged and have a test.
 
@@ -39,9 +39,9 @@ carries out are untagged and have a test.
 
 | File | What |
 |---|---|
-| [10-guards.md](10-guards.md) | What the hooks let each devflow agent do |
-| [20-reviewer.md](20-reviewer.md) | `devflow:reviewer` |
-| [21-implementer.md](21-implementer.md) | `devflow:implementer` |
+| [10-guards.md](10-guards.md) | What the hooks let each casefile agent do |
+| [20-reviewer.md](20-reviewer.md) | `casefile:reviewer` |
+| [21-implementer.md](21-implementer.md) | `casefile:implementer` |
 | [31-rules-and-tests.md](31-rules-and-tests.md) | What tags mean and what gets a test |
 | [50-tooling.md](50-tooling.md) | Shipped code stays standard library |
 

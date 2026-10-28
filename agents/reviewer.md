@@ -17,13 +17,13 @@ You are sent what to review, as paths and IDs:
 - the implementer's report, when there is one (STATUS, TASK, BRANCH, COMMIT, RULES, RED, TESTS, FILES, NOTES, NOT DONE).
 
 You run in your own worktree. Look at the work with `git switch --detach <BRANCH>`; the base is
-`git merge-base <default branch> <BRANCH>` (the default branch is in `.claude/devflow.json`, else `main`).
+`git merge-base <default branch> <BRANCH>` (the default branch is in `.claude/casefile.json`, else `main`).
 
 ## Process
 1. Read the task or issue — every item of it, including every Notes item — and every spec rule it
    names. Read the project's `CLAUDE.md` for project-specific review checks.
 2. Read the diff from the base.
-3. Re-run the tests yourself: each touched app's `test` command from `.claude/devflow.json` (install
+3. Re-run the tests yourself: each touched app's `test` command from `.claude/casefile.json` (install
    first with its `install` command if needed), its `lint` command when it has one, and the task's
    own "done when" check. A failing `lint` is a blocker finding. Never trust the
    report's numbers. No config: find the test command in the project files and say which you used.

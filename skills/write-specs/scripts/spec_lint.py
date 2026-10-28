@@ -11,7 +11,7 @@
   decision entry or a rule that exists;
 - the specs README's file table lists exactly the spec files.
 
-Folders come from .claude/devflow.json (`specs_dir`, `build_order`, `rule_id_pattern`). Exit 1 on
+Folders come from .claude/casefile.json (`specs_dir`, `build_order`, `rule_id_pattern`). Exit 1 on
 any error. Standard library only.
 """
 
@@ -29,7 +29,7 @@ DECISION = re.compile(r"(?<![\w-])D-(\d{3,})([a-z]?)(?![\w-])")
 
 def config(root: str) -> dict:
     try:
-        with open(os.path.join(root, ".claude", "devflow.json"), encoding="utf-8") as f:
+        with open(os.path.join(root, ".claude", "casefile.json"), encoding="utf-8") as f:
             return json.load(f)
     except (OSError, ValueError):
         return {}

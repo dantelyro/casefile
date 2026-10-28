@@ -6,7 +6,7 @@ on:
 
 jobs:
   hooks:
-    # The hook suite on every platform devflow runs on, at the oldest and newest Python it supports
+    # The hook suite on every platform casefile runs on, at the oldest and newest Python it supports
     # (D-027: Python >= 3.10; D-048: standard library for hooks/ and skills/, uv dev dependencies
     # for development).
     strategy:

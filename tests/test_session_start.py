@@ -16,7 +16,7 @@ HOOKS = pathlib.Path(__file__).resolve().parent.parent / "hooks"
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(HOOKS))
 
-from devflow_hooks import session_start  # needs HOOKS on sys.path first
+from casefile_hooks import session_start  # needs HOOKS on sys.path first
 
 
 def expected(name: str) -> dict:
@@ -43,7 +43,7 @@ def test_exactly_one_context_field(env):
 
 def test_wrapper_runs_it():
     sh = shutil.which("sh")
-    assert sh, "devflow requires sh (Git Bash on Windows)"
+    assert sh, "casefile requires sh (Git Bash on Windows)"
     env = dict(os.environ, CLAUDE_PLUGIN_ROOT=str(HOOKS.parent))
     proc = subprocess.run(
         [sh, str(HOOKS / "run-hook"), "session_start"],

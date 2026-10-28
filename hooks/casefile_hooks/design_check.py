@@ -5,7 +5,7 @@ radii, shadows, type styles, font families, components — is read from the proj
 (the claude.ai Design System format) and its `components/` folder, so adding a token to the design
 system is the only way to make a new value usable in code. Applies to every session.
 
-Off until the project has the tokens file and `design.ui_paths` in `.claude/devflow.json`.
+Off until the project has the tokens file and `design.ui_paths` in `.claude/casefile.json`.
 pre_commit uses `Checker` on the added lines of a commit.
 """
 
@@ -14,7 +14,7 @@ import json
 import os
 import re
 
-from devflow_hooks import lib
+from casefile_hooks import lib
 
 UI_EXTENSIONS = (".tsx", ".ts", ".jsx", ".js", ".css", ".scss", ".mdx")
 TEST_PATH = re.compile(r"(^|/)(tests?|e2e|__tests__)/|\.(test|spec)\.[jt]sx?$")

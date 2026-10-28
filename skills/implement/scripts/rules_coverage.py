@@ -14,7 +14,7 @@ optional: [LATER], [VERIFY], [MANUAL]).
 
 A test is named after a rule when a test file holds `it('MATCH-010: …'` / `test("MATCH-010 …"`
 (Jest, Vitest, Playwright) or `def test_MATCH_010_…` (pytest, unittest). Comments do not count.
-Files are the repository's and each sibling repository's (`siblings` in devflow.json), minus what
+Files are the repository's and each sibling repository's (`siblings` in casefile.json), minus what
 .gitignore ignores. Standard library only.
 """
 
@@ -36,7 +36,7 @@ PY_COMMENTS = re.compile(r"(^|\s)#[^\n]*")
 
 def config(root: str) -> dict:
     try:
-        with open(os.path.join(root, ".claude", "devflow.json"), encoding="utf-8") as f:
+        with open(os.path.join(root, ".claude", "casefile.json"), encoding="utf-8") as f:
             return json.load(f)
     except (OSError, ValueError):
         return {}

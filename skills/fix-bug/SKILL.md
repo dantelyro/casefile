@@ -3,8 +3,8 @@ name: fix-bug
 description: >
   Use first — before reading or editing any code — when the developer asks to fix a bug or an
   issue, or when a bug needs recording as an issue in docs/issues/. The bug is reproduced with a
-  failing test first, fixed on its own branch by the devflow:implementer agent, reviewed by
-  devflow:reviewer, and merged after the developer says yes. Triggers on: "fix
+  failing test first, fixed on its own branch by the casefile:implementer agent, reviewed by
+  casefile:reviewer, and merged after the developer says yes. Triggers on: "fix
   docs/issues/0007", "there's a bug: … fix it", "the upload fails when …, can you fix it", a bug an
   agent reported in its NOTES, a bug found while building a feature. Not for a typo or one-line
   change the developer asks to make directly, and not for explaining an error without fixing it.
@@ -56,9 +56,9 @@ Get the id and file prefix from the script, never by counting by hand:
 2. **Implement.** The project settings must be in place first, as in `implement`'s preconditions:
    without `worktree.baseRef: "head"` the implementer starts without the issue you just committed.
    The current branch must be the default branch: the worktree starts from whatever is checked out.
-   Then dispatch `devflow:implementer` with the issue path only. It writes the failing
+   Then dispatch `casefile:implementer` with the issue path only. It writes the failing
    test, confirms it fails for the right reason, fixes, and commits on its own branch.
-3. **Review.** Dispatch `devflow:reviewer` with the issue path and the implementer's report
+3. **Review.** Dispatch `casefile:reviewer` with the issue path and the implementer's report
    verbatim.
 4. **Fix loop.** `changes-requested` → send the blocker and major findings to **the same**
    implementer (continue it, so it keeps its worktree), to fix in a new commit and report again.

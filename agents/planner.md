@@ -11,7 +11,7 @@ build.
 
 ## Inputs
 You are sent a milestone ID (`M2`) or name. Everything else is in the repository; read
-`.claude/devflow.json` first for where things are (defaults in brackets):
+`.claude/casefile.json` first for where things are (defaults in brackets):
 - the build order — `build_order` [`docs/product/blueprint.html`], section "Build order": what each
   milestone covers;
 - the specs — `specs_dir` [`docs/specs`]: its README (how the specs work, the tags) and the rule

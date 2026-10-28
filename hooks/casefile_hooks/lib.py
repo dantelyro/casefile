@@ -1,4 +1,4 @@
-"""Shared helpers for devflow's hooks.
+"""Shared helpers for casefile's hooks.
 
 A hook reads one JSON event from stdin and ends with a decision printed as JSON on stdout (exit 0):
 deny or ask. Printing nothing allows. Exit codes are not used for decisions: `ask` has no
@@ -11,7 +11,7 @@ import re
 import subprocess
 import sys
 
-PREFIX = "devflow:"
+PREFIX = "casefile:"
 
 
 def read_event() -> dict:
@@ -30,7 +30,7 @@ def _decide(decision: str, reason: str) -> None:
     sys.stdout.write(json.dumps({"hookSpecificOutput": {
         "hookEventName": "PreToolUse",
         "permissionDecision": decision,
-        "permissionDecisionReason": "devflow: " + reason,
+        "permissionDecisionReason": "casefile: " + reason,
     }}))
     sys.stdout.flush()
     sys.exit(0)
@@ -49,13 +49,13 @@ def allow() -> None:
 
 
 def agent_of(event: dict) -> str | None:
-    """Which agent is acting (`devflow:reviewer`, `Explore`, …). None means the developer's own
+    """Which agent is acting (`casefile:reviewer`, `Explore`, …). None means the developer's own
     session: the probe showed `agent_type` is absent there and set in every agent."""
     return event.get("agent_type") or None
 
 
-def devflow_agent(event: dict) -> str | None:
-    """The devflow agent's short name (`reviewer`), or None for anyone else."""
+def casefile_agent(event: dict) -> str | None:
+    """The casefile agent's short name (`reviewer`), or None for anyone else."""
     agent = agent_of(event)
     if agent and agent.startswith(PREFIX):
         return agent[len(PREFIX):]
@@ -136,7 +136,8 @@ class ConfigError(Exception):
     pass
 
 
-CONFIG_PATH = ".claude/devflow.json"
+CONFIG_PATH = ".claude/casefile.json"
+OLD_CONFIG_PATH = ".claude/devflow.json"  # the plugin's name before 0.25.0 (D-060)
 
 _DEFAULTS = {
     "default_branch": "main",
@@ -170,7 +171,7 @@ _TYPES = {
 
 
 def config(event: dict) -> dict:
-    """The project's `.claude/devflow.json` over the defaults. Missing file → defaults.
+    """The project's `.claude/casefile.json` over the defaults. Missing file → defaults.
     Raises ConfigError, naming the file or key, when it cannot be used."""
     cfg = json.loads(json.dumps(_DEFAULTS))
     root = git_root(event.get("cwd") or os.getcwd())
@@ -178,6 +179,9 @@ def config(event: dict) -> dict:
         return cfg
     path = os.path.join(root, *CONFIG_PATH.split("/"))
     if not os.path.isfile(path):
+        # Defaults would quietly loosen every guard the old file configured, so refuse instead.
+        if os.path.isfile(os.path.join(root, *OLD_CONFIG_PATH.split("/"))):
+            raise ConfigError(f"{OLD_CONFIG_PATH} is from before devflow became casefile: rename it to {CONFIG_PATH}")
         return cfg
     try:
         with open(path, encoding="utf-8") as f:

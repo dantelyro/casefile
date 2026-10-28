@@ -1,8 +1,8 @@
 ---
 name: implement
 description: >
-  Use when a milestone of spec rules is to be built: its plan written by devflow:planner, then its
-  tasks run in parallel worktrees by devflow:implementer, each reviewed by devflow:reviewer and merged
+  Use when a milestone of spec rules is to be built: its plan written by casefile:planner, then its
+  tasks run in parallel worktrees by casefile:implementer, each reviewed by casefile:reviewer and merged
   after the developer says yes, until the milestone is done. Resumes a milestone from its plan in
   docs/plans/. Triggers on: "build M2", "implement milestone M3", "build the saved-jobs feature from
   its specs", "continue the milestone", "what's left in M2". Not for one bug (fix-bug), not for
@@ -21,13 +21,13 @@ redo by hand what they report.
 
 ## 0. Preconditions — stop and tell the developer if one fails
 
-- The working tree is clean and the current branch is the default branch (`.claude/devflow.json`,
+- The working tree is clean and the current branch is the default branch (`.claude/casefile.json`,
   else `main`).
 - The milestone has rules: its scope in the build order, and `### RULE-ID · …` headings in the
   specs for them; no tag is needed, and every rule is planned except `[LATER]` and `[VERIFY]` ones.
   None → stop and say the specs come first. Every rule `[LATER]` or `[VERIFY]` → stop too, and say
   what each waits on.
-- `.claude/devflow.json` exists and `.claude/settings.json` has `"worktree": { "baseRef": "head" }`.
+- `.claude/casefile.json` exists and `.claude/settings.json` has `"worktree": { "baseRef": "head" }`.
   Either missing → propose them as `review` does (step 2), write and commit them after the
   developer's yes. Without the setting, every agent branches from the remote and misses the specs,
   the plan and each unpushed merge (D-040). What else `review` step 2 lists — worktrees
@@ -37,7 +37,7 @@ redo by hand what they report.
 - Every tool the milestone's apps need is installed **and running** — a database the integration
   tests use means Docker answering `docker ps`, not just installed: a reviewer that cannot run the
   tests cannot approve.
-- **Siblings** (`siblings` in `.claude/devflow.json`): each sibling's folder is readable from this
+- **Siblings** (`siblings` in `.claude/casefile.json`): each sibling's folder is readable from this
   session (`permissions.additionalDirectories` in `.claude/settings.json`, proposed as `review` does).
 
 **Siblings.** Every repository holds the same specs, milestone and plan, and builds only the tasks
@@ -51,7 +51,7 @@ developer. Commit there touching only that file (`git -C <sibling> commit -- <pl
 
 - No plan file yet, but a sibling has it → copy it here and commit:
   `chore(plans): plan <milestone> from <sibling>`. It was approved there; never re-plan it.
-- No plan file anywhere → dispatch `devflow:planner` with the milestone, then read the plan.
+- No plan file anywhere → dispatch `casefile:planner` with the milestone, then read the plan.
 - Show the developer the tasks (titles, rules, dependencies), the Blockers and, apart, each planner
   choice `plan_status.py` lists under `choices`, and **wait for their approval**. Each choice is
   accepted or cut on its own: a cut one leaves the task's Notes (D-044). A blocker that is an undecided question is answered by the developer — then the spec is
@@ -68,19 +68,19 @@ developer. Commit there touching only that file (`git -C <sibling> commit -- <pl
 1. **Batch.** Run `implement/scripts/plan_status.py <plan>`. Its `batch` is the next batch; `waiting`
    tasks are held by an open issue or by an entry of the plan's Blockers, and stay out.
 2. **Implement.** Set each batch task to `Status: in-progress` in the plan, then dispatch one
-   `devflow:implementer` per task **in one message**: `Implement <plan> <task>.` Add the minor
+   `casefile:implementer` per task **in one message**: `Implement <plan> <task>.` Add the minor
    findings carried over from earlier tasks that touch the same files. Keep each agent's id. A plan
    change that reaches a running task (after the developer's ruling) goes to its implementer as text;
    never tell an agent to merge, rebase or sync with the default branch.
 3. **Review.** `STATUS: blocked` → the task becomes `blocked: <reason>`, and the developer hears why.
-   `STATUS: done` → dispatch `devflow:reviewer` with the plan path, the task and the full report.
+   `STATUS: done` → dispatch `casefile:reviewer` with the plan path, the task and the full report.
 4. **Fix loop.** `changes-requested` → the blocker and major findings go to **the same implementer**
    (continue it, so it keeps its worktree): fix, re-run, add a new commit, report again. Two rounds
    without approval → `blocked: review not passing`, findings shown to the developer.
 5. **Merge** each approved task after the developer's yes, following
    [`${CLAUDE_PLUGIN_ROOT}/shared/merge.md`](../../shared/merge.md).
 6. **Conflict at merge.** `merge.md` aborts and stops. Tell the developer which files conflict. With
-   their yes, dispatch a **new** `devflow:implementer`: `Redo <plan> <task> from <branch>.` It starts
+   their yes, dispatch a **new** `casefile:implementer`: `Redo <plan> <task> from <branch>.` It starts
    from the current default branch and writes the work again there. Its result is reviewed as a new
    one, with its own two fix rounds. The old worktree and branch are cleaned up with the redo's merge.
 

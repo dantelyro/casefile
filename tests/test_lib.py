@@ -13,7 +13,7 @@ import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "hooks"))
 
-from devflow_hooks import lib
+from casefile_hooks import lib
 
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 
@@ -73,14 +73,14 @@ def test_deny():
     assert out == {"hookSpecificOutput": {
         "hookEventName": "PreToolUse",
         "permissionDecision": "deny",
-        "permissionDecisionReason": "devflow: no pushing from agents",
+        "permissionDecisionReason": "casefile: no pushing from agents",
     }}
 
 
 def test_ask():
     out = decision_of(lib.ask, "push to the remote?")
     assert out["hookSpecificOutput"]["permissionDecision"] == "ask"
-    assert out["hookSpecificOutput"]["permissionDecisionReason"] == "devflow: push to the remote?"
+    assert out["hookSpecificOutput"]["permissionDecisionReason"] == "casefile: push to the remote?"
 
 
 def test_allow_prints_nothing():
@@ -94,17 +94,17 @@ def test_main_session_is_none():
 
 
 def test_plugin_agent():
-    assert lib.agent_of(fixture("bash_plugin_agent")) == "devflow:reviewer"
+    assert lib.agent_of(fixture("bash_plugin_agent")) == "casefile:reviewer"
 
 
 def test_builtin_agent():
     assert lib.agent_of(fixture("bash_builtin_agent")) == "Explore"
 
 
-def test_devflow_agent_name():
-    assert lib.devflow_agent(fixture("bash_plugin_agent")) == "reviewer"
-    assert lib.devflow_agent(fixture("bash_builtin_agent")) is None
-    assert lib.devflow_agent(fixture("bash_main")) is None
+def test_casefile_agent_name():
+    assert lib.casefile_agent(fixture("bash_plugin_agent")) == "reviewer"
+    assert lib.casefile_agent(fixture("bash_builtin_agent")) is None
+    assert lib.casefile_agent(fixture("bash_main")) is None
 
 
 @pytest.fixture
@@ -166,7 +166,7 @@ def config_repo(tmp_path):
 
 def write_config(repo, text: str):
     (repo / ".claude").mkdir(exist_ok=True)
-    (repo / ".claude" / "devflow.json").write_text(text, encoding="utf-8")
+    (repo / ".claude" / "casefile.json").write_text(text, encoding="utf-8")
 
 
 def test_no_file_gives_defaults(config_repo):
@@ -192,7 +192,15 @@ def test_invalid_json_names_the_file(config_repo):
     write_config(config_repo, "{ nope")
     with pytest.raises(lib.ConfigError) as caught:
         lib.config({"cwd": str(config_repo)})
-    assert ".claude/devflow.json" in str(caught.value)
+    assert ".claude/casefile.json" in str(caught.value)
+
+
+def test_old_devflow_file_is_refused_not_ignored(config_repo):
+    (config_repo / ".claude").mkdir()
+    (config_repo / ".claude" / "devflow.json").write_text('{"protected_paths": ["docs/"]}', encoding="utf-8")
+    with pytest.raises(lib.ConfigError) as caught:
+        lib.config({"cwd": str(config_repo)})
+    assert "rename it to .claude/casefile.json" in str(caught.value)
 
 
 def test_wrong_type_names_the_key(config_repo):

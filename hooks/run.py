@@ -1,4 +1,4 @@
-"""Entry point for every devflow hook: `run.py <hook-name>`, event JSON on stdin.
+"""Entry point for every casefile hook: `run.py <hook-name>`, event JSON on stdin.
 
 Guards fail closed: if the hook cannot be found, the event cannot be read, or the hook crashes,
 the call is denied with the reason. session_start only adds context, so it never blocks.
@@ -22,7 +22,7 @@ def _deny(reason: str) -> str:
     return json.dumps({"hookSpecificOutput": {
         "hookEventName": "PreToolUse",
         "permissionDecision": "deny",
-        "permissionDecisionReason": "devflow: " + reason,
+        "permissionDecisionReason": "casefile: " + reason,
     }})
 
 
@@ -32,7 +32,7 @@ def dispatch(name: str, raw: str, importer=importlib.import_module) -> tuple[int
     try:
         if not _NAME.match(name):
             raise ValueError(f"not a hook name: {name!r}")
-        module = importer(f"devflow_hooks.{name}")
+        module = importer(f"casefile_hooks.{name}")
         event = json.loads(raw) if raw.strip() else {} if name in NEVER_BLOCKS else None
         if not isinstance(event, dict):
             raise TypeError("hook input is not a JSON object")
@@ -46,7 +46,7 @@ def dispatch(name: str, raw: str, importer=importlib.import_module) -> tuple[int
         if name in NEVER_BLOCKS:
             return 0, ""
         return 0, _deny(f"hook `{name}` failed, so the call is refused: {type(e).__name__}: {e}. "
-                        "Tell the developer; this is a devflow bug, not something to work around.")
+                        "Tell the developer; this is a casefile bug, not something to work around.")
 
 
 def main() -> None:

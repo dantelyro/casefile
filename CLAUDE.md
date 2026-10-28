@@ -15,11 +15,11 @@ Changing a file here changes how future Claude Code sessions behave, including s
 
 ```bash
 # Register the working copy as a marketplace, to test changes before pushing
-/plugin marketplace add C:\Users\beyon\projects\devflow
+/plugin marketplace add C:\Users\beyon\projects\casefile
 
 # Install from GitHub (what users run)
-/plugin marketplace add dantelyro/devflow
-/plugin install devflow@dantelyro
+/plugin marketplace add dantelyro/casefile
+/plugin install casefile@dantelyro
 
 # Development needs uv: install the dev dependencies, then test and lint (every commit runs both)
 uv sync
@@ -62,16 +62,16 @@ growing a `SKILL.md` taxes every session that triggers it. See D-001.
 **The hook exists because a description cannot match "session start".** A skill fires when the
 model recognises its `description` in the situation in front of it. `evidence`
 triggers on the *start of a session* and on *facts about the repo*, neither of which any first
-user message states. `hooks/devflow_hooks/session_start.py` injects that trigger — as a **pointer to the skill,
+user message states. `hooks/casefile_hooks/session_start.py` injects that trigger — as a **pointer to the skill,
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 The pointer asks for the skill before the session's first change to code or docs, not before its
 first answer. See D-003, D-004 and D-057.
 
 **Six skills and three agents, each with its own moment.** `repo-discovery` reads a project that
 already exists; `evidence` records *why* and keeps it honest; `review` dispatches
-`devflow:reviewer` for a verdict on one change; `fix-bug` takes one issue from `docs/issues/` through
-`devflow:implementer`, the reviewer and a merge; `implement` builds a milestone of spec rules from
-a `devflow:planner` plan, task by task through the same implementer, reviewer and merge, and never
+`casefile:reviewer` for a verdict on one change; `fix-bug` takes one issue from `docs/issues/` through
+`casefile:implementer`, the reviewer and a merge; `implement` builds a milestone of spec rules from
+a `casefile:planner` plan, task by task through the same implementer, reviewer and merge, and never
 writes code, tests or specs itself — the plan file is the progress record (D-034, D-035); a task that conflicts at merge is redone from the default branch (D-036); `write-specs` drafts specs, product decisions, decision entries and a milestone from a feature or a finished brainstorm and writes them only after the developer's yes (D-037, D-039), recording decisions through the evidence skill's scripts (D-038). Instructions more than one skill uses live in
 `shared/` and are linked directly from each `SKILL.md` (D-032). None writes a document into
 a project that has not agreed to it. Agents live flat in `agents/` (a subfolder becomes part of the
@@ -80,7 +80,7 @@ plugin agent's own `hooks` and `permissionMode` are ignored (D-030). The two gre
 agent workflows that replace them are designed in `docs/specs/history/2026-10-14-*` and land one release at
 a time, `write-specs` among them.
 
-**Per-project settings are `.claude/devflow.json`**, read through `hooks/devflow_hooks/lib.py`
+**Per-project settings are `.claude/casefile.json`**, read through `hooks/casefile_hooks/lib.py`
 (`_DEFAULTS`, `_TYPES`: a new key is added to both). Skills and agents read it, and `review` step 2
 is where its contents are proposed: apps with `test`, `install` and optional `lint` (D-042),
 `default_branch`, and `repo` with `siblings` for a frontend and backend in separate repositories,
@@ -93,8 +93,8 @@ planner marks any detail no spec rule states as a `Planner choice:` and the deve
 Each of these is load-bearing; the comments in the files say so too.
 
 - **Every hook goes through one starter:** `sh "${CLAUDE_PLUGIN_ROOT}/hooks/run-hook" <name>`, which
-  finds Python 3.10+ and runs `hooks/run.py <name>`, which runs `devflow_hooks/<name>.py`. Claude
-  Code runs hook commands through `sh` on macOS/Linux and Git Bash on Windows, so devflow requires
+  finds Python 3.10+ and runs `hooks/run.py <name>`, which runs `casefile_hooks/<name>.py`. Claude
+  Code runs hook commands through `sh` on macOS/Linux and Git Bash on Windows, so casefile requires
   Git for Windows; under PowerShell the command does not even parse (probe, 0.13.0 spec).
 - **Guards fail closed.** `run.py` denies when the hook is unknown, its input is unreadable or it
   crashes, and every guard is registered with `onFailure: "block"`, because Claude Code otherwise
@@ -108,8 +108,8 @@ Each of these is load-bearing; the comments in the files say so too.
 - **Emit exactly one context field.** Claude Code reads both `additionalContext` and
   `hookSpecificOutput.additionalContext` without deduplicating, so `session_start` emits only the
   nested form.
-- **Devflow agents get one command per call.** `guard_bash` denies `;`, `&&`, `||`, several lines,
-  `| tail` and `sleep`/`until` loops for devflow's own agents (`devflow:*`), so a hung check cannot hide
+- **Casefile agents get one command per call.** `guard_bash` denies `;`, `&&`, `||`, several lines,
+  `| tail` and `sleep`/`until` loops for casefile's own agents (`casefile:*`), so a hung check cannot hide
   inside a chain (D-043).
 - **Only the standard library in `hooks/` and `skills/`.** A test fails on any import outside
   `sys.stdlib_module_names` there; tests may import pytest (D-048).
@@ -162,7 +162,7 @@ in `docs/decisions/README.md`. It was seeded retroactively on 2026-08-27, so eve
 is marked as a reconstruction. Record new decisions in the same change that implements them, per
 `skills/evidence/references/decision-log.md`.
 
-devflow is specified in its own `write-specs` layout and built with `implement` (D-047): rules with
+casefile is specified in its own `write-specs` layout and built with `implement` (D-047): rules with
 IDs in `docs/specs/`, the build order in `docs/product/blueprint.md`, milestone plans in
 `docs/plans/`. Designs of releases through 0.19.1 are in `docs/specs/history/`.
 

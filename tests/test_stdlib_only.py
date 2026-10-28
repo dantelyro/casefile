@@ -5,7 +5,7 @@ import pathlib
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-OWN = {"devflow_hooks", "run"}
+OWN = {"casefile_hooks", "run"}
 
 
 SCANNED = ("hooks", "skills")

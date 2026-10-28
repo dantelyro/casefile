@@ -6,7 +6,7 @@ import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HOOKS = json.loads((ROOT / "hooks" / "hooks.json").read_text(encoding="utf-8"))["hooks"]
-MODULES = {p.stem for p in (ROOT / "hooks" / "devflow_hooks").glob("*.py")} - {"__init__", "lib"}
+MODULES = {p.stem for p in (ROOT / "hooks" / "casefile_hooks").glob("*.py")} - {"__init__", "lib"}
 COMMAND = re.compile(r'^sh "\$\{CLAUDE_PLUGIN_ROOT\}/hooks/run-hook" ([a-z_]+)$')
 GUARDS = {"guard_bash", "guard_paths", "design_check", "pre_commit"}
 

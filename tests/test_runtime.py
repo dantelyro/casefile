@@ -38,7 +38,7 @@ def decision(result):
 
 def sh_path():
     sh = shutil.which("sh")
-    assert sh, "devflow requires sh (Git Bash on Windows)"
+    assert sh, "casefile requires sh (Git Bash on Windows)"
     return sh
 
 

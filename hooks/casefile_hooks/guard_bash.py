@@ -9,7 +9,7 @@ without one and checks every command itself.
 import os
 import re
 
-from devflow_hooks import lib
+from casefile_hooks import lib
 
 _QUOTED = re.compile(r'"(?:\\.|[^"\\])*"|\'[^\']*\'')
 _SPLIT = re.compile(r"\|\||&&|[;&|(){}\n]")
@@ -117,7 +117,7 @@ def _chained(command: str) -> bool:
 
 
 def _waits_in_a_loop(s: Statement) -> bool:
-    """A devflow agent polling a command instead of running it with a timeout (D-043)."""
+    """A casefile agent polling a command instead of running it with a timeout (D-043)."""
     words = [s.name] + [a.lower() for a in s.args]
     if words[0] == "do":  # `while …; do sleep 100; done` splits into `do sleep 100`
         words = words[1:]
@@ -222,7 +222,7 @@ def _implementer_violation(s: Statement, default_branch: str) -> str | None:
 def main(event: dict) -> None:
     command = (event.get("tool_input") or {}).get("command") or ""
     agent = lib.agent_of(event)
-    role = lib.devflow_agent(event)
+    role = lib.casefile_agent(event)
     shown = command.strip()[:200]
     parsed = statements(command)
 
@@ -249,11 +249,11 @@ def main(event: dict) -> None:
 
     if role:
         if _chained(command):
-            lib.deny("devflow agents run one command per call: no `;`, `&&`, `||`, several lines or "
+            lib.deny("casefile agents run one command per call: no `;`, `&&`, `||`, several lines or "
                      f"`| tail`. Split it, and give each check its own timeout. (`{shown}`)")
         for s in parsed:
             if _waits_in_a_loop(s):
-                lib.deny(f"devflow agents run each check once, with a timeout, and never wait on one in a "
+                lib.deny(f"casefile agents run each check once, with a timeout, and never wait on one in a "
                          f"`sleep`/`until` loop. If it timed out, report it with its last output. (`{shown}`)")
 
     if role in ("reviewer", "planner"):

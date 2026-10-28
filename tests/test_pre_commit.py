@@ -36,7 +36,7 @@ class Repo:
             git(path, *args)
         self.write("README.md", "x")
         if config is not None:
-            self.write(".claude/devflow.json", json.dumps(config))
+            self.write(".claude/casefile.json", json.dumps(config))
         git(path, "add", "-A")
         git(path, "commit", "-qm", "init")
 
@@ -75,7 +75,7 @@ class Repo:
 
 @pytest.fixture
 def make_repo(tmp_path, monkeypatch):
-    """A factory: make_repo(config) builds the repository with that .claude/devflow.json."""
+    """A factory: make_repo(config) builds the repository with that .claude/casefile.json."""
 
     def make(config=None):
         return Repo(tmp_path / "repo", monkeypatch, config)
@@ -252,10 +252,10 @@ def test_passing_lint_allows(lint_repo, stub_dir):
 def test_missing_tool_says_so_instead_of_failing_tests(make_repo):
     # A tool name that exists nowhere. Trimming PATH to hide npm does not work everywhere: on
     # macOS runners git and npm share a folder.
-    repo = make_repo({"apps": {"web": {"test": "devflow-no-such-tool run"}}})
+    repo = make_repo({"apps": {"web": {"test": "casefile-no-such-tool run"}}})
     repo.write("web/package.json", "{}")
     reason = repo.expect("deny")
-    assert "devflow-no-such-tool" in reason
+    assert "casefile-no-such-tool" in reason
     assert "did not run" in reason
 
 
@@ -295,5 +295,5 @@ def test_no_suites_run(make_repo, stub_dir):
 
 def test_agents_too(repo):
     repo.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
-    repo.expect("deny", agent="devflow:implementer")
+    repo.expect("deny", agent="casefile:implementer")
     repo.expect("deny", agent="general-purpose")

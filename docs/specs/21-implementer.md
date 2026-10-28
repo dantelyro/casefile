@@ -1,6 +1,6 @@
 # Implementer
 
-`devflow:implementer` (`agents/implementer.md`). It writes the tests and the code for one task or
+`casefile:implementer` (`agents/implementer.md`). It writes the tests and the code for one task or
 issue; it no longer proves its own tests can fail (see D-045).
 
 ### IMPL-001 · The implementer runs no breaks      [MANUAL]

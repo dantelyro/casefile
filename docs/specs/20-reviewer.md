@@ -1,6 +1,6 @@
 # Reviewer
 
-`devflow:reviewer` (`agents/reviewer.md`). The agent that writes a test never proves it can fail; the
+`casefile:reviewer` (`agents/reviewer.md`). The agent that writes a test never proves it can fail; the
 reviewer does, by breaking the code in its own worktree (see D-045). What it may edit and run is in
 [10-guards.md](10-guards.md).
 

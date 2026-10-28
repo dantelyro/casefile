@@ -87,7 +87,7 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
 
 def config(root: str) -> dict:
     try:
-        with open(os.path.join(root, ".claude", "devflow.json"), encoding="utf-8") as f:
+        with open(os.path.join(root, ".claude", "casefile.json"), encoding="utf-8") as f:
             return json.load(f)
     except (OSError, ValueError):
         return {}
@@ -103,7 +103,7 @@ def take_sibling_statuses(tasks: list[dict], plan: str, errors: list[str]) -> li
         return []
     here = cfg.get("repo")
     if not here:
-        errors.append("devflow.json declares `siblings` but not `repo`, this repository's name in them")
+        errors.append("casefile.json declares `siblings` but not `repo`, this repository's name in them")
         return []
     rel = os.path.relpath(os.path.abspath(plan), root)
     copies: dict[str, dict] = {}
@@ -113,7 +113,7 @@ def take_sibling_statuses(tasks: list[dict], plan: str, errors: list[str]) -> li
         if name in (None, here):
             continue
         if name not in siblings:
-            errors.append(f"{t['id']}: Repo `{name}` is neither `{here}` nor a sibling in devflow.json")
+            errors.append(f"{t['id']}: Repo `{name}` is neither `{here}` nor a sibling in casefile.json")
             continue
         if name not in copies:
             path = os.path.join(root, siblings[name], rel)

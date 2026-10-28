@@ -17,9 +17,9 @@ import shlex
 import shutil
 import subprocess
 
-from devflow_hooks import lib
-from devflow_hooks.design_check import Checker, DesignSystemError
-from devflow_hooks.guard_bash import _short_flags, statements
+from casefile_hooks import lib
+from casefile_hooks.design_check import Checker, DesignSystemError
+from casefile_hooks.guard_bash import _short_flags, statements
 
 SKIP_MARKERS = re.compile(
     r"\b(it|test|describe)\.(skip|only|todo)\b"     # Vitest / Jest / Playwright

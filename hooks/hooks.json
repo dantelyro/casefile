@@ -1,5 +1,5 @@
 {
-  "description": "devflow: session-start pointer to the evidence skill, and the guards of the 0.13.0 spec. Every guard fails closed.",
+  "description": "casefile: session-start pointer to the evidence skill, and the guards of the 0.13.0 spec. Every guard fails closed.",
   "hooks": {
     "SessionStart": [
       {
@@ -28,7 +28,7 @@
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook\" pre_commit",
             "onFailure": "block",
             "timeout": 900,
-            "statusMessage": "devflow: checking the commit"
+            "statusMessage": "casefile: checking the commit"
           }
         ]
       },

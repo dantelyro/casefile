@@ -1,6 +1,6 @@
-# Starter for devflow's hooks: sh run-hook <hook-name>, event JSON on stdin.
+# Starter for casefile's hooks: sh run-hook <hook-name>, event JSON on stdin.
 #
-# Claude Code runs hooks through sh on macOS/Linux and Git Bash on Windows (devflow requires Git
+# Claude Code runs hooks through sh on macOS/Linux and Git Bash on Windows (casefile requires Git
 # for Windows), so this is plain POSIX sh. It finds Python 3.10 or newer and runs run.py with it.
 # With none found, a guard blocks (exit 2, reason on stderr) and session_start asks Claude to tell
 # the developer.
@@ -25,8 +25,8 @@ done
 
 INSTALL='Windows: winget install Python.Python.3.14 -- macOS: brew install python@3.14 -- Linux: the distribution package manager, for example sudo apt install python3'
 if [ "$NAME" = "session_start" ]; then
-  printf '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "devflow needs Python 3.10 or newer, and none was found. At the start of your first response, tell the developer, give them the install command for their platform (%s), and wait for their yes before running it. Until Python is installed, every devflow guard refuses commands and file edits."}}\n' "$INSTALL"
+  printf '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "casefile needs Python 3.10 or newer, and none was found. At the start of your first response, tell the developer, give them the install command for their platform (%s), and wait for their yes before running it. Until Python is installed, every casefile guard refuses commands and file edits."}}\n' "$INSTALL"
   exit 0
 fi
-printf 'devflow: this hook needs Python 3.10 or newer, and none was found, so the call is refused. Ask the developer to install it (%s).\n' "$INSTALL" >&2
+printf 'casefile: this hook needs Python 3.10 or newer, and none was found, so the call is refused. Ask the developer to install it (%s).\n' "$INSTALL" >&2
 exit 2

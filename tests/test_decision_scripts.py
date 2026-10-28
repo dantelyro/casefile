@@ -192,6 +192,6 @@ def test_index_an_entry_without_a_title_line_is_an_error(log):
     assert "0001-first.md" in r.stdout + r.stderr
 
 
-def test_devflows_own_log_the_generated_index_is_the_committed_one():
+def test_casefiles_own_log_the_generated_index_is_the_committed_one():
     r = run("decision_index.py", "--check", cwd=ROOT)
     assert r.returncode == 0, r.stdout + r.stderr

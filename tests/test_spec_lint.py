@@ -213,7 +213,7 @@ def test_only_the_build_order_section_counts(repo):
 
 def test_a_markdown_build_order(repo):
     (repo / "docs/product/blueprint.html").unlink()
-    write(repo, ".claude/devflow.json", json.dumps({"build_order": "docs/blueprint.md"}))
+    write(repo, ".claude/casefile.json", json.dumps({"build_order": "docs/blueprint.md"}))
     write(repo, "docs/blueprint.md", "# Blueprint\n\nMATCH-777 elsewhere.\n\n## Build order\n\n- M1: MATCH-001, AUTH-009\n\n## Later\n\nMATCH-888\n")
     out = assert_error(repo, "build order", "AUTH-009")
     assert not [e for e in out["errors"] if "MATCH-777" in e or "MATCH-888" in e]
@@ -279,5 +279,5 @@ def test_no_readme_is_an_error(repo):
 
 
 def test_no_specs_folder_is_an_error(repo):
-    write(repo, ".claude/devflow.json", json.dumps({"specs_dir": "specs"}))
+    write(repo, ".claude/casefile.json", json.dumps({"specs_dir": "specs"}))
     assert_error(repo, "specs")

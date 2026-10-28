@@ -2,7 +2,7 @@
   "build_order": "docs/product/blueprint.md",
   "default_branch": "main",
   "apps": {
-    "devflow": {
+    "casefile": {
       "path": ".",
       "test": "uv run pytest",
       "install": "uv sync",

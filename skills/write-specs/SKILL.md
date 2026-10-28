@@ -29,13 +29,13 @@ they do.
   a repository → ask the developer which project, and where it is; never pick one by searching
   folders, even when only one candidate fits. A brand-new project starts only where the developer
   says.
-- **Siblings** (`siblings` in `.claude/devflow.json`) are part of the project: a feature whose rules
+- **Siblings** (`siblings` in `.claude/casefile.json`) are part of the project: a feature whose rules
   any sibling builds is written, under the same yes, into that sibling too — the same spec files,
-  product decisions, open questions and milestone, at the folders its own `devflow.json` names — so
+  product decisions, open questions and milestone, at the folders its own `casefile.json` names — so
   a session opened there starts from them without a second brainstorm (D-041). Decision entries
   are numbered by each repository's own scripts. A sibling not on its default branch with a clean
   working tree → stop and tell the developer before writing anything.
-- Read what exists: the specs folder (`specs_dir` in `.claude/devflow.json`, else `docs/specs`) and
+- Read what exists: the specs folder (`specs_dir` in `.claude/casefile.json`, else `docs/specs`) and
   its README, `docs/product/product-decisions.md`, `docs/product/open-questions.md`, the
   `docs/decisions/` index, and the build order (`build_order`, else `docs/product/blueprint.html`,
   section "Build order"). Run `write-specs/scripts/spec_lint.py`; report what it finds before adding

@@ -122,7 +122,7 @@ def test_ignored_folders_and_prefix_lookalikes(repo):
 def test_specs_dir_from_config(repo):
     write(repo, "rules/12-matching.md", SPEC)
     (repo / "docs/specs/12-matching.md").unlink()
-    write(repo, ".claude/devflow.json", '{"specs_dir": "rules"}')
+    write(repo, ".claude/casefile.json", '{"specs_dir": "rules"}')
     write(repo, "web/a.test.ts", "it('MATCH-001: x', () => {})\n")
     _, out, _ = coverage(repo)
     assert "MATCH-001" in out["covered"]
@@ -145,7 +145,7 @@ def test_a_test_in_a_sibling_repository_covers_the_rule(repo):
     back.mkdir()
     subprocess.run(["git", "init", "-q", "-b", "main"], cwd=back, check=True)
     (back / "api.test.ts").write_text("it('MATCH-001: required skills weigh 70%', () => {})\n", encoding="utf-8")
-    write(repo, ".claude/devflow.json", json.dumps({"repo": "frontend", "siblings": {"backend": "back"}}))
+    write(repo, ".claude/casefile.json", json.dumps({"repo": "frontend", "siblings": {"backend": "back"}}))
     out = coverage(repo)[1]
     assert "MATCH-001" in out["covered"]
 

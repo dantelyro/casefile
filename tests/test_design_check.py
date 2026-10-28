@@ -33,9 +33,9 @@ class Project:
             shutil.copytree(FIXTURES / "design", path / "docs" / "product" / "design-system")
         if config is not None:
             (path / ".claude").mkdir()
-            (path / ".claude" / "devflow.json").write_text(json.dumps(config), encoding="utf-8")
+            (path / ".claude" / "casefile.json").write_text(json.dumps(config), encoding="utf-8")
 
-    def decide(self, tool_input, agent="devflow:implementer", tool="Write"):
+    def decide(self, tool_input, agent="casefile:implementer", tool="Write"):
         e = json.loads((FIXTURES / "write_main.json").read_text(encoding="utf-8"))
         e.update({"cwd": str(self.repo), "tool_name": tool, "tool_input": tool_input})
         e.pop("agent_type", None)
@@ -48,7 +48,7 @@ class Project:
         hso = json.loads(out)["hookSpecificOutput"]
         return hso["permissionDecision"], hso["permissionDecisionReason"]
 
-    def write(self, path, content, expected="allow", agent="devflow:implementer"):
+    def write(self, path, content, expected="allow", agent="casefile:implementer"):
         got, reason = self.decide({"file_path": str(self.repo / path), "content": content}, agent=agent)
         assert got == expected, f"{path}: {content!r}\n{reason}"
         return reason

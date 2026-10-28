@@ -3,7 +3,7 @@
 **Verified against:** Claude Code `2.1.307` — 2026-10-21
 
 Facts about how skills load and behave, taken from Anthropic's own pages. This file records what
-the vendor says; the rules devflow layers on top live in `CLAUDE.md`. Each fact cites its page so a
+the vendor says; the rules casefile layers on top live in `CLAUDE.md`. Each fact cites its page so a
 version bump can be checked against the source rather than against this summary.
 
 - **[CC]** Claude Code — Extend Claude with skills: https://code.claude.com/docs/en/skills
@@ -115,7 +115,7 @@ version bump can be checked against the source rather than against this summary.
 - A plugin could keep a headless run going past `--max-turns`; fixed in v2.1.304. [CL]
 - **A `CLAUDE.md` at the plugin root is not loaded:** "Claude Code doesn't load a `CLAUDE.md` at the
   plugin root, and `claude plugin validate` warns `CLAUDE.md at the plugin root is not loaded as
-  project context`. To include instructions in a plugin, write them as a skill." devflow's root
+  project context`. To include instructions in a plugin, write them as a skill." casefile's root
   `CLAUDE.md` therefore reaches only sessions in this repository, and validate warns about it. [PL]
 - A plugin's always-on text without a hook: an output style in `output-styles/` with
   `force-for-plugin: true` is applied whenever the plugin is enabled, overriding the user's
@@ -126,7 +126,7 @@ version bump can be checked against the source rather than against this summary.
 
 ## Plugin hooks and agents
 
-Facts behind devflow's hooks and agents (0.13.0 spec). Quotes were taken through a summarising fetch
+Facts behind casefile's hooks and agents (0.13.0 spec). Quotes were taken through a summarising fetch
 on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a live session.
 
 - `hooks/hooks.json` at the plugin root is merged with whatever the manifest declares; plugin hooks
@@ -153,7 +153,7 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   Code cannot tell which commands a Bash input runs, the hook runs regardless. The page says to use
   the permission system, not a hook, for a hard allow or deny. [HK]
 - A PreToolUse hook's deny reason was replaced by a timeout error; fixed in v2.1.304. Prompt and agent
-  hooks run at most 12 of one event at a time (v2.1.302); devflow's hooks are command hooks. [CL]
+  hooks run at most 12 of one event at a time (v2.1.302); casefile's hooks are command hooks. [CL]
 - `updatedInput` from PreToolUse is validated like Claude's own input: unknown keys dropped, input the
   tool rejects denies the call (v2.1.300). [CL]
 - `UserPromptSubmit` hooks run before a skill or slash command expands, so blocking the prompt also

@@ -126,7 +126,7 @@ def test_fixed_named_test_missing(repo):
 
 def test_fixed_default_branch_from_config(repo):
     repo.git("branch", "-m", "main", "trunk")
-    repo.write(".claude/devflow.json", '{"default_branch": "trunk"}')
+    repo.write(".claude/casefile.json", '{"default_branch": "trunk"}')
     repo.write("web/x.test.ts", "it('BUG-7: upload keeps the file', () => {})\n")
     sha = repo.commit("fix")
     repo.write("docs/issues/0001-a.md", issue(1, "A", status=f"fixed ({sha})"))

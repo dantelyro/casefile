@@ -1,4 +1,4 @@
-# devflow
+# casefile
 
 A Claude Code plugin marketplace and the single plugin it ships: skills, agents and hooks that take a
 project from specs to reviewed, merged code. How the repository is laid out is in `CLAUDE.md`; why,

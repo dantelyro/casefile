@@ -5,12 +5,12 @@ A personal [Claude Code](https://claude.com/claude-code) plugin marketplace.
 ## Install
 
 **Requires** Python 3.10 or newer, and on Windows [Git for Windows](https://gitforwindows.org)
-(Claude Code runs devflow's hooks through its Git Bash). If Python is missing, devflow says so at
+(Claude Code runs casefile's hooks through its Git Bash). If Python is missing, casefile says so at
 the start of a session and asks before installing it; its guards refuse commands until then.
 
 ```
-/plugin marketplace add dantelyro/devflow
-/plugin install devflow@dantelyro
+/plugin marketplace add dantelyro/casefile
+/plugin install casefile@dantelyro
 ```
 
 Then turn auto-update on: `/plugin` → **Marketplaces** → `dantelyro` → **Enable
@@ -27,7 +27,7 @@ without bumping it and every existing install keeps the cached copy.
 
 ## Plugins
 
-### `devflow`
+### `casefile`
 
 Workflow skills and guards for building with agents — orienting in a codebase, recording why it
 is the way it is, building a milestone of spec rules with agents, fixing bugs test-first, reviewing
@@ -36,45 +36,45 @@ changes against their specs, and hooks that hold the rules every time.
 | Skill | What it does |
 | --- | --- |
 | `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
-| `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `devflow:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
+| `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `casefile:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
 | `write-specs` | Turns a feature description, or the notes of a brainstorm that has ended, into spec rules with IDs (`### JOBS-020 · Title`), product decisions, decision entries, open questions and a new milestone in the build order. It drafts everything, asks the open questions together, and writes nothing until you say yes; `spec_lint.py` checks the specs hold together. Never starts or interrupts a brainstorm. |
-| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `devflow:planner` writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does — and after your approval each task is built by `devflow:implementer` in its own worktree, several in parallel when they touch different files, reviewed by `devflow:reviewer` and merged after your yes. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
-| `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `devflow:implementer` reproduces it with a failing test and fixes it on its own branch, `devflow:reviewer` checks it, and it is merged after your yes ([`shared/merge.md`](shared/merge.md)). `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
+| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `casefile:planner` writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does — and after your approval each task is built by `casefile:implementer` in its own worktree, several in parallel when they touch different files, reviewed by `casefile:reviewer` and merged after your yes. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
+| `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `casefile:implementer` reproduces it with a failing test and fixes it on its own branch, `casefile:reviewer` checks it, and it is merged after your yes ([`shared/merge.md`](shared/merge.md)). `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
 | `evidence` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
 The two compose: `repo-discovery` answers what an existing project **is**, and
 `evidence` answers **why** — and keeps that answer honest as the code moves.
 
 None of them creates documents in a project that has not asked for them. They propose and wait —
-including `review`, which proposes `.claude/devflow.json` on first use.
+including `review`, which proposes `.claude/casefile.json` on first use.
 
 #### Guards
 
-Hooks, on in every project where devflow is enabled, failing closed (D-028). The full table is in
+Hooks, on in every project where casefile is enabled, failing closed (D-028). The full table is in
 `docs/specs/history/2026-10-14-review-design.md`, *Guard rules*.
 
 - `git push` asks you in your own session and is refused to every agent (D-029).
 - `docker compose down -v` and `--no-verify` are refused to everyone.
 - Agents may not kill processes by name, or change any `.claude` folder.
-- `devflow:reviewer` edits only inside its own linked worktree, never tests or records, and may `git restore`;
-  `devflow:planner` writes only its plan file; devflow agents stay out of the project's protected paths
-  and never write `docs/issues/`; `devflow:implementer` may not merge, rebase or switch to the default branch.
+- `casefile:reviewer` edits only inside its own linked worktree, never tests or records, and may `git restore`;
+  `casefile:planner` writes only its plan file; casefile agents stay out of the project's protected paths
+  and never write `docs/issues/`; `casefile:implementer` may not merge, rebase or switch to the default branch.
 - Every commit: no skipped or focused tests, the design check on added UI lines, and the test
   command of every configured app it touches.
 - UI code may use only what the project's design system (`tokens.json`) defines.
 
-#### `.claude/devflow.json`
+#### `.claude/casefile.json`
 
-Per-project settings the guards and agents read; every key optional, and devflow never writes it
+Per-project settings the guards and agents read; every key optional, and casefile never writes it
 unasked. Each app names its own test command (whatever the project uses: `npm test`, `npx vitest
 run`, `uv run pytest -q`…) and runs in its folder — `path`, defaulting to the app's name; `"."` is
 the whole repository. `lint` is optional: when set, the commit gate, the reviewer and the merge run
-it next to `test`. With the settings, devflow proposes `.claude/worktrees/` in `.gitignore` and in
+it next to `test`. With the settings, casefile proposes `.claude/worktrees/` in `.gitignore` and in
 the ignores of the project's linters, formatters and test runners (D-042). The skipped-test check knows Node and Python test files only. `install` sets up a fresh worktree; `cleanup` runs in a
 worktree before it is removed at merge; `image` rebuilds the app's container when a merge touched it.
 `specs_dir`, `plans_dir` and `build_order` (the page whose "Build order" section lists the
 milestones) tell `implement` and the planner where things are; the values shown are the defaults. Alongside it,
-devflow proposes `"worktree": { "baseRef": "head" }` in `.claude/settings.json`, so agent worktrees
+casefile proposes `"worktree": { "baseRef": "head" }` in `.claude/settings.json`, so agent worktrees
 start from your local commits rather than the remote's (D-040).
 
 Frontend and backend in separate repositories: give each `"repo"` (its own name) and `"siblings"`
@@ -106,7 +106,7 @@ session**, and no first message ever says so. Its other triggers are facts about
 project keeps a decision log; the docs are behind `HEAD` — which cannot be recognised before
 reading the repo, and reading the repo is what the skill is for.
 
-So the session-start hook (`hooks/devflow_hooks/session_start.py`) injects the trigger the prompt cannot supply: a short directive naming
+So the session-start hook (`hooks/casefile_hooks/session_start.py`) injects the trigger the prompt cannot supply: a short directive naming
 the skill, emitted on `startup`, `clear` and `compact`. It injects a **pointer, not the skill
 body** — the `Skill` tool loads the content on demand, keeping the per-session cost to a few
 hundred tokens rather than the whole file.
@@ -121,13 +121,13 @@ hooks/
   hooks.json            # auto-discovered; no plugin.json entry needed
   run-hook              # sh starter: finds Python 3.10+, runs run.py
   run.py                # runs one hook; refuses the call if the hook fails
-  devflow_hooks/        # the hooks, standard-library Python
+  casefile_hooks/        # the hooks, standard-library Python
 tests/                  # uv run pytest
 evals/                  # trigger evals, billed: claude plugin eval . --ablation none --scaffold
 agents/
-  implementer.md        # devflow:implementer: one task or issue, test-first, in its own worktree
-  planner.md            # devflow:planner: one milestone into test-first tasks; writes only its plan
-  reviewer.md           # devflow:reviewer
+  implementer.md        # casefile:implementer: one task or issue, test-first, in its own worktree
+  planner.md            # casefile:planner: one milestone into test-first tasks; writes only its plan
+  reviewer.md           # casefile:reviewer
 shared/
   merge.md              # the merge procedure, linked from every skill that merges
 skills/
@@ -166,11 +166,11 @@ formats, procedures, reference material — goes in `references/` and is read on
 actually needs it.
 
 The two manifests do different jobs: `marketplace.json` declares the marketplace and lists what
-it offers, `plugin.json` declares the `devflow` plugin itself.
+it offers, `plugin.json` declares the `casefile` plugin itself.
 
 ## Adding a plugin
 
-A second plugin needs its own folder, since `devflow` occupies the root:
+A second plugin needs its own folder, since `casefile` occupies the root:
 
 1. Create `plugins/<name>/.claude-plugin/plugin.json` with `name`, `description`
    and `version`.
@@ -186,7 +186,7 @@ into separate plugins is usually worth the extra manifest.
 Register the working copy as a marketplace to test changes before pushing:
 
 ```
-/plugin marketplace add C:\Users\beyon\projects\devflow
+/plugin marketplace add C:\Users\beyon\projects\casefile
 ```
 
 ## License

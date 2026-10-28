@@ -13,7 +13,7 @@ several changes at once; merge them one by one all the same.
 ## Steps
 
 1. **Clean and current.** `git status --porcelain` is empty and the current branch is the default
-   branch (`.claude/devflow.json`, else `main`). Otherwise stop and say what is in the way.
+   branch (`.claude/casefile.json`, else `main`). Otherwise stop and say what is in the way.
 2. **Merge without committing.** `git merge --no-ff --no-commit <branch>`. A conflict → `git merge
    --abort`, tell the developer which files conflict, and stop. With their yes, the change is redone
    by a new implementer starting from the current default branch, and reviewed again (`implement` says

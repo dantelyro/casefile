@@ -28,7 +28,7 @@ You are sent a path and an ID, nothing more. Read:
   report `blocked` instead of inventing a style.
 
 ## Process (in this order)
-1. **Set up.** Install from the lock file with the app's `install` command from `.claude/devflow.json`
+1. **Set up.** Install from the lock file with the app's `install` command from `.claude/casefile.json`
    (else the project's own: `npm ci`, `uv sync`, …): a new worktree has no `node_modules` or
    virtualenv.
 2. **Red.** Write the tests first. Each test name starts with its rule ID (`MATCH-010: …`,

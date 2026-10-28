@@ -231,7 +231,7 @@ def pair(tmp_path):
     front = tmp_path / "front"
     front.mkdir()
     git_init(front)
-    write(front, ".claude/devflow.json", json.dumps({"repo": "frontend", "siblings": {"backend": "../back"}}))
+    write(front, ".claude/casefile.json", json.dumps({"repo": "frontend", "siblings": {"backend": "../back"}}))
     return front, back
 
 
@@ -287,7 +287,7 @@ def test_sibling_without_the_plan(pair):
 
 def test_siblings_without_repo(pair):
     front, back = pair
-    write(front, ".claude/devflow.json", json.dumps({"siblings": {"backend": "../back"}}))
+    write(front, ".claude/casefile.json", json.dumps({"siblings": {"backend": "../back"}}))
     write_plans(front, back, [on("backend", task(1))], [on("backend", task(1))])
     code, out, _ = status(front)
     assert code == 1
