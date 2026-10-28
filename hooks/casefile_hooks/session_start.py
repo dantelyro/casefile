@@ -17,7 +17,7 @@ It reconciles the context documents of a project against what has landed since t
 
 What the skill will have you do, so you know what you are opting into:
 
-- **The project keeps a decision log, architecture doc, or reconciliation watermark** -- run `git diff --stat <watermark>..HEAD` over the relevant source paths, read what changed, update whatever it invalidated, and move the watermark.
+- **The project keeps a decision log, architecture doc, or reconciliation watermark** -- run `git log --oneline <watermark>..HEAD` over the relevant source paths, read what changed, update whatever it invalidated, and move the watermark.
 - **The project keeps none of those** -- propose the set and ASK, then wait for an answer before creating anything.
 - **Neither applies** -- say so in one line and get on with what the user actually asked for. This is orientation, not a ceremony to perform.
 </casefile>"""

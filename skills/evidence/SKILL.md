@@ -45,16 +45,17 @@ you reached **that** check and says nothing about the checks behind it.
 Docs describe the code as of the last reconciliation. People commit without an agent, so that
 is not the same as now.
 
-Every doc-updating change records the commit it was reconciled through. Diff the gap:
+Every doc-updating change records the commit it was reconciled through. Replay the gap:
 
 ```bash
-git diff --stat <watermark>..HEAD -- <source paths>
+git log --oneline <watermark>..HEAD -- <source paths>
 ```
 
-**Empty** — the docs are current, proceed. **Non-empty** — those changes are unreviewed: read
+**Empty** — the docs are current, proceed. **Non-empty** — those commits are unreviewed: read
 them, update whatever they invalidated, and move the watermark in the same commit as the doc
-update. Diff, not `git log`: a change that was made and then reverted cancels out in the diff,
-while replaying the log reads both. Use `git log` on a changed file only to learn why it changed.
+update. The log, not a diff: how the code got here — what was tried, reverted and why — is what
+the docs record, and a diff hides it. A revert and the commit it undoes are one item. End with
+`git diff --stat` over the same range to catch a changed file no commit you read accounts for.
 "Probably nothing changed" is the guess the watermark exists to replace; the command takes one
 second. Full mechanism, including recovery when the SHA stops resolving:
 `references/living-documents.md`.

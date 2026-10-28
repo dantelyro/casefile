@@ -69,9 +69,10 @@ so.
 | [D-050](0050-the-architecture-document-is-overview-md-built-from.md) | The architecture document is overview.md, built from fixed sections | Accepted |
 | [D-056](0056-m4-is-reverted-and-specs-for-existing-code.md) | M4 is reverted, and specs for existing code and the docs reconciliation skill are dropped | Accepted |
 | [D-057](0057-the-session-start-pointer-waits-for-the-first.md) | The session-start pointer waits for the first change, in one output form | Accepted |
-| [D-058](0058-reconciliation-diffs-the-watermark-gap-instead-of-replaying.md) | Reconciliation diffs the watermark gap instead of replaying the log | Accepted |
+| [D-058](0058-reconciliation-diffs-the-watermark-gap-instead-of-replaying.md) | Reconciliation diffs the watermark gap instead of replaying the log | SUPERSEDED by D-061 |
 | [D-059](0059-the-evidence-skill-is-named-evidence.md) | The evidence skill is named evidence | Accepted |
 | [D-060](0060-the-plugin-is-named-casefile.md) | The plugin is named casefile | Accepted |
+| [D-061](0061-reconciliation-replays-the-watermark-gaps-log-with-a.md) | Reconciliation replays the watermark gap's log, with a diff as a cross-check | Accepted |
 
 ## Conventions
 
