@@ -21,8 +21,12 @@
   because shipped code being standard library is what users rely on
 - The evidence skill checks documents' claims with a script at every reconciliation and audits them in
   full on request; claims about outside systems carry the version they were verified against
-  (2026-10-28) → CLAIM-001..012, see D-062
+  (2026-10-28) → CLAIM-001..013, see D-062
 - A line holding `<!-- claim-ok -->` is not checked by the claim script (2026-10-28) → CLAIM-005
 - The claim script scans `CLAUDE.md`, `AGENTS.md`, the architecture overview and `README.md` by
   default, replaced by `claim_docs` in `.claude/casefile.json` (2026-10-28) → CLAIM-008
+- A lone folder name in the docs is checked against every folder git tracks, so a renamed folder is
+  still caught; checking it against the architecture overview was rejected, because the overview is
+  one of the documents being checked (2026-10-28) → CLAIM-004
+- The architecture overview's folder tree is checked against the repository (2026-10-28) → CLAIM-013
 - The claim audit is milestone M6; M4 and M5 are not reused (2026-10-28), see D-056

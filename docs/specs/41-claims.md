@@ -26,7 +26,9 @@ Markdown link
 When neither the repository root nor the document's own folder holds it, or it is a glob that
 matches no file
 Then `claims_check.py` prints `<file>:<line> <path> does not exist`; URLs, `#` anchors and paths
-holding a placeholder (`<…>`, `${…}`, `$VAR`) are not checked
+holding a placeholder (`<…>`, `${…}`, `$VAR`) are not checked. A lone folder name (`name/`) is
+checked against every folder git tracks in the repository, not only the root and the document's
+folder: it passes when a folder of that name exists anywhere, so a renamed folder is still caught
 
 ### CLAIM-005 · A line marked claim-ok is not checked
 Given a scanned line holding `<!-- claim-ok -->`
@@ -52,6 +54,13 @@ Then by default it scans whichever of `CLAUDE.md`, `AGENTS.md`, `docs/architectu
 `README.md` exist; a `claim_docs` list in `.claude/casefile.json` replaces that default; files under
 the decision log and `docs/specs/history/` are never scanned, because they cite superseded entries
 on purpose
+
+### CLAIM-013 · The overview's folder tree is checked against the repository
+Given a scanned architecture overview whose "Folder structure" section holds a tree of folders in a
+code block
+When `claims_check.py` runs
+Then each folder in the tree that git does not track is flagged as
+`<file>:<line> <folder> does not exist`, its path built from the folders above it in the tree
 
 ### CLAIM-009 · Reconciliation ends with the claim check      [MANUAL]
 Given the evidence skill reconciling a project

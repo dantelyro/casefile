@@ -10,3 +10,6 @@
 **Decision:** (c), as CLAIM-001..012 in milestone M6. The script checks cited decisions, paths and links, and Claude Code versions; a line holding <!-- claim-ok --> is skipped; it scans the project instructions, the architecture overview and README.md unless claim_docs says otherwise, and never the decision log or specs history.
 
 **Trade-offs:** The script catches only what is mechanical: a sentence that has become false, the kind actually missed here, still needs the full read, which costs a reading of every document and so runs only on request. Each skipped line carries a marker in the document. Only Claude Code versions are compared automatically; other outside systems are checked when the full audit runs.
+
+**Changed by:**
+- 2026-10-28 · dantelyro — CLAIM-013 added (the overview's folder tree), and CLAIM-004 checks a lone folder name against every tracked folder; the overview was rejected as the reference because it is one of the documents checked.
