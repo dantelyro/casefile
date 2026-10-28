@@ -40,10 +40,10 @@ changes against their specs, and hooks that hold the rules every time.
 | `write-specs` | Turns a feature description, or the notes of a brainstorm that has ended, into spec rules with IDs (`### JOBS-020 · Title`), product decisions, decision entries, open questions and a new milestone in the build order. It drafts everything, asks the open questions together, and writes nothing until you say yes; `spec_lint.py` checks the specs hold together. Never starts or interrupts a brainstorm. |
 | `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `devflow:planner` writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does — and after your approval each task is built by `devflow:implementer` in its own worktree, several in parallel when they touch different files, reviewed by `devflow:reviewer` and merged after your yes. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
 | `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `devflow:implementer` reproduces it with a failing test and fixes it on its own branch, `devflow:reviewer` checks it, and it is merged after your yes ([`shared/merge.md`](shared/merge.md)). `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
-| `evidence-based-decisions` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
+| `evidence` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
 The two compose: `repo-discovery` answers what an existing project **is**, and
-`evidence-based-decisions` answers **why** — and keeps that answer honest as the code moves.
+`evidence` answers **why** — and keeps that answer honest as the code moves.
 
 None of them creates documents in a project that has not asked for them. They propose and wait —
 including `review`, which proposes `.claude/devflow.json` on first use.
@@ -101,7 +101,7 @@ A skill fires when the model recognises its `description` in the situation in fr
 works for `repo-discovery`, whose triggers are things a person actually types — *where does X
 live*, *how do I run this*, *an unfamiliar repo*.
 
-It does not work for `evidence-based-decisions`. Its primary trigger is **the start of a
+It does not work for `evidence`. Its primary trigger is **the start of a
 session**, and no first message ever says so. Its other triggers are facts about the repo — the
 project keeps a decision log; the docs are behind `HEAD` — which cannot be recognised before
 reading the repo, and reading the repo is what the skill is for.
@@ -146,7 +146,7 @@ skills/
     SKILL.md
   repo-discovery/
     SKILL.md
-  evidence-based-decisions/
+  evidence/
     SKILL.md
     references/         # loaded on demand, not with the skill
     scripts/            # decision_next_id.py, decision_new.py, decision_index.py

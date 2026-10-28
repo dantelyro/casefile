@@ -85,7 +85,7 @@ READMEs drift worst, because they are written once for a launch.
 **Believe them provisionally.** A context document describes the repo as of its last update, so
 a claim that contradicts the code is a finding, not truth.
 
-**Found none?** Say so and offer to create one. See `evidence-based-decisions` for what to
+**Found none?** Say so and offer to create one. See `evidence` for what to
 propose and why the offer has to be answered first.
 
 ## Step 3: Stack, from manifests only
@@ -123,7 +123,7 @@ git status --short
 
 Recent commits tell you what the project is *currently* about, which the docs may not yet
 reflect. If the project records a doc-reconciliation watermark, replay from it instead — see
-`evidence-based-decisions`.
+`evidence`.
 
 ## Step 6: Report
 

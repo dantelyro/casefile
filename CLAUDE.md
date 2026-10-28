@@ -60,14 +60,15 @@ small and states the principles. Anything long — formats, procedures, tables �
 growing a `SKILL.md` taxes every session that triggers it. See D-001.
 
 **The hook exists because a description cannot match "session start".** A skill fires when the
-model recognises its `description` in the situation in front of it. `evidence-based-decisions`
+model recognises its `description` in the situation in front of it. `evidence`
 triggers on the *start of a session* and on *facts about the repo*, neither of which any first
 user message states. `hooks/devflow_hooks/session_start.py` injects that trigger — as a **pointer to the skill,
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
-See D-003 and D-004.
+The pointer asks for the skill before the session's first change to code or docs, not before its
+first answer. See D-003, D-004 and D-057.
 
 **Six skills and three agents, each with its own moment.** `repo-discovery` reads a project that
-already exists; `evidence-based-decisions` records *why* and keeps it honest; `review` dispatches
+already exists; `evidence` records *why* and keeps it honest; `review` dispatches
 `devflow:reviewer` for a verdict on one change; `fix-bug` takes one issue from `docs/issues/` through
 `devflow:implementer`, the reviewer and a merge; `implement` builds a milestone of spec rules from
 a `devflow:planner` plan, task by task through the same implementer, reviewer and merge, and never
@@ -105,8 +106,8 @@ Each of these is load-bearing; the comments in the files say so too.
   Python with an empty `PATH`. It tries `py -3` first: `python3` on Windows can be the Microsoft
   Store stub.
 - **Emit exactly one context field.** Claude Code reads both `additionalContext` and
-  `hookSpecificOutput.additionalContext` without deduplicating, so `session_start` emits the nested
-  form under Claude Code (`CLAUDE_PLUGIN_ROOT` set) and the top-level form elsewhere.
+  `hookSpecificOutput.additionalContext` without deduplicating, so `session_start` emits only the
+  nested form.
 - **Devflow agents get one command per call.** `guard_bash` denies `;`, `&&`, `||`, several lines,
   `| tail` and `sleep`/`until` loops for devflow's own agents (`devflow:*`), so a hung check cannot hide
   inside a chain (D-043).
@@ -159,7 +160,7 @@ verified once and never re-checked becomes a belief about an old version (D-024)
 `docs/decisions/` holds the *why* behind the arrangements above — one file per decision, indexed
 in `docs/decisions/README.md`. It was seeded retroactively on 2026-08-27, so every existing entry
 is marked as a reconstruction. Record new decisions in the same change that implements them, per
-`skills/evidence-based-decisions/references/decision-log.md`.
+`skills/evidence/references/decision-log.md`.
 
 devflow is specified in its own `write-specs` layout and built with `implement` (D-047): rules with
 IDs in `docs/specs/`, the build order in `docs/product/blueprint.md`, milestone plans in
@@ -170,7 +171,7 @@ why the reconciliation watermark sits in the header above. Move it in the same c
 update, so it always names a commit whose docs were true.
 
 This file has to name `docs/decisions/` explicitly. The SessionStart hook injects the *trigger*
-for `evidence-based-decisions`; it cannot say where a given project keeps its log, and the skill
+for `evidence`; it cannot say where a given project keeps its log, and the skill
 cannot know before reading the repo. Project instructions are the only document loaded on every
 session, so this pointer is what makes the log findable rather than stumbled upon. It is a
 location, not a summary — the reasoning stays in the entries (D-008).

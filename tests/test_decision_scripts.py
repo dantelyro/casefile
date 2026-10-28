@@ -7,7 +7,7 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SCRIPTS = ROOT / "skills" / "evidence-based-decisions" / "scripts"
+SCRIPTS = ROOT / "skills" / "evidence" / "scripts"
 
 
 def run(script, *args, cwd):

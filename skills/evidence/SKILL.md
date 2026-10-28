@@ -1,5 +1,5 @@
 ---
-name: evidence-based-decisions
+name: evidence
 description: >
   Use at the start of a session in a project that keeps a decision log, architecture document
   or reconciliation watermark; when initialising a project that keeps none of them (/init); or
@@ -11,7 +11,7 @@ description: >
 model: sonnet
 ---
 
-# Evidence-Based Decisions
+# Evidence
 
 ## Overview
 
@@ -45,64 +45,23 @@ you reached **that** check and says nothing about the checks behind it.
 Docs describe the code as of the last reconciliation. People commit without an agent, so that
 is not the same as now.
 
-Every doc-updating change records the commit it was reconciled through. Replay the gap:
+Every doc-updating change records the commit it was reconciled through. Diff the gap:
 
 ```bash
-git log --oneline <watermark>..HEAD -- <source paths>
+git diff --stat <watermark>..HEAD -- <source paths>
 ```
 
-**Empty** — the docs are current, proceed. **Non-empty** — those commits are unreviewed: read
+**Empty** — the docs are current, proceed. **Non-empty** — those changes are unreviewed: read
 them, update whatever they invalidated, and move the watermark in the same commit as the doc
-update. "Probably nothing changed" is the guess the watermark exists to replace; the command
-takes one second. Full mechanism, including recovery when the SHA stops resolving:
+update. Diff, not `git log`: a change that was made and then reverted cancels out in the diff,
+while replaying the log reads both. Use `git log` on a changed file only to learn why it changed.
+"Probably nothing changed" is the guess the watermark exists to replace; the command takes one
+second. Full mechanism, including recovery when the SHA stops resolving:
 `references/living-documents.md`.
 
-**A `mental-model.md` is replaced without asking.** Write `docs/architecture/overview.md` from the
-code in the format of `references/living-documents.md`, keeping what the old file says that is still
-true, delete `mental-model.md`, repoint every link to it, and set the watermark to `HEAD` — one
-commit. The developer decided this (D-050); the old format told readers nothing useful.
-
-## No docs yet: propose, then ask
-
-A project with no project instructions, architecture document or decision log may keep this
-material elsewhere, or want none of it. Say what each file is for and what it costs, and wait
-for an answer — files nobody wanted are worse than no files.
-
-**Two cases, and the split is itself an evidence grade.**
-
-- **Code exists, docs do not.** This path, unchanged. Seed from what the repo shows — layout,
-  stack, entry points. That is Grade 1 and 2 evidence, and it beats any actor's account of what
-  the project probably is.
-- **No code, no docs.** There is nothing to read, so nothing here can be seeded with evidence. Say
-  that no devflow skill writes a new project's specs yet, and ask the developer what the project is
-  before creating anything.
-
-Seeding an empty directory from this skill would describe a project from nothing, which is the
-mistake this entire skill exists to prevent.
-
-**Run `/init` first.** Project instructions come before the rest of the set: they are the only
-document every session loads, so a log created without them is a log nothing points at. Then
-`docs/purpose.md` — what the project is for — before the architecture document, which describes a
-shape that only makes sense once that is settled.
-
-**`docs/requirements.md` is never seeded here**, on either branch. Layout, stack and entry points
-are observable on disk; a `must` is not. Code shows what a system does, never what it is obliged to
-do, so reading a requirement off an implementation is Grade 4. Requirements come from the people
-who decide them, never from this skill.
-
-Once accepted, seed from what the repo already shows — layout, stack, entry points — set the
-initial watermark to `HEAD`, and start the log as `docs/decisions/NNNN-slug.md`, one decision
-per file, with a generated `docs/decisions/README.md` index. `decisions/` sits **beside**
-`architecture/`: the architecture document says what exists and where, the log says why and
-what was given up, and the log covers scope and product choices no architecture document
-describes. Both the layout and the placement are fixed from entry one — see
-`references/decision-log.md`.
-
-An empty log with a numbering convention is the correct starting state; invent no decisions to
-fill it. Every seeded entry is a **reconstruction**: mark it as one, and resolve `Decided by`
-by blaming the `feat`/`fix` commit that implemented the change. Whoever asked you for the
-documentation is rarely whoever made the call, and the entry reads as first-hand either way.
-See "Attribution" in `references/decision-log.md`.
+**A `mental-model.md`, or no project docs at all** — read `references/new-project-docs.md`, with
+`references/living-documents.md` for the architecture overview's format and
+`references/decision-log.md` for the log.
 
 ## The loop
 
@@ -115,7 +74,7 @@ See "Attribution" in `references/decision-log.md`.
    saying what they were derived from and how to confirm them.
 4. **Record the decision** with its evidence grade, as a new file in `decisions/`. See
    `references/decision-log.md`. The number, the file and the index come from scripts, never by
-   hand: run `<python> "${CLAUDE_PLUGIN_ROOT}/skills/evidence-based-decisions/scripts/decision_new.py"`
+   hand: run `<python> "${CLAUDE_PLUGIN_ROOT}/skills/evidence/scripts/decision_new.py"`
    with the entry's fields (it writes `Status: Proposed`), set `Accepted` once the call is made,
    then run `decision_index.py` beside it (`<python>` is `py -3` on Windows, `python3` elsewhere).
 5. **Verify, and say which axis you verified.** See `references/verifying-external-systems.md`.
@@ -180,3 +139,5 @@ the next attempt does not repeat them.
 - `references/verifying-external-systems.md` — probing, capturing specs, quarantining unknowns
 - `references/living-documents.md` — architecture docs and project instructions as source of
   truth
+- `references/new-project-docs.md` — replacing `mental-model.md`; proposing docs to a project with
+  none

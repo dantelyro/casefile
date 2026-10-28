@@ -69,7 +69,7 @@ only if the input has designs. The first milestone is repository setup.
 - **Nothing is accepted by silence.** Every product decision and decision entry you derived rather
   than read from the developer's own words is shown as *proposed*.
 - Decision entries follow the evidence skill's log:
-  [`${CLAUDE_PLUGIN_ROOT}/skills/evidence-based-decisions/references/decision-log.md`](../evidence-based-decisions/references/decision-log.md).
+  [`${CLAUDE_PLUGIN_ROOT}/skills/evidence/references/decision-log.md`](../evidence/references/decision-log.md).
   Never restate its format here.
 
 ## 2. Approval — one step, everything at once
@@ -92,7 +92,7 @@ writing: the yes covered the draft as it stood.
 1. Spec files, the specs README's file table, the build order.
 2. `product-decisions.md` and `open-questions.md` (formats in `references/specs-layout.md`). An
    answered question's line moves from open questions to product decisions.
-3. Each decision entry with `evidence-based-decisions/scripts/decision_new.py` (it writes
+3. Each decision entry with `evidence/scripts/decision_new.py` (it writes
    `Proposed`); set `Accepted` on the ones the developer confirmed; then `decision_index.py`.
 4. Designs: the developer names the artifact ("the design system", "the job list screen").
    Find it among the artifacts their account can open (the Artifact tool's `list`), read it, and

@@ -122,7 +122,7 @@ the architecture — put it in the project instructions header instead, and poin
 file. Exactly one location per repo: a watermark in two files is two watermarks, and the stale one
 is the one that gets read.
 
-At session start, replay the gap:
+At session start, diff the gap:
 
 ```bash
 DOC=docs/architecture/overview.md       # or the project instructions, if that is where it lives
@@ -131,13 +131,13 @@ WM=$(sed -n 's/.*reconciled through:[^`]*`\([0-9a-f]\{7,40\}\)`.*/\1/p' "$DOC" |
 if [ -z "$WM" ]; then
   echo "no watermark in $DOC — do not read this as up to date"
 elif git cat-file -e "$WM^{commit}" 2>/dev/null; then
-  git log --oneline "$WM"..HEAD -- src/ migrations/
+  git diff --stat "$WM"..HEAD -- src/ migrations/
 else
   echo "watermark $WM no longer resolves — see recovery below"
 fi
 ```
 
-**Check for the empty case before replaying.** `git log ..HEAD` with an empty left side is not an
+**Check for the empty case before diffing.** `git diff ..HEAD` with an empty left side is not an
 error — both sides default to `HEAD`, so it prints nothing, and nothing is exactly what an
 up-to-date repo prints. A failed extraction is indistinguishable from a clean reconciliation
 unless you test for it. POSIX `sed` rather than `grep -oP` for the same reason: `-P` is a GNU
@@ -147,6 +147,10 @@ UTF-8 locales"* — straight into the silent-empty path.
 Scope the paths to source. A doc-only commit did not change the system, and including it means
 every reconciliation reports work that needs reviewing.
 
+Diff rather than replay the log: a change that was made and then reverted cancels out in the
+diff, while `git log` lists both commits as work to review. Run `git log -- <file>` on a changed
+file only when you need to know why it changed.
+
 Read what comes back, update whatever it invalidated, then move the watermark **in the same
 commit** as the doc update — so the watermark always names a commit whose docs were true.
 
@@ -154,7 +158,7 @@ commit** as the doc update — so the watermark always names a commit whose docs
 
 | Symptom | Cause | Recovery |
 |---|---|---|
-| SHA does not resolve | Rebase, squash, amend, force-push | Fall back to the date beside it: `git log --since=2026-08-06 --oneline -- src/` |
+| SHA does not resolve | Rebase, squash, amend, force-push | Fall back to the date beside it: `git diff --stat "$(git rev-list -1 --before=2026-08-06 HEAD)"..HEAD -- src/` |
 | Shallow clone | `--depth` fetch | `git fetch --unshallow`, or use the date |
 | Huge range on first run | Watermark never set | Set it to `HEAD`, note that the docs are unverified before that point, and reconcile from now on |
 

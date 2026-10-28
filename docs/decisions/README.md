@@ -68,6 +68,9 @@ so.
 | [D-049](0049-devflow-drops-the-mvp-tag-and-adds-no.md) | devflow drops the MVP tag and adds no test tag; what gets a test follows from the project's own code | Accepted |
 | [D-050](0050-the-architecture-document-is-overview-md-built-from.md) | The architecture document is overview.md, built from fixed sections | Accepted |
 | [D-056](0056-m4-is-reverted-and-specs-for-existing-code.md) | M4 is reverted, and specs for existing code and the docs reconciliation skill are dropped | Accepted |
+| [D-057](0057-the-session-start-pointer-waits-for-the-first.md) | The session-start pointer waits for the first change, in one output form | Accepted |
+| [D-058](0058-reconciliation-diffs-the-watermark-gap-instead-of-replaying.md) | Reconciliation diffs the watermark gap instead of replaying the log | Accepted |
+| [D-059](0059-the-evidence-skill-is-named-evidence.md) | The evidence skill is named evidence | Accepted |
 
 ## Conventions
 
@@ -78,4 +81,4 @@ so.
 - Superseding is marked on the entry's **`Status`** line, and the superseded file stays under its
   original name.
 - Full format, attribution procedure and what earns an entry:
-  `skills/evidence-based-decisions/references/decision-log.md`.
+  `skills/evidence/references/decision-log.md`.
