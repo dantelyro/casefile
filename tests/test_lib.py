@@ -188,6 +188,18 @@ def test_partial_file_keeps_other_defaults(config_repo):
     assert cfg["design"].get("tokens") == "docs/product/design-system/tokens.json"
 
 
+def test_claim_docs_defaults_to_the_four_documents(config_repo):
+    cfg = lib.config({"cwd": str(config_repo)})
+    assert cfg.get("claim_docs") == ["CLAUDE.md", "AGENTS.md", "docs/architecture/overview.md", "README.md"]
+
+
+def test_claim_docs_that_is_not_a_list_is_a_config_error(config_repo):
+    write_config(config_repo, '{"claim_docs": "README.md"}')
+    with pytest.raises(lib.ConfigError) as caught:
+        lib.config({"cwd": str(config_repo)})
+    assert "claim_docs" in str(caught.value)
+
+
 def test_invalid_json_names_the_file(config_repo):
     write_config(config_repo, "{ nope")
     with pytest.raises(lib.ConfigError) as caught:
