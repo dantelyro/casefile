@@ -1,8 +1,8 @@
 {
   "session_id": "790f0c87-3acf-4376-873b-2e71325f13e0",
-  "transcript_path": "<home>\\.claude\\projects\\<home-slug>-AppData-Local-Temp-devflow-probe-sandbox\\790f0c87-3acf-4376-873b-2e71325f13e0.jsonl",
-  "cwd": "<home>\\AppData\\Local\\Temp\\devflow-probe\\sandbox",
-  "scratchpad_dir": "<home>\\AppData\\Local\\Temp\\claude\\<home-slug>-AppData-Local-Temp-devflow-probe-sandbox\\790f0c87-3acf-4376-873b-2e71325f13e0\\scratchpad",
+  "transcript_path": "<home>\\.claude\\projects\\<home-slug>-AppData-Local-Temp-casefile-probe-sandbox\\790f0c87-3acf-4376-873b-2e71325f13e0.jsonl",
+  "cwd": "<home>\\AppData\\Local\\Temp\\casefile-probe\\sandbox",
+  "scratchpad_dir": "<home>\\AppData\\Local\\Temp\\claude\\<home-slug>-AppData-Local-Temp-casefile-probe-sandbox\\790f0c87-3acf-4376-873b-2e71325f13e0\\scratchpad",
   "hook_event_name": "SessionStart",
   "source": "clear"
 }

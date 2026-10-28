@@ -1,7 +1,7 @@
 {
   "session_id": "283e2748-fd78-4004-ad4c-e849636476b7",
-  "transcript_path": "<home>\\.claude\\projects\\<home-slug>-AppData-Local-Temp-devflow-probe-sandbox\\283e2748-fd78-4004-ad4c-e849636476b7.jsonl",
-  "cwd": "<home>\\AppData\\Local\\Temp\\devflow-probe\\sandbox",
+  "transcript_path": "<home>\\.claude\\projects\\<home-slug>-AppData-Local-Temp-casefile-probe-sandbox\\283e2748-fd78-4004-ad4c-e849636476b7.jsonl",
+  "cwd": "<home>\\AppData\\Local\\Temp\\casefile-probe\\sandbox",
   "prompt_id": "7fe75619-5f26-4ef3-b93f-4da8ab862299",
   "permission_mode": "default",
   "agent_id": "a656aa4fbd419ab5a",

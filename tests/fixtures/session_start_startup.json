@@ -1,7 +1,7 @@
 {
   "session_id": "e9b8dda0-584b-47fa-b75a-c656d10a8665",
-  "transcript_path": "<home>\\.claude\\projects\\<home-slug>-AppData-Local-Temp-devflow-probe-sandbox\\e9b8dda0-584b-47fa-b75a-c656d10a8665.jsonl",
-  "cwd": "<home>\\AppData\\Local\\Temp\\devflow-probe\\sandbox",
+  "transcript_path": "<home>\\.claude\\projects\\<home-slug>-AppData-Local-Temp-casefile-probe-sandbox\\e9b8dda0-584b-47fa-b75a-c656d10a8665.jsonl",
+  "cwd": "<home>\\AppData\\Local\\Temp\\casefile-probe\\sandbox",
   "hook_event_name": "SessionStart",
   "source": "startup"
 }
