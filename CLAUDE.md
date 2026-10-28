@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `eb7f238` — 2026-10-21
+**Docs reconciled through:** `82025c9` — 2026-10-27
 
 ## What this repo is
 
@@ -77,11 +77,11 @@ writes code, tests or specs itself — the plan file is the progress record (D-0
 a project that has not agreed to it. Agents live flat in `agents/` (a subfolder becomes part of the
 name), and every rule an agent must obey is a plugin hook branching on `agent_type`, because a
 plugin agent's own `hooks` and `permissionMode` are ignored (D-030). The two greenfield skills were removed in 0.12.0 (D-026); the
-agent workflows that replace them are designed in `docs/specs/history/2026-10-14-*` and land one release at
-a time, `write-specs` among them.
+agent workflows above replace them, and their designs are in `docs/specs/history/2026-10-14-*`.
 
 **Per-project settings are `.claude/casefile.json`**, read through `hooks/casefile_hooks/lib.py`
-(`_DEFAULTS`, `_TYPES`: a new key is added to both). Skills and agents read it, and `review` step 2
+(`_DEFAULTS`, `_TYPES`: a new key is added to both). A leftover `.claude/devflow.json` with no
+`casefile.json` makes the hooks fail closed rather than fall back to defaults (D-060). Skills and agents read it, and `review` step 2
 is where its contents are proposed: apps with `test`, `install` and optional `lint` (D-042),
 `default_branch`, and `repo` with `siblings` for a frontend and backend in separate repositories,
 where every repository holds the same specs and plan and builds only its own tasks (D-041). The
