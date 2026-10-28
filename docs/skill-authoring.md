@@ -1,6 +1,6 @@
 # Skill authoring — what Anthropic documents
 
-**Verified against:** Claude Code `2.1.307` — 2026-10-21
+**Verified against:** Claude Code `2.1.312` — 2026-10-27
 
 Facts about how skills load and behave, taken from Anthropic's own pages. This file records what
 the vendor says; the rules casefile layers on top live in `CLAUDE.md`. Each fact cites its page so a
@@ -42,6 +42,9 @@ version bump can be checked against the source rather than against this summary.
   and low-priority skills set to `"name-only"` in `skillOverrides` to free it. `/skill-doctor`
   (v2.1.252+) finds unused skills. [CC]
 - Skills could drop out of the model's listing after `/rewind`, fixed in v2.1.301. [CL]
+- Per-directory and `paths:` skills were not found after a Bash `cd` deeper into a git repository;
+  fixed in v2.1.312. A skill in an `--add-dir` folder whose name another skill holds is offered as
+  `<folder>:<name>` (v2.1.309). [CL]
 - After compaction the skill list is sent to Claude again; `/reload-skills` sends only new or changed
   skills, and resumed and cloud sessions no longer resend the whole list on every plugin reload
   (v2.1.304). [CL]
@@ -148,12 +151,17 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   non-blocking error, and a timed-out hook does not block. `onFailure: "block"` (v2.1.295+) refuses
   the action instead. [HK] 2.1.299 fixed Windows PreToolUse hooks with no `shell` failing open when Git
   for Windows is missing, and made actions a plugin hook can block refused when the hook cannot be
-  handed them or cannot answer. [CL]
+  handed them or cannot answer. [CL] Further Windows fail-opens fixed: PreToolUse hooks with
+  `"shell": "powershell"` and no Git for Windows, and PowerShell hooks exiting 2 not blocking
+  (v2.1.309); PreToolUse hooks whose command is only quoted strings, with Git Bash missing (v2.1.310).
+  casefile's `sh "…/run-hook" <name>` is none of these. [CL]
 - `if` takes exactly one permission rule, runs only on tool events, and is best-effort: when Claude
   Code cannot tell which commands a Bash input runs, the hook runs regardless. The page says to use
   the permission system, not a hook, for a hard allow or deny. [HK]
 - A PreToolUse hook's deny reason was replaced by a timeout error; fixed in v2.1.304. Prompt and agent
-  hooks run at most 12 of one event at a time (v2.1.302); casefile's hooks are command hooks. [CL]
+  hooks run at most 12 of one event at a time [HK]; since v2.1.312 also at most 24 per session,
+  subagents included, and a `timeout` under 1 second counts as 1 second. casefile's hooks are
+  command hooks. [CL]
 - `updatedInput` from PreToolUse is validated like Claude's own input: unknown keys dropped, input the
   tool rejects denies the call (v2.1.300). [CL]
 - `UserPromptSubmit` hooks run before a skill or slash command expands, so blocking the prompt also
@@ -162,11 +170,13 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   (`agents/review/security.md` → `my-plugin:review:security`). Supported frontmatter: `name`,
   `description`, `model`, `effort`, `maxTurns`, `autoCompactWindow` (v2.1.296), `tools`,
   `disallowedTools`, `skills`, `memory`, `background`, `omitClaudeMd`, `isolation` (only
-  `"worktree"`), `color`. **Ignored:** `permissionMode`, `hooks`, `mcpServers`, `initialPrompt` — an
+  `"worktree"`), `color`, and `experimental.cacheTtl`. **Ignored:** `permissionMode`, `hooks`, `mcpServers`, `initialPrompt` — an
   agent's rules have to be plugin hooks. Malformed frontmatter loads the agent with every field
   ignored. [PL] Which branch a plugin agent's worktree starts from is not documented. New worktrees in a bare repository sometimes started from local HEAD instead of the default branch, and unchanged subagent worktrees were sometimes not cleaned up; fixed in v2.1.305. [CL] Subagents that were messaged
   or resumed sometimes forgot their latest work; fixed in v2.1.304. Fork subagents (`subagent_type:
-  "fork"`) are on by default in `claude -p` (v2.1.302). [CL]
+  "fork"`) are on by default in `claude -p` (v2.1.302). A subagent's isolated worktree was removed
+  while a background subagent it started still worked in it; fixed in v2.1.311. `autoCompactWindow`
+  now lowers the window `CLAUDE_CODE_AUTO_COMPACT_WINDOW` sets, never raises it (v2.1.312). [CL]
 - `claude --plugin-dir <path>` loads a plugin for one session without installing it; the plugin is
   named after the directory. [CLI][PL]
 
@@ -180,7 +190,8 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   `disableSkillShellExecution` replaces them with a placeholder. [CC]
 - `context: fork` starts a subagent with the skill as its only prompt — no conversation history.
   It only works for skills that contain a task. `agent: Explore`/`Plan` also skip `CLAUDE.md`. A
-  backgrounded fork's edits are outside `/rewind`. [CC]
+  backgrounded fork's edits are outside `/rewind`. [CC] A finished skill that runs in a subagent
+  could run a second time when a cloud or background session restarted; fixed in v2.1.311. [CL]
 
 ## Testing
 
