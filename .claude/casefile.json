@@ -1,7 +1,6 @@
 {
   "build_order": "docs/product/blueprint.md",
   "default_branch": "main",
-  "claim_docs": ["CLAUDE.md", "README.md", "docs/skill-authoring.md"],
   "apps": {
     "casefile": {
       "path": ".",

@@ -43,7 +43,6 @@ carries out are untagged and have a test.
 | [20-reviewer.md](20-reviewer.md) | `casefile:reviewer` |
 | [21-implementer.md](21-implementer.md) | `casefile:implementer` |
 | [31-rules-and-tests.md](31-rules-and-tests.md) | What tags mean and what gets a test |
-| [41-claims.md](41-claims.md) | False and outdated claims in a project's documents |
 | [50-tooling.md](50-tooling.md) | Shipped code stays standard library |
 
 Behaviour shipped before these files (through 0.19.1) is described in `history/`, one design per

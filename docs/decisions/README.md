@@ -73,7 +73,6 @@ so.
 | [D-059](0059-the-evidence-skill-is-named-evidence.md) | The evidence skill is named evidence | Accepted |
 | [D-060](0060-the-plugin-is-named-casefile.md) | The plugin is named casefile | Accepted |
 | [D-061](0061-reconciliation-replays-the-watermark-gaps-log-with-a.md) | Reconciliation replays the watermark gap's log, with a diff as a cross-check | Accepted |
-| [D-062](0062-claims-are-checked-by-a-script-at-every.md) | Claims are checked by a script at every reconciliation and by a full read on request | Accepted |
 
 ## Conventions
 
