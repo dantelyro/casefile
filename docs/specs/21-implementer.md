@@ -14,3 +14,8 @@ Given a task whose behaviour already exists in the code
 When its tests pass on the first run
 Then the report says `RED: none — <test> passed on first run`, and the implementer touches no product
 code.
+
+### IMPL-003 · The implementer uses what the task says to reuse      [MANUAL]
+Given a task with a `Reuse:` line (PLAN-004)
+When the implementer builds it
+Then it uses the code named there, and anything it does not use goes under NOT DONE with the reason.

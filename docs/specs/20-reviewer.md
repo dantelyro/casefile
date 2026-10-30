@@ -53,3 +53,10 @@ When the diff touches product code
 Then it is a major finding, as a missing RED is
 And when the diff touches only tests, the BREAKS are the proof the tests can fail.
 
+
+### REV-009 · Duplicated code and contradicted decisions are findings      [MANUAL]
+Given a change the reviewer is reviewing
+When new code duplicates code that already exists, or the change contradicts a decision the plan
+lists under `History checked:` (PLAN-001)
+Then it is a finding, naming the file and line of both the new and the existing code, or the
+decision.

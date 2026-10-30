@@ -76,6 +76,9 @@ so.
 | [D-062](0062-a-milestone-or-fix-is-built-on-its.md) | A milestone or fix is built on its own branch, which the developer merges | Accepted |
 | [D-063](0063-the-claim-audit-milestone-is-dropped-a-full.md) | The claim-audit milestone is dropped; a full read of the docs is done on request | Accepted |
 | [D-064](0064-decisions-are-recorded-unasked-including-ones-with-no.md) | Decisions are recorded unasked, including ones with no change and dropped work | Accepted |
+| [D-065](0065-the-planner-checks-every-milestone-against-the-decision.md) | The planner checks every milestone against the decision log and the codebase | Accepted |
+| [D-066](0066-code-practices-are-one-stack-scoped-skill-shared.md) | Code practices are one stack-scoped skill shared by the main session and the agents | Accepted |
+| [D-067](0067-measurable-code-practices-are-enforced-by-the-projects.md) | Measurable code practices are enforced by the project's linter through a Stop hook | Accepted |
 
 ## Conventions
 

@@ -23,3 +23,13 @@
   who merges it; tasks run one by one on the branch or in parallel worktrees, and the reviewer keeps
   its own worktree in every case, because it breaks code on purpose (2026-10-29), see D-062. This
   answers whether the reviewer could share the implementer's worktree: it does not
+- The planner is responsible for knowing what was decided, dropped and already built before it plans
+  (2026-10-29) → PLAN-001, PLAN-002, PLAN-003, PLAN-004, IMPL-003, REV-009, see D-065
+- Code practices are followed by the main session and casefile's agents, scoped to the stack being
+  built: a Node change gets no React rules (2026-10-29) → PRAC-001..008, see D-066
+- The first stacks are Node, React, Vue and Python, with a shared backend and a shared frontend file
+  (2026-10-29) → PRAC-002
+- Measurable practices are enforced by the project's linter, not by prose, and the Stop hook lints
+  only what changed during the turn (2026-10-29) → PRAC-009, PRAC-010, PRAC-011, PRAC-012, see D-067
+- The skill's Red flags are seeded from unreadable code Claude finds in the developer's own projects,
+  not from examples the developer collects (2026-10-29) → PRAC-001

@@ -42,7 +42,9 @@ carries out are untagged and have a test.
 | [10-guards.md](10-guards.md) | What the hooks let each casefile agent do |
 | [20-reviewer.md](20-reviewer.md) | `casefile:reviewer` |
 | [21-implementer.md](21-implementer.md) | `casefile:implementer` |
+| [22-planner.md](22-planner.md) | `casefile:planner` knows the project's history and its code |
 | [31-rules-and-tests.md](31-rules-and-tests.md) | What tags mean and what gets a test |
+| [40-code-practices.md](40-code-practices.md) | The code-practices skill and the lint Stop hook |
 | [50-tooling.md](50-tooling.md) | Shipped code stays standard library |
 
 Behaviour shipped before these files (through 0.19.1) is partly described in `history/`, which holds
