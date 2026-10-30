@@ -3,8 +3,8 @@ name: fix-bug
 description: >
   Use first — before reading or editing any code — when the developer asks to fix a bug or an
   issue, or when a bug needs recording as an issue in docs/issues/. The bug is reproduced with a
-  failing test first, fixed on its own branch by the casefile:implementer agent, reviewed by
-  casefile:reviewer, and merged after the developer says yes. Triggers on: "fix
+  failing test first, fixed on a fix/ branch by the casefile:implementer agent, reviewed by
+  casefile:reviewer, and left for the developer to merge. Triggers on: "fix
   docs/issues/0007", "there's a bug: … fix it", "the upload fails when …, can you fix it", a bug an
   agent reported in its NOTES, a bug found while building a feature. Not for a typo or one-line
   change the developer asks to make directly, and not for explaining an error without fixing it.
@@ -12,8 +12,9 @@ description: >
 
 # Fix a bug
 
-A bug is fixed **on its own branch, never inside a feature's**, and proven by a test that failed
-before the fix. The main session coordinates; it does not write the fix or the test itself.
+A bug is fixed **on its own `fix/` branch, never inside a feature's**, and proven by a test that
+failed before the fix. The main session coordinates; it does not write the fix or the test itself.
+The developer merges the branch; you never do.
 
 ## The issue
 
@@ -43,36 +44,39 @@ Get the id and file prefix from the script, never by counting by hand:
 ```
 
 - `Status` is `open`, `in-progress`, `fixed (<implementer commit>)` or `wontfix: <reason>`.
-- `Blocks` names the plan task that cannot proceed until this is fixed: a bug in merged work the
-  task builds on. That task waits; the fix is merged first.
-- A bug inside a task's own unmerged branch is not an issue: it is a review finding for that task.
+- `Blocks` names the plan task that cannot proceed until this is fixed: a bug in accepted work the
+  task builds on. That task waits until the developer has merged the fix into the milestone's branch.
+- A bug in the change under review is not an issue: it is a review finding for that change.
 - The test is named in backticks, its file first. The status script looks for that name.
 
 ## Steps
 
 1. **The issue.** Use the file the developer points to, or write it now from their report — what
    happens, what should happen, how to see it, the test that must fail first — and show it before
-   saving. Commit it on the default branch (`docs(issues): I-0007 <title>`), and set `in-progress`.
-2. **Implement.** The project settings must be in place first, as in `implement`'s preconditions:
-   without `worktree.baseRef: "head"` the implementer starts without the issue you just committed.
-   The current branch must be the default branch: the worktree starts from whatever is checked out.
-   Then dispatch `casefile:implementer` with the issue path only. It writes the failing
-   test, confirms it fails for the right reason, fixes, and commits on its own branch.
-3. **Review.** Dispatch `casefile:reviewer` with the issue path and the implementer's report
-   verbatim.
-4. **Fix loop.** `changes-requested` → send the blocker and major findings to **the same**
-   implementer (continue it, so it keeps its worktree), to fix in a new commit and report again.
-   At most 2 rounds; then stop and show the developer the findings.
-5. **Merge** after the developer's yes, following
-   [`${CLAUDE_PLUGIN_ROOT}/shared/merge.md`](../../shared/merge.md). The issue becomes
-   `fixed (<implementer commit>)` in the merge commit.
-6. **Check.** Run `issues_status.py` (as in *The issue*) and show the developer its result; a fixed
-   issue it reports as an error is not fixed.
+   saving.
+2. **The branch.** Create the `fix/` branch following
+   [`${CLAUDE_PLUGIN_ROOT}/shared/work-branch.md`](../../shared/work-branch.md). Commit the issue on
+   it (`docs(issues): I-0007 <title>`), with `in-progress`, and note the commit as the fix's base
+   (`git rev-parse HEAD`).
+3. **Implement.** Dispatch `casefile:implementer` with the issue path only, **without a worktree**:
+   it works in this checkout, on the `fix/` branch. Nobody edits or switches branches here until it
+   reports. It writes the failing test, confirms it fails for the right reason, fixes, and commits.
+4. **Review.** Dispatch `casefile:reviewer` with the issue path, `BASE: <the fix's base>` and the
+   implementer's report verbatim. The reviewer works in its own worktree, because it breaks code on
+   purpose.
+5. **Fix loop.** `changes-requested` → send the blocker and major findings to **the same**
+   implementer (continue it), to fix in a new commit and report again. At most 2 rounds; then stop
+   and show the developer the findings — the commits stay on the branch for them to keep or drop.
+6. **Record** after the reviewer approves and the developer says yes: the issue becomes
+   `- Status: fixed (<implementer commit>)`, with unfixed minor findings under "Accepted at merge",
+   committed as `docs(issues): I-0007 fixed`.
+7. **Check.** Run `issues_status.py` (as in *The issue*) and show the developer its result; a fixed
+   issue it reports as an error is not fixed. Then tell them the branch is ready to merge.
 
 ## Never
 
 - Never fix a bug inside a feature branch, or a feature inside a bug branch.
 - Never write the test or the fix in the main session: a second, isolated implementer and an
   isolated reviewer are the point.
-- Never mark an issue fixed on a branch that was not merged.
-- Never merge without the developer's yes for this change.
+- Never mark an issue fixed before the reviewer approved and the developer said yes.
+- Never merge the `fix/` branch: the developer does.

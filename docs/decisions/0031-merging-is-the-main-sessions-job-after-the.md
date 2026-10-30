@@ -22,3 +22,6 @@ or issue status recorded in the merge commit, then every worktree the change use
 
 **Trade-offs:** The developer answers once per change, even in a batch of three parallel tasks. A yes
 for one change never carries to the next, so an unattended run stops at every merge.
+
+**Changed by:**
+- 2026-10-29 · dantelyro — by D-062: the main session merges only a parallel task into the milestone's `feat/` branch; a task-by-task task or a fix is committed on its branch directly, and the developer merges the branch into the default branch.

@@ -27,3 +27,6 @@ cherry-pick.
 **Trade-offs:** A redo costs a full implementer and reviewer run, even when the conflict is one
 line of a lock file. The redo writes the work again by hand, so it can drift from what was reviewed;
 the second review is what catches that.
+
+**Changed by:**
+- 2026-10-29 · dantelyro — by D-062: the redo starts from the milestone's `feat/` branch, not the default branch, and happens only in parallel mode.

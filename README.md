@@ -38,8 +38,8 @@ changes against their specs, and hooks that hold the rules every time.
 | `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
 | `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `casefile:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
 | `write-specs` | Turns a feature description, or the notes of a brainstorm that has ended, into spec rules with IDs (`### JOBS-020 · Title`), product decisions, decision entries, open questions and a new milestone in the build order. It drafts everything, asks the open questions together, and writes nothing until you say yes; `spec_lint.py` checks the specs hold together. Never starts or interrupts a brainstorm. |
-| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `casefile:planner` writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does — and after your approval each task is built by `casefile:implementer` in its own worktree, several in parallel when they touch different files, reviewed by `casefile:reviewer` and merged after your yes. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
-| `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `casefile:implementer` reproduces it with a failing test and fixes it on its own branch, `casefile:reviewer` checks it, and it is merged after your yes ([`shared/merge.md`](shared/merge.md)). `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
+| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `casefile:planner` writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does — and after your approval each task is built on a `feat/` branch you name — by `casefile:implementer` one task at a time in your checkout, or several in parallel worktrees when they touch different files — reviewed by `casefile:reviewer` and accepted after your yes. You merge the branch into `main`; casefile never does. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
+| `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `casefile:implementer` reproduces it with a failing test and fixes it on a `fix/` branch you name ([`shared/work-branch.md`](shared/work-branch.md)), `casefile:reviewer` checks it, and you merge the branch. `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
 | `evidence` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
 The two compose: `repo-discovery` answers what an existing project **is**, and
@@ -125,11 +125,12 @@ hooks/
 tests/                  # uv run pytest
 evals/                  # trigger evals, billed: claude plugin eval . --ablation none --scaffold
 agents/
-  implementer.md        # casefile:implementer: one task or issue, test-first, in its own worktree
+  implementer.md        # casefile:implementer: one task or issue, test-first, on the work branch or a worktree
   planner.md            # casefile:planner: one milestone into test-first tasks; writes only its plan
   reviewer.md           # casefile:reviewer
 shared/
-  merge.md              # the merge procedure, linked from every skill that merges
+  merge.md              # merging a parallel task into the feat/ branch
+  work-branch.md        # naming and creating the feat/ or fix/ branch the developer merges
 skills/
   fix-bug/
     SKILL.md

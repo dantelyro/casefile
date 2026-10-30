@@ -5,9 +5,9 @@
   issues_status.py --next-id            the next free issue id and file prefix
   add --json for machine-readable output.
 
-A `fixed (<commit>)` issue is checked, not believed: the commit must exist and be on the default
-branch, and every name in backticks under "Test that must fail first" that is not a path must be
-found in the default branch's files. Exit 1 when any issue has an error.
+A `fixed (<commit>)` issue is checked, not believed: the commit must exist and be on the current
+branch — the `fix/` or `feat/` branch the issue file is read from — and every name in backticks under
+"Test that must fail first" that is not a path must be found in that branch's files. Exit 1 when any issue has an error.
 
 Standard library only (D-027).
 """
@@ -41,12 +41,9 @@ def repo_root() -> str:
     return out.stdout.strip()
 
 
-def default_branch(root: str) -> str:
-    try:
-        with open(os.path.join(root, ".claude", "casefile.json"), encoding="utf-8") as f:
-            return json.load(f).get("default_branch") or "main"
-    except (OSError, ValueError):
-        return "main"
+def current_branch(root: str) -> str:
+    out = git(root, "rev-parse", "--abbrev-ref", "HEAD")
+    return out.stdout.strip() if out.returncode == 0 and out.stdout.strip() else "HEAD"
 
 
 def parse(path: str, name: str) -> tuple[dict | None, list[str]]:
@@ -124,7 +121,7 @@ def main() -> None:
         return
 
     issues, errors = [], []
-    branch = default_branch(root)
+    branch = current_branch(root)
     for n in names:
         issue, problems = parse(os.path.join(folder, n), n)
         errors += problems
