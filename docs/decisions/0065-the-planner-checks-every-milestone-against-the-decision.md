@@ -10,3 +10,8 @@
 **Decision:** (b). The planner reads CLAUDE.md, product-decisions.md, open-questions.md, the decisions index and every decision touching the milestone, lists them under History checked:, puts work that revives dropped work or contradicts a decision under Blockers, and names reusable code on each task's Reuse: line (PLAN-001..004). The implementer uses what Reuse: names (IMPL-003); the reviewer flags duplication and contradicted decisions (REV-009). write-specs is unchanged: one gate, in one place.
 
 **Trade-offs:** A revival is caught at planning, after its specs are written, not before; (a) would catch it earlier but puts the check in a second place. Planning reads more and costs more tokens. The rules are agent prose, tested by hand ([MANUAL]).
+
+**Changed by:**
+- 2026-10-29 · dantelyro — the planner is no longer the only gate: the implementer and the reviewer
+  also read the decisions touching their task or change (IMPL-004, REV-010). The developer: 'so if the
+  implent can still contradict too all agents should know about it'.

@@ -25,6 +25,8 @@
   answers whether the reviewer could share the implementer's worktree: it does not
 - The planner is responsible for knowing what was decided, dropped and already built before it plans
   (2026-10-29) → PLAN-001, PLAN-002, PLAN-003, PLAN-004, IMPL-003, REV-009, see D-065
+- The implementer and the reviewer check the decision log themselves too, not only through the
+  planner (2026-10-29) → IMPL-004, REV-010, see D-065
 - Code practices are followed by the main session and casefile's agents, scoped to the stack being
   built: a Node change gets no React rules (2026-10-29) → PRAC-001..008, see D-066
 - The first stacks are Node, React, Vue and Python, with a shared backend and a shared frontend file

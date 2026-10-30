@@ -14,7 +14,7 @@ Releases shipped through 0.19.1 predate these specs; the designs of 0.12.0–0.1
 - **M2 — Ruff and pytest** (0.21.0): TOOL-004; the tooling itself is a decision, not rules.
 - **M3 — Rules and tests** (0.22.0): RULE-001, RULE-002, RULE-003, RULE-004, RULE-005, RULE-006.
 - **M7 — Code practices, and a planner that knows the project** (0.27.0): PLAN-001, PLAN-002,
-  PLAN-003, PLAN-004, IMPL-003, REV-009, PRAC-001, PRAC-002, PRAC-003, PRAC-004, PRAC-005, PRAC-006,
+  PLAN-003, PLAN-004, IMPL-003, IMPL-004, REV-009, REV-010, PRAC-001, PRAC-002, PRAC-003, PRAC-004, PRAC-005, PRAC-006,
   PRAC-007, PRAC-008, PRAC-009, PRAC-010, PRAC-011, PRAC-012.
 - **M8 — Refactor existing code** (later): not specified yet; its questions are in
   `open-questions.md`.
