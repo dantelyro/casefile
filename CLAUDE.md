@@ -65,7 +65,7 @@ triggers on the *start of a session* and on *facts about the repo*, neither of w
 user message states. `hooks/casefile_hooks/session_start.py` injects that trigger — as a **pointer to the skill,
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 The pointer asks for the skill before the session's first change to code or docs, not before its
-first answer. See D-003, D-004 and D-057.
+first answer, and again the moment a decision is settled. See D-003, D-004, D-057 and D-064.
 
 **Six skills and three agents, each with its own moment.** `repo-discovery` reads a project that
 already exists; `evidence` records *why* and keeps it honest; `review` dispatches

@@ -73,9 +73,10 @@ second. Full mechanism, including recovery when the SHA stops resolving:
    Capture what comes back; it becomes your fixture.
 3. **Build, with unverified values quarantined** — named constants, one call site, a comment
    saying what they were derived from and how to confirm them.
-4. **Record the decision** with its evidence grade, as a new file in `decisions/`. See
-   `references/decision-log.md`. The number, the file and the index come from scripts, never by
-   hand: run `<python> "${CLAUDE_PLUGIN_ROOT}/skills/evidence/scripts/decision_new.py"`
+4. **Record the decision** with its evidence grade, as a new file in `decisions/`, **unasked**:
+   in the same commit as the change, or in a commit of its own when nothing else changes. What
+   counts is in `references/decision-log.md`, *What earns an entry*; when unsure, record it. The
+   number, the file and the index come from scripts, never by hand: run `<python> "${CLAUDE_PLUGIN_ROOT}/skills/evidence/scripts/decision_new.py"`
    with the entry's fields (it writes `Status: Proposed`), set `Accepted` once the call is made,
    then run `decision_index.py` beside it (`<python>` is `py -3` on Windows, `python3` elsewhere).
 5. **Verify, and say which axis you verified.** See `references/verifying-external-systems.md`.

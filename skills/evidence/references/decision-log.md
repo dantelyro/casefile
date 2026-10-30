@@ -212,6 +212,10 @@ bad evidence" is worth more to a future reader than a tidy history.
 - A discovery that contradicts the documentation
 - A constraint accepted deliberately (deferred work, a known gap)
 - Anything a future reader might reasonably try to "fix" without knowing why it is that way
+- The developer's answer when you put options to them, even in conversation with no change yet
+- Planned or built work that is dropped, reverted or reversed: its entries are superseded and the
+  drop gets its own entry, even when the developer says "delete everything". Deleting the work
+  does not delete the reason; casefile lost why its claim audit was dropped this way (D-063)
 
 **No:**
 - Anything git history or the code already states clearly

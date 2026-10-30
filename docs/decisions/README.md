@@ -74,6 +74,8 @@ so.
 | [D-060](0060-the-plugin-is-named-casefile.md) | The plugin is named casefile | Accepted |
 | [D-061](0061-reconciliation-replays-the-watermark-gaps-log-with-a.md) | Reconciliation replays the watermark gap's log, with a diff as a cross-check | Accepted |
 | [D-062](0062-a-milestone-or-fix-is-built-on-its.md) | A milestone or fix is built on its own branch, which the developer merges | Accepted |
+| [D-063](0063-the-claim-audit-milestone-is-dropped-a-full.md) | The claim-audit milestone is dropped; a full read of the docs is done on request | Accepted |
+| [D-064](0064-decisions-are-recorded-unasked-including-ones-with-no.md) | Decisions are recorded unasked, including ones with no change and dropped work | Accepted |
 
 ## Conventions
 

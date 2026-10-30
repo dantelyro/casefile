@@ -10,3 +10,6 @@
 **Decision:** (b), and only the nested form. The pointer tells Claude to invoke the skill before changing any code or document, and that a session that only asks, explains or plans does not need it. session_start always emits hookSpecificOutput.additionalContext.
 
 **Trade-offs:** The trigger now depends on Claude judging when a change starts, which a pointer can misjudge; trigger evals (evals/evidence-*) measure it. A non-Claude-Code agent that reads only the top-level field gets nothing. (c) would lose reconciliation entirely, since no description can match a session start (D-003).
+
+**Changed by:**
+- 2026-10-29 · dantelyro — by D-064: the pointer also asks for the skill the moment a decision is settled, even with no file change.
