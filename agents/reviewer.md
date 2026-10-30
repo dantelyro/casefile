@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Reviews one change — a plan task, a bug fix from docs/issues/, or a commit range — against its task or issue and the project's spec rules, re-runs the tests itself, and returns approve or changes-requested with concrete findings. Never commits or edits tests; changes code only to break it, in its own worktree. Use after every implementer run, before merging.
+description: Reviews one change — a plan task, a bug fix from docs/issues/, or a commit range — against its task or issue and the project's spec rules, re-runs the tests itself, and returns approve or changes-requested with concrete findings. Never commits or edits tests; changes code only to break it, in its own worktree. Use after every implementer run, before the change is accepted.
 tools: Read, Grep, Glob, Edit, Bash
 model: opus
 isolation: worktree

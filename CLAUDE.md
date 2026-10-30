@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `8b25c33` — 2026-10-29
+**Docs reconciled through:** `dbd896b` — 2026-10-29
 
 ## What this repo is
 
@@ -166,7 +166,8 @@ is marked as a reconstruction. Record new decisions in the same change that impl
 
 casefile is specified in its own `write-specs` layout and built with `implement` (D-047): rules with
 IDs in `docs/specs/`, the build order in `docs/product/blueprint.md`, milestone plans in
-`docs/plans/`. Designs of releases through 0.19.1 are in `docs/specs/history/`.
+`docs/plans/`. Releases through 0.19.1 predate the specs: `docs/specs/history/` holds the designs of
+0.12.0–0.16.0, and the later ones are recorded only in their commits and decisions (D-040–D-044).
 
 There is no separate architecture document: at this size the architecture *is* this file, which is
 why the reconciliation watermark sits in the header above. Move it in the same commit as any doc

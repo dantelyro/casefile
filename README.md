@@ -150,13 +150,19 @@ skills/
   evidence/
     SKILL.md
     references/         # loaded on demand, not with the skill
-    scripts/            # decision_next_id.py, decision_new.py, decision_index.py
       decision-log.md
       living-documents.md
+      new-project-docs.md
       verifying-external-systems.md
+    scripts/            # decision_next_id.py, decision_new.py, decision_index.py
 docs/
   decisions/            # why this repo is the way it is; one file per decision
     README.md           # generated index: id, title, status
+  specs/                # casefile's own spec rules; history/ holds designs of 0.12–0.16
+  product/              # build order (blueprint.md), product decisions, open questions
+  plans/                # milestone plans, the progress record of implement
+  issues/               # bugs, one file each, for fix-bug
+  skill-authoring.md    # what Anthropic documents about skills, version-watermarked
 ```
 
 This repo is both the marketplace and the single plugin it offers — the marketplace entry points

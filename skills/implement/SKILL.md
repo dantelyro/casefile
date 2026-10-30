@@ -29,8 +29,8 @@ redo by hand what they report.
   what each waits on.
 - `.claude/casefile.json` exists and `.claude/settings.json` has `"worktree": { "baseRef": "head" }`.
   Either missing → propose them as `review` does (step 2), write and commit them after the
-  developer's yes. Without the setting, every worktree — each reviewer's, each parallel implementer's —
-  branches from the remote and misses the specs, the plan and each unpushed commit (D-040). What else `review` step 2 lists — worktrees
+  developer's yes. Without the setting, every parallel implementer's worktree branches from the
+  remote and misses the specs, the plan and each unpushed commit (D-040). What else `review` step 2 lists — worktrees
   ignored, a linter for an app without one — is proposed the same way when missing (D-042).
 - The specs hold together: `write-specs/scripts/spec_lint.py` exits 0. Its errors are shown, and
   the milestone waits until the specs are fixed (`write-specs`); warnings are shown and don't stop it.

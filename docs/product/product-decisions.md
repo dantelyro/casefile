@@ -19,3 +19,7 @@
 - Development tooling is not a spec rule: ruff, pytest, uv and the commit gate are recorded in decisions
   (D-048) and CLAUDE.md, and M2's four tooling rules leave the specs (2026-10-20); TOOL-004 stays,
   because shipped code being standard library is what users rely on
+- A milestone is built on a `feat/` branch and a fix on a `fix/` branch, each named with the developer,
+  who merges it; tasks run one by one on the branch or in parallel worktrees, and the reviewer keeps
+  its own worktree in every case, because it breaks code on purpose (2026-10-29), see D-062. This
+  answers whether the reviewer could share the implementer's worktree: it does not

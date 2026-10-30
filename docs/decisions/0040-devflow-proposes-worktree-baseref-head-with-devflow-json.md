@@ -10,3 +10,6 @@
 **Decision:** (c), the developer's call: "its just flag devflow should set". `review` proposes both; `implement` and `fix-bug` propose whatever is missing before dispatching.
 
 **Trade-offs:** Only the project's settings file is checked, not the developer's own; a setting written mid-session may need a restart.
+
+**Changed by:**
+- 2026-10-29 · dantelyro — by D-062: only `implement` needs the setting, for parallel tasks; a fix's implementer works without a worktree, and the reviewer switches to the branch it reviews by name.

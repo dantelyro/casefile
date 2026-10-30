@@ -45,6 +45,6 @@ carries out are untagged and have a test.
 | [31-rules-and-tests.md](31-rules-and-tests.md) | What tags mean and what gets a test |
 | [50-tooling.md](50-tooling.md) | Shipped code stays standard library |
 
-Behaviour shipped before these files (through 0.19.1) is described in `history/`, one design per
-release, and is being specified here area by area. Where a rule here and a history design disagree,
+Behaviour shipped before these files (through 0.19.1) is partly described in `history/`, which holds
+the designs of 0.12.0–0.16.0, and is being specified here area by area. Where a rule here and a history design disagree,
 the rule wins.
