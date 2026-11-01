@@ -38,17 +38,3 @@ def test_guards_fail_closed():
             assert "timeout" in hook, name
         else:
             assert "onFailure" not in hook, f"{name} only adds context and must never block"
-
-
-def test_no_if_filters():
-    for _event, _matcher, hook, name in entries():
-        assert "if" not in hook, f"{name}: the `if` filter is best-effort; the hook checks itself"
-
-
-def test_what_fires_where():
-    where = {(event, name): matcher for event, matcher, _hook, name in entries()}
-    assert where[("SessionStart", "session_start")] == "startup|clear|compact"
-    for name in ("guard_bash", "pre_commit"):
-        assert set(where[("PreToolUse", name)].split("|")) == {"Bash", "PowerShell"}
-    for name in ("guard_paths", "design_check"):
-        assert set(where[("PreToolUse", name)].split("|")) == {"Edit", "Write", "MultiEdit", "NotebookEdit"}

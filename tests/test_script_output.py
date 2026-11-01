@@ -23,5 +23,4 @@ def test_every_script_prints_utf8_under_a_legacy_code_page(script):
     assert r.returncode == 0, r.stderr.decode("utf-8", "replace")
     text = r.stdout.decode("utf-8", errors="replace")  # a character that came out in cp1252 becomes U+FFFD
     assert "�" not in text, f"{script.name} printed a non-UTF-8 byte: {text!r}"
-    if script.name != "decision_next_id.py":  # it takes a folder, not options
-        assert any(ord(c) > 127 for c in text), text  # "—" or "…" in each description
+    assert any(ord(c) > 127 for c in text), text  # "—" or "…" in each description

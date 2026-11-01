@@ -1,4 +1,4 @@
-"""The shared hook library: reading events, decisions, who is acting, paths, config."""
+"""The shared hook library: decisions, who is acting, paths, config."""
 
 import io
 import json
@@ -7,7 +7,6 @@ import pathlib
 import subprocess
 import sys
 from contextlib import redirect_stdout
-from unittest import mock
 
 import pytest
 
@@ -39,33 +38,6 @@ def decision_of(fn, *args) -> dict:
 
 def git(*args, cwd):
     subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, timeout=60)
-
-
-def stdin_of(raw: bytes):
-    return mock.patch.object(sys, "stdin", io.TextIOWrapper(io.BytesIO(raw), encoding="utf-8"))
-
-
-@pytest.mark.parametrize("path", sorted(FIXTURES.glob("*.json")), ids=lambda p: p.name)
-def test_every_fixture_parses(path):
-    with stdin_of(path.read_bytes()):
-        event = lib.read_event()
-    assert "hook_event_name" in event, path.name
-
-
-def test_bad_json_raises():
-    with stdin_of(b"{not json"), pytest.raises(ValueError):
-        lib.read_event()
-
-
-def test_empty_input_raises():
-    with stdin_of(b""), pytest.raises(ValueError):
-        lib.read_event()
-
-
-def test_non_ascii_path_survives():
-    raw = json.dumps({"hook_event_name": "PreToolUse", "cwd": "C:\\Usuários\\joão"}, ensure_ascii=False)
-    with stdin_of(raw.encode("utf-8")):
-        assert lib.read_event()["cwd"] == "C:\\Usuários\\joão"
 
 
 def test_deny():

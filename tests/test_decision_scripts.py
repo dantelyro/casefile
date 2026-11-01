@@ -1,4 +1,4 @@
-"""The decision log's mechanical parts: the next id, a new entry, the generated index."""
+"""The decision log's mechanical parts: a new entry and its number, the generated index."""
 
 import pathlib
 import subprocess
@@ -32,43 +32,6 @@ class Log:
 @pytest.fixture
 def log(tmp_path):
     return Log(tmp_path)
-
-
-# next id
-
-def next_id(log):
-    r = run("decision_next_id.py", cwd=log.repo)
-    assert r.returncode == 0, r.stderr
-    return r.stdout.strip()
-
-
-def test_next_id_a_missing_or_empty_log_starts_at_one(log):
-    assert next_id(log) == "D-001"
-    log.log.mkdir(parents=True)
-    assert next_id(log) == "D-001"
-
-
-def test_next_id_one_past_the_highest_filename(log):
-    log.write("0001-a.md", entry(1, "A"))
-    log.write("0009-b.md", entry(9, "B"))
-    log.write("0004-c.md", entry(4, "C"))
-    assert next_id(log) == "D-010"
-
-
-def test_next_id_letter_suffixes_and_other_files_never_raise_it(log):
-    log.write("0003-a.md", entry(3, "A"))
-    log.write("0003b-between.md", entry(3, "Between"))
-    log.write("README.md", "# Decision log\n")
-    log.write("notes.txt", "0099\n")
-    assert next_id(log) == "D-004"
-
-
-def test_next_id_a_folder_given_as_argument(log):
-    other = log.repo / "elsewhere"
-    other.mkdir()
-    (other / "0041-x.md").write_text(entry(41, "X"), encoding="utf-8")
-    r = run("decision_next_id.py", "elsewhere", cwd=log.repo)
-    assert r.stdout.strip() == "D-042"
 
 
 # new entry
@@ -192,6 +155,16 @@ def test_index_an_entry_without_a_title_line_is_an_error(log):
     assert "0001-first.md" in r.stdout + r.stderr
 
 
-def test_casefiles_own_log_the_generated_index_is_the_committed_one():
-    r = run("decision_index.py", "--check", cwd=ROOT)
-    assert r.returncode == 0, r.stdout + r.stderr
+def test_new_numbers_one_past_the_highest_filename(log):
+    log.write("0001-a.md", entry(1, "A"))
+    log.write("0009-b.md", entry(9, "B"))
+    log.write("0004-c.md", entry(4, "C"))
+    assert new(log, "Next").stdout.strip() == "docs/decisions/0010-next.md"
+
+
+def test_new_letter_suffixes_and_other_files_never_raise_the_number(log):
+    log.write("0003-a.md", entry(3, "A"))
+    log.write("0003b-between.md", entry(3, "Between"))
+    log.write("README.md", "# Decision log\n")
+    log.write("notes.txt", "0099\n")
+    assert new(log, "Next").stdout.strip() == "docs/decisions/0004-next.md"

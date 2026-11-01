@@ -173,13 +173,8 @@ rewriting the record of who changed the record defeats the field.
 ## Numbering
 
 Sequential `D-NNN`, matching the `NNNN-` filename, never reused. The highest filename in
-`decisions/` is the pointer, so keep no `next id` anywhere:
-
-```bash
-python3 scripts/decision_next_id.py docs/decisions   # py -3 on Windows; ignores 0013b-style files
-```
-
-Nothing to bump, nothing to contend over, and it cannot drift out of sync with reality.
+`decisions/` is the pointer, so keep no `next id` anywhere: `decision_new.py` numbers each entry
+from it. Nothing to bump, nothing to contend over, and it cannot drift out of sync with reality.
 
 Inserting between two existing ids — a decision that belongs beside `D-013` rather than at the
 end — takes a letter suffix: `0013b-…`. It sorts directly after its neighbour, where renumbering

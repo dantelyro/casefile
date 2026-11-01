@@ -154,7 +154,7 @@ skills/
       living-documents.md
       new-project-docs.md
       verifying-external-systems.md
-    scripts/            # decision_next_id.py, decision_new.py, decision_index.py
+    scripts/            # decision_new.py, decision_index.py
 docs/
   decisions/            # why this repo is the way it is; one file per decision
     README.md           # generated index: id, title, status

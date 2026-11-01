@@ -2,8 +2,9 @@
 
 Writes the next decision entry, `Status: Proposed`, in the log's format
 (references/decision-log.md) and prints its path. The file is `NNNN-<slug>.md`, the slug from the
-title's first eight words. It becomes `Accepted` when the developer says yes; `Implemented by` is
-added once something implements it. Standard library only.
+title's first eight words, and its number is one past the highest `NNNN-` filename: letter-suffixed
+entries (`0013b-…`) sit between two ids and never raise it. It becomes `Accepted` when the developer
+says yes; `Implemented by` is added once something implements it. Standard library only.
 """
 
 import argparse
@@ -12,8 +13,13 @@ import os
 import re
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from decision_next_id import next_id
+ENTRY = re.compile(r"^(\d{4})-.+\.md$")
+
+
+def next_id(folder: str) -> str:
+    names = os.listdir(folder) if os.path.isdir(folder) else []
+    nums = [int(m.group(1)) for m in map(ENTRY.match, names) if m]
+    return f"D-{max(nums, default=0) + 1:03d}"
 
 
 def slug(title: str) -> str:

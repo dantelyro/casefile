@@ -1,6 +1,6 @@
 """Shared helpers for casefile's hooks.
 
-A hook reads one JSON event from stdin and ends with a decision printed as JSON on stdout (exit 0):
+run.py hands each hook its event; a hook ends with a decision printed as JSON on stdout (exit 0):
 deny or ask. Printing nothing allows. Exit codes are not used for decisions: `ask` has no
 exit-code form, and one output style is one thing to test.
 """
@@ -12,18 +12,6 @@ import subprocess
 import sys
 
 PREFIX = "casefile:"
-
-
-def read_event() -> dict:
-    """The event Claude Code sends on stdin. Raises ValueError on empty or malformed input
-    and TypeError when it is not a JSON object, so the launcher can fail closed."""
-    raw = sys.stdin.buffer.read().decode("utf-8").strip()
-    if not raw:
-        raise ValueError("empty hook input")
-    event = json.loads(raw)
-    if not isinstance(event, dict):
-        raise TypeError("hook input is not a JSON object")
-    return event
 
 
 def _decide(decision: str, reason: str) -> None:
