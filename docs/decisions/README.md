@@ -80,6 +80,7 @@ so.
 | [D-066](0066-code-practices-are-one-stack-scoped-skill-shared.md) | Code practices are one stack-scoped skill shared by the main session and the agents | Accepted |
 | [D-067](0067-measurable-code-practices-are-enforced-by-the-projects.md) | Measurable code practices are enforced by the project's linter through a Stop hook | Accepted |
 | [D-068](0068-m7-is-split-into-three-milestones-the-agents.md) | M7 is split into three milestones: the agents' history checks, the Stop lint and the code-practices skill | Accepted |
+| [D-069](0069-committing-a-tasks-status-by-amending-the-tasks.md) | Committing a task's status by amending the task's commit is dropped as a workaround | Accepted |
 
 ## Conventions
 

@@ -13,3 +13,7 @@
 - M8: is refactor its own skill on a `refactor/` branch, driven like `fix-bug`, or a mode of
   `implement`? And how is a target bounded — a file, a folder, a module? Blocks M8. Answers: the
   developer.
+- How does `implement` record a task's status without commits that change only the plan? Proposed:
+  every task lands by a merge commit, and `plan_status.py` derives done from `merge(<milestone>/<task>)`
+  commits and in progress from task branches, leaving only `blocked` in the plan. The amend approach
+  was dropped as a workaround (D-069). Blocks nothing. Answers: the developer.
