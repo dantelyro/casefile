@@ -73,12 +73,6 @@ def test_new_an_apostrophe_does_not_split_a_word(log):
     assert (log.log / "0001-the-logs-index-and-the-developers-yes.md").exists()
 
 
-def test_new_creates_the_folder(log):
-    r = new(log, "First")
-    assert r.returncode == 0, r.stderr
-    assert (log.log / "0001-first.md").exists()
-
-
 def test_new_every_field_is_required(log):
     r = run("decision_new.py", "--title", "T", "--context", "c", cwd=log.repo)
     assert r.returncode != 0

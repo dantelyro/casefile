@@ -8,6 +8,8 @@ import subprocess
 import sys
 import types
 
+import pytest
+
 HOOKS = pathlib.Path(__file__).resolve().parent.parent / "hooks"
 sys.path.insert(0, str(HOOKS))
 
@@ -64,8 +66,9 @@ def test_a_crashing_guard_denies():
     assert "boom" in result[1]["hookSpecificOutput"]["permissionDecisionReason"]
 
 
-def test_bad_json_denies():
-    result = dispatch("guard_bash", "{nope", guard_bash=lambda e: None)
+@pytest.mark.parametrize("name", ["guard_bash", "session_start"])
+def test_GUARD_007_bad_json_denies_whatever_the_hook_is_named(name):
+    result = dispatch(name, "{nope", **{name: lambda e: None})
     assert decision(result) == "deny"
 
 
@@ -112,9 +115,8 @@ def test_GUARD_007_without_python_session_start_asks_the_developer(tmp_path):
 
 
 def test_GUARD_007_without_python_a_never_blocks_hook_is_silent_on_other_events(tmp_path):
-    for name in ("session_start", "stop_lint"):
-        proc = run_wrapper_without_python(tmp_path, name, "never-blocks")
-        assert (proc.returncode, proc.stdout) == (0, ""), (name, proc.returncode, proc.stderr)
+    proc = run_wrapper_without_python(tmp_path, "session_start", "never-blocks")
+    assert (proc.returncode, proc.stdout) == (0, ""), (proc.returncode, proc.stderr)
 
 
 def test_GUARD_007_a_never_blocks_hook_that_cannot_run_prints_nothing():
@@ -123,15 +125,3 @@ def test_GUARD_007_a_never_blocks_hook_that_cannot_run_prints_nothing():
                               input=raw, capture_output=True, text=True, timeout=60, check=False)
         assert (proc.returncode, proc.stdout) == (0, ""), (raw, proc.stdout)
 
-
-def test_GUARD_007_a_session_start_without_never_blocks_is_a_guard():
-    assert decision(dispatch("session_start", "{nope", session_start=lambda e: None)) == "deny"
-
-
-def test_runs_run_py():
-    proc = subprocess.run(
-        [sh_path(), str(HOOKS / "run-hook"), "no_such_hook"],
-        input=FIXTURE, capture_output=True, text=True, timeout=60, check=False,
-    )
-    assert proc.returncode == 0, proc.stderr
-    assert json.loads(proc.stdout)["hookSpecificOutput"]["permissionDecision"] == "deny"

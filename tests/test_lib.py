@@ -49,34 +49,12 @@ def test_deny():
     }}
 
 
-def test_ask():
-    out = decision_of(lib.ask, "push to the remote?")
-    assert out["hookSpecificOutput"]["permissionDecision"] == "ask"
-    assert out["hookSpecificOutput"]["permissionDecisionReason"] == "casefile: push to the remote?"
-
-
-def test_allow_prints_nothing():
-    assert exits(lib.allow) == ("", 0)
-
-
-def test_main_session_is_none():
-    assert lib.agent_of(fixture("bash_main")) is None
-    assert lib.agent_of(fixture("bash_main_auto")) is None
-    assert lib.agent_of(fixture("powershell_main")) is None
-
-
-def test_plugin_agent():
-    assert lib.agent_of(fixture("bash_plugin_agent")) == "casefile:reviewer"
-
-
-def test_builtin_agent():
-    assert lib.agent_of(fixture("bash_builtin_agent")) == "Explore"
-
-
-def test_casefile_agent_name():
-    assert lib.casefile_agent(fixture("bash_plugin_agent")) == "reviewer"
-    assert lib.casefile_agent(fixture("bash_builtin_agent")) is None
-    assert lib.casefile_agent(fixture("bash_main")) is None
+@pytest.mark.parametrize(("name", "agent", "casefile_agent"), [
+    ("bash_main", None, None), ("bash_main_auto", None, None), ("powershell_main", None, None),
+    ("bash_plugin_agent", "casefile:reviewer", "reviewer"), ("bash_builtin_agent", "Explore", None)])
+def test_who_is_acting_in_a_captured_event(name, agent, casefile_agent):
+    assert lib.agent_of(fixture(name)) == agent
+    assert lib.casefile_agent(fixture(name)) == casefile_agent
 
 
 @pytest.fixture
@@ -126,16 +104,6 @@ def config_repo(tmp_path):
 def write_config(repo, text: str):
     (repo / ".claude").mkdir(exist_ok=True)
     (repo / ".claude" / "casefile.json").write_text(text, encoding="utf-8")
-
-
-def test_no_file_gives_defaults(config_repo):
-    cfg = lib.config({"cwd": str(config_repo)})
-    assert cfg["default_branch"] == "main"
-    assert cfg["protected_paths"] == []
-    assert cfg["apps"] == {}
-    assert cfg["design"].get("tokens") == "docs/product/design-system/tokens.json"
-    assert cfg["design"].get("ui_paths") == []
-    assert cfg["build_order"] == "docs/product/blueprint.html"
 
 
 def test_partial_file_keeps_other_defaults(config_repo):

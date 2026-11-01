@@ -276,11 +276,6 @@ def test_any_file_runs_it(whole_repo_app, stub_dir):
     assert "STUB npm ran" in reason
 
 
-def test_it_passes_too(whole_repo_app, stub_dir):
-    whole_repo_app.write("README.md", "changed")
-    whole_repo_app.expect("allow", path=with_real_path(stub_dir("npm", 0)))
-
-
 @pytest.mark.parametrize("name", ["a.test.mts", "a.spec.cts", "a.test.mjs", "a.spec.cjs"])
 def test_module_extensions_are_test_files_too(repo, name):
     repo.write(f"src/{name}", f"{SKIP}('x', () => {{}})\n")

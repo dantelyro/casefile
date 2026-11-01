@@ -335,11 +335,6 @@ def test_every_planner_choice_is_listed_with_its_task(repo):
         {"task": "T1", "choice": "two accounts"}]
 
 
-def test_none(repo):
-    write(repo, "docs/plans/M2.md", plan(task(1)))
-    assert status(repo)[1]["choices"] == []
-
-
 def test_choices_in_indented_notes_are_reported(repo):
     t1 = task(1).replace("- Notes: none", "- Notes: reuse the login helper, and keep the\n"
                          "  form as it is. Planner choice: the wrong password is the real one\n"

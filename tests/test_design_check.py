@@ -170,12 +170,9 @@ def test_exceptions_raw_value_files_still_follow_class_rules(project):
     project.write("web/styles/tokens.css", "@apply bg-blue-500;", "deny")
 
 
-def test_exceptions_main_session_is_checked_too(project):
-    project.write("web/app/page.tsx", '<div className="bg-blue-500" />', "deny", agent=None)
-
-
-def test_exceptions_other_agents_too(project):
-    project.write("web/app/page.tsx", '<div className="bg-blue-500" />', "deny", agent="general-purpose")
+@pytest.mark.parametrize("agent", [None, "general-purpose"])
+def test_exceptions_the_main_session_and_other_agents_are_checked_too(project, agent):
+    project.write("web/app/page.tsx", '<div className="bg-blue-500" />', "deny", agent=agent)
 
 
 # without tailwind

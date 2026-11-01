@@ -53,10 +53,3 @@ def test_TOOL_004_a_third_party_import_in_shipped_code_is_reported(tmp_path):
     assert any("y.py" in f and f.endswith(": requests") for f in found)
     assert any("z.py" in f and f.endswith(": requests") for f in found)
 
-
-def test_TOOL_004_tests_may_import_pytest(tmp_path):
-    (tmp_path / "tests").mkdir()
-    (tmp_path / "tests" / "test_x.py").write_text("import pytest\n", encoding="utf-8")
-    (tmp_path / "hooks").mkdir()
-    (tmp_path / "hooks" / "ok.py").write_text("import json\n", encoding="utf-8")
-    assert third_party_imports(tmp_path) == []

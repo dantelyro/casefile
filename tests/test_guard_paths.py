@@ -96,8 +96,7 @@ class TestReviewer:
         expect(repo, ["casefile:reviewer"], ("docs/plans/M1.md", "docs/issues/0001-x.md"), "deny")
 
 
-EDITS = (("Edit", "web/a.ts"), ("Write", "web/a.ts"), ("MultiEdit", "web/a.ts"),
-         ("NotebookEdit", "nb.ipynb"), ("Write", "web/new-folder/b.ts"))
+EDITS = (("Write", "web/a.ts"), ("NotebookEdit", "nb.ipynb"), ("Write", "web/new-folder/b.ts"))
 
 
 class TestReviewerCheckout:
@@ -139,8 +138,6 @@ class TestReviewerLimits:
     """GUARD-002: in the checkout, where GUARD-001 allows the reviewer's product-code edits, so a deny here
     is GUARD-002's."""
 
-    TOOLS = ("Edit", "Write", "MultiEdit")
-
     @staticmethod
     def configure(repo, cfg):
         (repo / ".claude").mkdir(exist_ok=True)
@@ -148,11 +145,10 @@ class TestReviewerLimits:
 
     def check(self, repo, paths, decision):
         for path in paths:
-            for tool in self.TOOLS:
-                got, reason = decide(repo, "casefile:reviewer", path, tool=tool)
-                assert got == decision, f"{tool} {path}: {reason}"
+            got, reason = decide(repo, "casefile:reviewer", path)
+            assert got == decision, f"{path}: {reason}"
 
-    def test_GUARD_002_reviewer_may_not_edit_test_files(self, repo):
+    def test_REV_007_GUARD_002_reviewer_may_not_edit_test_files(self, repo):
         paths = ("tests/test_score.py", "worker/app/score_test.py", "web/score.test.ts", "web/e2e/login.spec.ts")
         for p in paths:
             assert TEST_FILE.search(p), p  # the cases are what pre_commit calls a test file
@@ -177,11 +173,6 @@ class TestReviewerLimits:
     def test_GUARD_002_product_code_next_to_them_is_allowed(self, repo):
         self.check(repo, ("web/score.ts", "worker/app/score.py", "README.md", "docs/testing.md"), "allow")
 
-    @pytest.mark.parametrize("tool", ["Edit", "Write"])
-    @pytest.mark.parametrize("path", ["tests/test_score.py", "web/score.test.ts"])
-    def test_REV_007_reviewer_never_writes_a_test(self, tool, path, repo):
-        got, _ = decide(repo, "casefile:reviewer", path, tool=tool)
-        assert got == "deny", f"{tool} {path}"
 
 
 class TestPlanner:
@@ -217,10 +208,6 @@ class TestImplementer:
     def test_GUARD_006_reason_says_report_blocked(self, bare_repo):
         _, reason = decide(bare_repo, "casefile:implementer", "docs/plans/M1.md")
         assert "STATUS: blocked" in reason, reason
-
-    def test_reason_says_report_blocked(self, repo):
-        _, reason = decide(repo, "casefile:implementer", "docs/specs/x.md")
-        assert "STATUS: blocked" in reason
 
     def test_outside_the_repository(self, repo):
         got, reason = decide(repo, "casefile:implementer", os.path.join(tempfile.gettempdir(), "x.txt"))

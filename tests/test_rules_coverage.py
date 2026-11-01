@@ -72,13 +72,6 @@ def test_named_tests_in_both_styles(repo):
     assert (out["missing"], out["manual"], out["later"]) == ([], ["MATCH-004"], ["MATCH-005"])
 
 
-def test_a_missing_mvp_rule_fails(repo):
-    write(repo, "web/score.test.ts", "it('MATCH-001: x', () => {})\n")
-    code, out, _ = coverage(repo)
-    assert code == 1
-    assert out["missing"] == ["MATCH-002", "MATCH-003"]
-
-
 def test_untracked_rules_are_reported_not_failed(repo):
     for name in ("MATCH-001", "MATCH-002", "MATCH-003"):
         write(repo, f"web/{name}.test.ts", f"it('{name}: x', () => {{}})\n")

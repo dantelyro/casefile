@@ -133,7 +133,9 @@ class TestReviewer:
             "git add -A", "git commit -m x", "git merge feat", "git rebase main", "git reset HEAD~1",
             "git stash", "git checkout -- web/x.ts", "git branch -d feat",
             "rm web/x.ts", "mv a b", "echo hi > notes.txt", "cat x >> y", "Remove-Item x",
-            "Set-Content x hi", "sed -i s/a/b/ web/x.ts", "git switch feat", "git cherry-pick abc"),
+            "Set-Content x hi", "sed -i s/a/b/ web/x.ts", "git switch feat", "git cherry-pick abc",
+            "git commit -am x", "echo x > web/x.ts", "git restore web/x.ts > out.txt",
+            "git restore web/x.ts && npm test"),
             "deny")
 
 
@@ -174,16 +176,8 @@ class TestRestore:
         got, reason = decide("casefile:reviewer", "git restore web/x.ts", cwd=repo)
         assert got == "deny", reason
 
-    def test_GUARD_005_location_does_not_change_other_decisions(self, repo):
-        expect(["casefile:planner"], ("git restore web/x.ts",), "deny", cwd=repo)
-
     def test_GUARD_003_the_reviewer_never_switches_the_checkout(self, repo):
         reviewer_in(repo, ("git switch --detach feat", "git switch feat", "git checkout feat"), "deny")
-
-    def test_GUARD_003_reviewer_may_git_restore_paths(self, repo):
-        reviewer_in(repo, (
-            "git restore web/x.ts", "git restore -- web/x.ts", "git restore web/a.ts web/b.ts",
-            "git restore -- -odd-name.ts"), "allow")
 
     def test_GUARD_003_restore_without_a_path_is_denied(self, repo):
         reviewer_in(repo, ("git restore", "git restore --"), "deny")
@@ -214,22 +208,13 @@ class TestRestore:
     @pytest.mark.parametrize("command", [
         "git restore -q -- web/x.ts", "git restore --patch --quiet web/x.ts", "git restore -p web/x.ts",
         'git restore "web/my file.ts"', "git restore -p -q -- web/x.ts",
-        "git restore web/a_b-c@2+x.ts"])
+        "git restore web/a_b-c@2+x.ts", "git restore -- web/x.ts", "git restore web/a.ts web/b.ts",
+        "git restore -- -odd-name.ts"])
     def test_GUARD_003_listed_flags_are_allowed(self, command, repo):
         reviewer_in(repo, (command,), "allow")
 
-    def test_GUARD_003_other_repository_changes_stay_denied(self, repo):
-        reviewer_in(repo, (
-            "git add -A", "git commit -m x", "git stash", "git checkout -- web/x.ts", "git reset HEAD~1",
-            "rm web/x.ts", "sed -i s/a/b/ web/x.ts", "echo x > web/x.ts",
-            "git restore web/x.ts > out.txt", "git restore web/x.ts && npm test"), "deny")
-
     def test_GUARD_004_planner_may_not_git_restore(self, repo):
-        expect(["casefile:reviewer"], ("git restore web/x.ts",), "allow", cwd=repo)
         expect(["casefile:planner"], ("git restore web/x.ts",), "deny", cwd=repo)
-
-    def test_REV_007_reviewer_never_commits(self, repo):
-        reviewer_in(repo, ("git commit -m x", "git commit -am x", "git add -A"), "deny")
 
 
 class TestImplementer:
