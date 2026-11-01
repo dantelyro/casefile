@@ -13,7 +13,10 @@
         "name": "dantelyro"
       },
       "category": "development",
-      "source": "./",
+      "source": {
+        "source": "github",
+        "repo": "dantelyro/casefile"
+      },
       "homepage": "https://github.com/dantelyro/casefile"
     }
   ]
