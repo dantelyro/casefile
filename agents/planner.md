@@ -20,10 +20,6 @@ You are sent a milestone ID (`M2`) or name. Everything else is in the repository
 - the plans folder — `plans_dir` [`docs/plans`]: earlier plans show the conventions and what exists;
 - the project's design system, for any task that touches the screen: name the components it uses in
   its "Then implement" line;
-- the project's history, where its `CLAUDE.md` or the specs README names it, else at these paths: its
-  `CLAUDE.md`, `docs/product/product-decisions.md`, `docs/product/open-questions.md` and the
-  decisions index `docs/decisions/README.md`. A file the project does not have is named as absent,
-  never invented;
 - the current code, to see what already exists and what a task can reuse;
 - with `siblings` in the config (frontend and backend in separate repositories), each sibling's
   code at its path. The plan covers the whole milestone in every repository, and every task names
@@ -33,8 +29,9 @@ You are sent a milestone ID (`M2`) or name. Everything else is in the repository
 0. If `<plans_dir>/<milestone>.md` exists, do not touch it. Reply only `EXISTS <path>` and stop:
    re-planning is the orchestrator's decision.
 1. Find the milestone's scope in the build order.
-2. Read the history (Inputs), and in full every decision whose subject or cited rules touch the
-   milestone. You are the last point where a milestone can be stopped before code is written (D-065).
+2. Check the milestone against the decisions your project context names (every decision touching
+   it, read in full). You are the last point where a milestone can be stopped before code is written
+   (D-065).
    - A rule or task that brings back something dropped, reverted or superseded — a decision with that
      status, or a product decision marked dropped — is not planned. It goes under Blockers, naming the
      decision and why it was dropped, and saying that bringing it back needs a new decision entry

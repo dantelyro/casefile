@@ -20,10 +20,8 @@ Given a task with a `Reuse:` line (PLAN-004)
 When the implementer builds it
 Then it uses the code named there, and anything it does not use goes under NOT DONE with the reason.
 
-### IMPL-004 · The implementer checks its task against the decision log      [MANUAL]
-Given a task or an issue
-When the implementer starts it
-Then it reads the decisions index and in full every accepted decision touching the files it will
-change or the rules it builds
-And a task that would contradict one, or bring back something dropped, reverted or superseded, is
-reported `STATUS: blocked`, naming the decision, instead of built. See D-065.
+### IMPL-004 · A task that contradicts a decision is reported blocked      [MANUAL]
+Given a task or an issue, with the project context every agent starts with (CTX-001)
+When it would contradict an accepted decision touching the files it changes or the rules it builds,
+or bring back something dropped, reverted or superseded
+Then the implementer reports `STATUS: blocked`, naming the decision, and builds nothing. See D-065.

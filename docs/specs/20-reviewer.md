@@ -61,10 +61,10 @@ lists under `History checked:` (PLAN-001)
 Then it is a finding, naming the file and line of both the new and the existing code, or the
 decision.
 
-### REV-010 · The reviewer checks the change against the decision log itself      [MANUAL]
-Given a change the reviewer is reviewing
-When it reads the change
-Then it reads the decisions index and checks the change against every accepted decision touching the
-changed files or the rules the task builds, not only those the plan lists under `History checked:`
+### REV-010 · The reviewer checks the change against the decisions itself      [MANUAL]
+Given a change the reviewer is reviewing, with the project context every agent starts with (CTX-001)
+When it reviews the change
+Then it checks it against every accepted decision touching the changed files or the rules the task
+builds, not only those the plan lists under `History checked:`
 And a contradiction, or work that brings back something dropped, is a major finding naming the
 decision. See D-065.

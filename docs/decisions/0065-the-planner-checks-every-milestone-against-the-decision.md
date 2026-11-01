@@ -15,3 +15,5 @@
 - 2026-10-29 · dantelyro — the planner is no longer the only gate: the implementer and the reviewer
   also read the decisions touching their task or change (IMPL-004, REV-010). The developer: 'so if the
   implent can still contradict too all agents should know about it'.
+- 2026-11-01 · dantelyro — the reading moved from the three agent prompts to a SubagentStart hook that
+  gives every agent the project context; each role keeps what it does with a contradiction (D-070).

@@ -182,6 +182,9 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
 - A plugin agent's `skills` field preloads a skill named `<plugin>:<skill>` as well as by its bare
   name: an agent with only the Read tool recited a word found only in that skill (live probe on
   2.1.312, 2026-10-31; PRAC-007).
+- A `SubagentStart` hook's `hookSpecificOutput.additionalContext` reaches the spawned agent's
+  context, for plugin agents and built-in ones (`Explore`) alike, and not the main session's: live
+  probe on 2.1.312, 2026-11-01 (CTX-001). [HK] documents it the same way.
 
 ## Dynamic context and forks
 

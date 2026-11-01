@@ -4,12 +4,12 @@
 dropped and already built, because it is the last point where a milestone can be stopped before
 code is written (see D-065).
 
-### PLAN-001 · The planner reads the project's history before planning      [MANUAL]
-Given a milestone to plan
-When the planner starts
-Then it reads the project's `CLAUDE.md`, `product-decisions.md`, `open-questions.md` and the
-decisions index, and in full every decision whose subject or cited rules touch the milestone
-And the plan lists the decisions it read on a `History checked:` line under its header.
+### PLAN-001 · The plan records the history it was checked against      [MANUAL]
+Given a milestone to plan, with the project context every agent starts with (CTX-001)
+When the planner writes the plan
+Then the plan lists, on a `History checked:` line under its header, every decision it read in full
+because its subject or cited rules touch the milestone, and each product document it read or found
+absent.
 
 ### PLAN-002 · Work that brings back something dropped is a blocker      [MANUAL]
 Given a rule or task that would bring back something dropped, reverted or superseded — a decision

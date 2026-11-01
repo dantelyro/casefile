@@ -40,6 +40,7 @@ carries out are untagged and have a test.
 | File | What |
 |---|---|
 | [10-guards.md](10-guards.md) | What the hooks let each casefile agent do |
+| [11-context.md](11-context.md) | What every session and agent is told about the project's documents |
 | [20-reviewer.md](20-reviewer.md) | `casefile:reviewer` |
 | [21-implementer.md](21-implementer.md) | `casefile:implementer` |
 | [22-planner.md](22-planner.md) | `casefile:planner` knows the project's history and its code |

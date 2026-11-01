@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `fc508b2` — 2026-11-01
+**Docs reconciled through:** `e384762` — 2026-11-01
 
 ## What this repo is
 
@@ -66,6 +66,11 @@ user message states. `hooks/casefile_hooks/session_start.py` injects that trigge
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 The pointer asks for the skill before the session's first change to code or docs, not before its
 first answer, and again the moment a decision is settled. See D-003, D-004, D-057 and D-064.
+The same hook, registered on `SubagentStart` too, gives **every** agent — casefile's, built-in or
+another plugin's — the project context: where the decisions and product documents are, read the
+ones touching its work, never revive dropped work. The main session gets that context plus the
+evidence pointer; agents never get the pointer, since they neither reconcile docs nor record
+decisions (CTX-001, D-070).
 
 **Six skills and three agents, each with its own moment.** `repo-discovery` reads a project that
 already exists; `evidence` records *why* and keeps it honest; `review` dispatches
@@ -88,9 +93,10 @@ is where its contents are proposed: apps with `test`, `install` and optional `li
 `default_branch`, and `repo` with `siblings` for a frontend and backend in separate repositories,
 where every repository holds the same specs and plan and builds only its own tasks (D-041). The
 planner marks any detail no spec rule states as a `Planner choice:` and the developer rules on each
-(D-044). The planner, implementer and reviewer each read the decision log before they act: work that
-brings back something dropped, or contradicts a decision, is a blocker or a major finding, and every
-planned task names the code it can reuse (D-065).
+(D-044). With the project context the hook gives every agent, work that
+brings back something dropped, or contradicts a decision, is a blocker for the planner and the
+implementer and a major finding for the reviewer, and every planned task names the code it can reuse
+(D-065).
 
 ## Hook gotchas
 

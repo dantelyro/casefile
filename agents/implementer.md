@@ -29,12 +29,9 @@ You are sent a path and an ID, nothing more. Read:
   report `blocked` instead of inventing a style.
 
 ## Process (in this order)
-0. **Check the decisions.** Read the decisions index (where the project's `CLAUDE.md` names it, else
-   `docs/decisions/README.md`) and, in full, every accepted decision touching the files you will
-   change or the rules you build. A task or issue that would contradict one, or bring back something
-   dropped, reverted or superseded, is reported `STATUS: blocked` naming the decision, and nothing is
-   built: the plan can be wrong, and a fix-bug issue has no planner (D-065). No decisions index →
-   say so under NOTES and go on.
+0. **Check the decisions** your project context names. A task or issue that would contradict one, or
+   bring back something dropped, reverted or superseded, is reported `STATUS: blocked` naming the
+   decision, and nothing is built: the plan can be wrong, and a fix-bug issue has no planner (D-065).
 1. **Set up.** Install from the lock file with the app's `install` command from `.claude/casefile.json`
    (else the project's own: `npm ci`, `uv sync`, …): a new worktree has no `node_modules` or
    virtualenv.

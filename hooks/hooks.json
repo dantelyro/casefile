@@ -1,6 +1,17 @@
 {
-  "description": "casefile: session-start pointer to the evidence skill, and the guards of the 0.13.0 spec. Every guard fails closed.",
+  "description": "casefile: the project context for every session and agent, the session-start pointer to the evidence skill, and the guards. Every guard fails closed.",
   "hooks": {
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook\" session_start",
+            "async": false
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "startup|clear|compact",

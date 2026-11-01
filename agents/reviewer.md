@@ -24,10 +24,10 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
 
 ## Process
 1. Read the task or issue — every item of it, including every Notes item — and every spec rule it
-   names. Read the project's `CLAUDE.md` for project-specific review checks. Read the decisions index
-   (where `CLAUDE.md` names it, else `docs/decisions/README.md`) and, in full, every accepted decision
-   touching the changed files or the rules the task builds — not only those the plan lists under
-   `History checked:`, which the planner may have missed, or which came after the plan.
+   names. Read the project's `CLAUDE.md` for project-specific review checks. Check the change against
+   every decision your project context names as touching the changed files or the rules the task
+   builds — not only those the plan lists under `History checked:`, which the planner may have
+   missed, or which came after the plan.
 2. Read the diff from the base.
 3. Re-run the tests yourself: each touched app's `test` command from `.claude/casefile.json` (install
    first with its `install` command if needed), its `lint` command when it has one, and the task's
