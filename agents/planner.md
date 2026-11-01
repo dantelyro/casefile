@@ -20,7 +20,11 @@ You are sent a milestone ID (`M2`) or name. Everything else is in the repository
 - the plans folder — `plans_dir` [`docs/plans`]: earlier plans show the conventions and what exists;
 - the project's design system, for any task that touches the screen: name the components it uses in
   its "Then implement" line;
-- the current code, to see what already exists;
+- the project's history, where its `CLAUDE.md` or the specs README names it, else at these paths: its
+  `CLAUDE.md`, `docs/product/product-decisions.md`, `docs/product/open-questions.md` and the
+  decisions index `docs/decisions/README.md`. A file the project does not have is named as absent,
+  never invented;
+- the current code, to see what already exists and what a task can reuse;
 - with `siblings` in the config (frontend and backend in separate repositories), each sibling's
   code at its path. The plan covers the whole milestone in every repository, and every task names
   the one whose code it changes in `Repo:` — this repository's `repo`, or a sibling's name.
@@ -29,17 +33,28 @@ You are sent a milestone ID (`M2`) or name. Everything else is in the repository
 0. If `<plans_dir>/<milestone>.md` exists, do not touch it. Reply only `EXISTS <path>` and stop:
    re-planning is the orchestrator's decision.
 1. Find the milestone's scope in the build order.
-2. Collect every rule in that scope except `[LATER]`, which is skipped. `[VERIFY]` rules, and anything
+2. Read the history (Inputs), and in full every decision whose subject or cited rules touch the
+   milestone. You are the last point where a milestone can be stopped before code is written (D-065).
+   - A rule or task that brings back something dropped, reverted or superseded — a decision with that
+     status, or a product decision marked dropped — is not planned. It goes under Blockers, naming the
+     decision and why it was dropped, and saying that bringing it back needs a new decision entry
+     superseding the old one.
+   - One that contradicts an accepted decision or a product decision goes under Blockers naming both.
+     Plan nothing around a guess.
+3. Collect every rule in that scope except `[LATER]`, which is skipped. `[VERIFY]` rules, and anything
    the specs leave undecided that a task would have to decide, go under **Blockers** — never planned
    around a guess.
-3. Skip rules that already have a passing test named after them.
+4. Skip rules that already have a passing test named after them.
    Plan a test named after a rule only when the rule describes something the project's own code does,
    covering its normal, edge and failure cases. Any other rule gets no test, `[MANUAL]` ones included,
    and its reason goes on its plan line. Tests are for the project's code, never for tools, packages,
    config or prose, and no `Planner choice:` proposes such a test (D-049).
-4. Split the work into tasks small enough for one implementer run: one behaviour, usually 1–3 rule
+5. Split the work into tasks small enough for one implementer run: one behaviour, usually 1–3 rule
    IDs, at most ~5 files.
-5. Order them so each task depends only on earlier ones. Mark tasks that touch none of the same files
+6. For each task, search the code for functions, components, types, fixtures and tests it can use,
+   and name each on its `Reuse:` line by file and symbol; none found → say what you searched for.
+   Code written twice is a review finding (REV-009).
+7. Order them so each task depends only on earlier ones. Mark tasks that touch none of the same files
    as parallel-safe with each other.
 
 ## Output
@@ -49,6 +64,7 @@ Write `<plans_dir>/<milestone>.md` in exactly this format, then reply with one l
 ```
 # Plan: <milestone> <name>
 Planned: <YYYY-MM-DD>
+History checked: <decision IDs read in full, and each history file read or absent>
 
 Scope (build order): <what the build order says this milestone covers>
 What exists already: <what the code already has that the tasks build on>
@@ -61,6 +77,7 @@ What exists already: <what the code already has that the tasks build on>
 - App: <app folder from that repository's config, or repo>
 - Test first: <test file> — <test names, each starting with its rule ID>, or `none (no test: <reason>)`
 - Then implement: <files to create or change>
+- Reuse: <file and symbol, each> | none found (searched: <terms>)
 - Done when: <one observable check, e.g. "uv run pytest -q passes in worker/">
 - Depends on: <task IDs, or none>
 - Parallel-safe with: <task IDs touching none of the same files, or none>
