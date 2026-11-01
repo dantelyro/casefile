@@ -108,8 +108,9 @@ Each of these is load-bearing; the comments in the files say so too.
   Git for Windows; under PowerShell the command does not even parse (probe, 0.13.0 spec).
 - **Guards fail closed.** `run.py` denies when the hook is unknown, its input is unreadable or it
   crashes, and every guard is registered with `onFailure: "block"`, because Claude Code otherwise
-  lets the action through when a hook crashes or times out. `session_start` is the exception: it
-  only adds context, so it never blocks.
+  lets the action through when a hook crashes or times out. A hook that only adds context ends its
+  command in `hooks.json` with `never-blocks` and has no `onFailure`; the starter and `run.py` read
+  that word, never a hook's name, so whether a hook may block is declared in one place (GUARD-007).
 - **Decisions are JSON on stdout, exit 0** (`permissionDecision`: `deny` or `ask`); printing nothing
   allows. Exit 2 is only the starter's "no Python" path.
 - **The starter uses only shell builtins until Python is found**, so it still explains a missing

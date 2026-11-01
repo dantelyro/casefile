@@ -6,8 +6,8 @@
   waiting      todo tasks held by an open issue in docs/issues/ (Blocks: <plan> <task>), or by an
                entry of the plan's Blockers named in their Depends on (`needs Gabriel (B18)`)
   blocked      tasks marked `blocked: <reason>`
-  choices      every `Planner choice:` in a task's Notes — something no spec rule states, which the
-               developer accepts or cuts when the plan is approved
+  choices      every `Planner choice:` in the Notes of a task not yet done, wrapped lines and sub-bullets
+               included — something no spec rule states, which the developer accepts or cuts
   elsewhere    tasks whose `Repo:` is a sibling repository, with their status read from the sibling's
                copy of the plan (same path); they are built there, never here
 add --json for machine-readable output. Exit 1 when the plan cannot be read or has errors.
@@ -27,6 +27,7 @@ TASK = re.compile(r"^### ([A-Z]\d+[a-z]?) · (.+)$")  # T3, F1 (fix tasks), T3b
 FIELD = re.compile(r"^- (Status|Depends on|Parallel-safe with|Repo|Notes):\s*(.*)$")
 STATUS = re.compile(r"^(todo|in-progress)$|^done \(([0-9a-f]{7,40})\)$|^blocked: (.+)$")
 CHOICE = re.compile(r"Planner choice:\s*", re.IGNORECASE)
+CHOICE_END = re.compile(r"\n\s*[-*]\s")  # a sub-bullet of Notes ends the choice before it
 ISSUES_STATUS = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "..", "..", "fix-bug", "scripts", "issues_status.py")
 
@@ -45,18 +46,29 @@ def plan_blockers(plan_text: str) -> set[str]:
     return set(re.findall(r"^\s*[-*]\s+\**([A-Z]\d+[a-z]?)(?![\w-])", m.group(1), re.MULTILINE))
 
 
+def choices(notes: str) -> list[str]:
+    """Each `Planner choice:` in a task's Notes, up to the next choice or sub-bullet (I-0001)."""
+    return [" ".join(CHOICE_END.split(c, maxsplit=1)[0].split()) for c in CHOICE.split(notes)[1:]
+            if c.strip()]
+
+
 def parse(plan_text: str) -> tuple[list[dict], list[str]]:
-    tasks, errors, current = [], [], None
+    tasks, errors, current, notes = [], [], None, None
     for line in plan_text.splitlines():
         m = TASK.match(line)
+        f = FIELD.match(line) if current is not None else None
+        if notes is not None and (m or f or line.startswith("## ") or not line[:1].isspace()):
+            notes["choices"] = choices("\n".join(notes.pop("notes")))
+            notes = None
         if m:
             current = {"id": m.group(1), "title": m.group(2), "status": None, "depends": [], "parallel": [], "blockers": [],
                        "repo": None}
             tasks.append(current)
         elif line.startswith("## "):
             current = None
+        elif notes is not None:
+            notes["notes"].append(line)
         elif current is not None:
-            f = FIELD.match(line)
             if f and f.group(1) == "Status":
                 current["status_text"] = f.group(2).strip()
             elif f and f.group(1) == "Depends on":
@@ -64,9 +76,12 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
             elif f and f.group(1) == "Repo":
                 current["repo"] = f.group(2).strip()
             elif f and f.group(1) == "Notes":
-                current["choices"] = [c.strip() for c in CHOICE.split(f.group(2))[1:] if c.strip()]
+                notes = current
+                notes["notes"] = [f.group(2)]
             elif f:
                 current["parallel"] = task_ids(f.group(2))
+    if notes is not None:
+        notes["choices"] = choices("\n".join(notes.pop("notes")))
     known = {t["id"] for t in tasks}
     blockers = plan_blockers(plan_text)
     for t in tasks:
@@ -182,7 +197,8 @@ def main() -> None:
         "waiting": waiting,
         "blocked": [{"task": t["id"], "reason": t["reason"]} for t in here if t["status"] == "blocked"],
         "done": [t["id"] for t in here if t["status"] == "done"],
-        "choices": [{"task": t["id"], "choice": c} for t in tasks for c in t.get("choices", [])],
+        "choices": [{"task": t["id"], "choice": c} for t in tasks if t["status"] != "done"
+                    for c in t.get("choices", [])],
         "elsewhere": elsewhere,
         "errors": errors,
     }

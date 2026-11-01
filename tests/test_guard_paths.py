@@ -249,9 +249,24 @@ class TestPlanner:
 class TestImplementer:
     def test_writes_code_not_protected_paths(self, repo):
         expect(repo, ["casefile:implementer"], ("web/features/score.ts", "worker/app/parse.py",
-                                               "docs/plans/M1.md", "README.md"), "allow")
+                                               "README.md"), "allow")
         expect(repo, ["casefile:implementer"], ("docs/specs/12-matching.md", "docs/product/blueprint.html",
                                                "docs/issues/0001-x.md"), "deny")
+
+    def test_GUARD_006_never_specs_or_plans_even_unprotected(self, bare_repo):
+        expect(bare_repo, ["casefile:implementer"], ("docs/plans/M1.md", "docs/specs/12-matching.md"), "deny")
+        expect(bare_repo, ["casefile:implementer"], ("docs/plansx/a.md", "web/docs/plans.ts"), "allow")
+
+    def test_GUARD_006_the_folders_come_from_config(self, bare_repo):
+        (bare_repo / ".claude").mkdir(exist_ok=True)
+        (bare_repo / ".claude" / "casefile.json").write_text(
+            '{"plans_dir": "plans", "specs_dir": "rules"}', encoding="utf-8")
+        expect(bare_repo, ["casefile:implementer"], ("plans/M1.md", "rules/10-x.md"), "deny")
+        expect(bare_repo, ["casefile:implementer"], ("docs/plans/M1.md",), "allow")
+
+    def test_GUARD_006_reason_says_report_blocked(self, bare_repo):
+        _, reason = decide(bare_repo, "casefile:implementer", "docs/plans/M1.md")
+        assert "STATUS: blocked" in reason, reason
 
     def test_reason_says_report_blocked(self, repo):
         _, reason = decide(repo, "casefile:implementer", "docs/specs/x.md")
@@ -284,7 +299,7 @@ class TestOtherAgents:
 
 class TestNoConfig:
     def test_defaults_protect_claude_and_issues(self, bare_repo):
-        expect(bare_repo, ["casefile:implementer"], ("docs/specs/x.md",), "allow")
+        expect(bare_repo, ["casefile:implementer"], ("docs/guide.md",), "allow")
         expect(bare_repo, ["casefile:implementer"], (".claude/x.json", "docs/issues/0001-x.md"), "deny")
 
     def test_issues_are_the_main_sessions_to_write(self, bare_repo):

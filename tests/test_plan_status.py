@@ -310,3 +310,24 @@ def test_every_planner_choice_is_listed_with_its_task(repo):
 def test_none(repo):
     write(repo, "docs/plans/M2.md", plan(task(1)))
     assert status(repo)[1]["choices"] == []
+
+
+def test_choices_in_indented_notes_are_reported(repo):
+    t1 = task(1).replace("- Notes: none", "- Notes: reuse the login helper, and keep the\n"
+                         "  form as it is. Planner choice: the wrong password is the real one\n"
+                         "  plus `-wrong`.\n"
+                         "  - Planner choice: two accounts\n"
+                         "  - not a choice")
+    write(repo, "docs/plans/M2.md", plan(t1, task(2)))
+    code, out, err = status(repo)
+    assert code == 0, err
+    assert out["choices"] == [
+        {"task": "T1", "choice": "the wrong password is the real one plus `-wrong`."},
+        {"task": "T1", "choice": "two accounts"}]
+
+
+def test_choices_of_finished_tasks_are_not_listed(repo):
+    done = task(1, "done (abc1234)").replace("- Notes: none", "- Notes: Planner choice: settled")
+    todo = task(2).replace("- Notes: none", "- Notes: Planner choice: open")
+    write(repo, "docs/plans/M2.md", plan(done, todo))
+    assert status(repo)[1]["choices"] == [{"task": "T2", "choice": "open"}]

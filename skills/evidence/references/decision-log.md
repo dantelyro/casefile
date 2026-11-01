@@ -63,7 +63,7 @@ by status.
 ## Entry format
 
 ```markdown
-### D-042 — One-line statement of the decision, in the present tense
+# D-042 — One-line statement of the decision, in the present tense
 **Status:** Accepted (2026-08-06). | Open | **SUPERSEDED by D-047 (2026-09-01).**
 **Decided by:** gabriel <gabriel@prover.net.br> — resolved by blaming the change. See
 Attribution.

@@ -82,6 +82,7 @@ so.
 | [D-068](0068-m7-is-split-into-three-milestones-the-agents.md) | M7 is split into three milestones: the agents' history checks, the Stop lint and the code-practices skill | Accepted |
 | [D-069](0069-committing-a-tasks-status-by-amending-the-tasks.md) | Committing a task's status by amending the task's commit is dropped as a workaround | Accepted |
 | [D-070](0070-project-context-reaches-every-agent-through-a-subagentstart.md) | Project context reaches every agent through a SubagentStart hook, not through agent prompts | Accepted |
+| [D-071](0071-the-implementer-agent-runs-on-opus-and-the.md) | The implementer agent runs on Opus, and the evidence skill sets no model | Accepted |
 
 ## Conventions
 

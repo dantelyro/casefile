@@ -65,6 +65,13 @@ def main(event: dict) -> None:
                  "happens, what should happen and how to see it; the main session files it after the "
                  "developer agrees.")
 
+    if role == "implementer":
+        for folder in (cfg["specs_dir"], cfg["plans_dir"]):
+            prefix = folder.strip("/") + "/"
+            if rel.startswith(prefix):
+                lib.deny(f"the implementer never edits specs or plans (`{rel}`). If one is wrong or silent "
+                         "where you need a decision, report STATUS: blocked with the question.")
+
     for protected in cfg["protected_paths"]:
         prefix = protected.strip("/") + "/"
         if rel.startswith(prefix):

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook\" session_start",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook\" session_start never-blocks",
             "async": false
           }
         ]
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook\" session_start",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook\" session_start never-blocks",
             "async": false
           }
         ]

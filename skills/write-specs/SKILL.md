@@ -92,8 +92,8 @@ writing: the yes covered the draft as it stood.
 1. Spec files, the specs README's file table, the build order.
 2. `product-decisions.md` and `open-questions.md` (formats in `references/specs-layout.md`). An
    answered question's line moves from open questions to product decisions.
-3. Each decision entry with `evidence/scripts/decision_new.py` (it writes
-   `Proposed`); set `Accepted` on the ones the developer confirmed; then `decision_index.py`.
+3. Each decision entry with `evidence/scripts/decision_new.py`, with `--status Accepted` for the ones
+   the developer confirmed (the rest are written `Proposed`); then `decision_index.py`.
 4. Designs: the developer names the artifact ("the design system", "the job list screen").
    Find it among the artifacts their account can open (the Artifact tool's `list`), read it, and
    save its files under `docs/product/design-system/` (a Design System) or `docs/product/design/`

@@ -8,7 +8,6 @@ description: >
   vendor docs disagreeing with observed behaviour, a green test suite that failed in production
   anyway, deciding whether something is "done", recording why an approach was chosen,
   superseding an earlier decision, or finding a claim in a project document that is false.
-model: sonnet
 ---
 
 # Evidence
@@ -77,8 +76,8 @@ second. Full mechanism, including recovery when the SHA stops resolving:
    in the same commit as the change, or in a commit of its own when nothing else changes. What
    counts is in `references/decision-log.md`, *What earns an entry*; when unsure, record it. The
    number, the file and the index come from scripts, never by hand: run `<python> "${CLAUDE_PLUGIN_ROOT}/skills/evidence/scripts/decision_new.py"`
-   with the entry's fields (it writes `Status: Proposed`), set `Accepted` once the call is made,
-   then run `decision_index.py` beside it (`<python>` is `py -3` on Windows, `python3` elsewhere).
+   with the entry's fields, adding `--status Accepted` when the developer has made the call
+   (otherwise it writes `Proposed`), then run `decision_index.py` beside it (`<python>` is `py -3` on Windows, `python3` elsewhere).
 5. **Verify, and say which axis you verified.** See `references/verifying-external-systems.md`.
 6. **When a claim proves false, correct it everywhere** — immediately, as its own concern, then
    sweep for the same claim elsewhere. See `references/living-documents.md`.
@@ -131,7 +130,7 @@ the next attempt does not repeat them.
 | "The suite is green, so it works" | Green means self-consistent. Mocks cannot verify a contract they define. |
 | "It's documented nowhere" | Check the *other* path convention first. Specs hide behind naming differences. |
 | "I'll record the decision later" | By then the reasoning is gone and only the conclusion survives, with no way to tell if it still holds. |
-| "One file is fine for now, I'll split it later" | Nobody splits later; one real log hit 886 lines first. |
+| "One file is fine for now, I'll split it later" | Nobody splits later: one decision per file from entry one. |
 | "Someone has to go in `Decided by`" | A name you cannot source reads as first-hand. Blame the change, or mark the entry reconstructed. |
 
 ## References

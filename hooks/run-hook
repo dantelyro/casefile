@@ -1,9 +1,9 @@
-# Starter for casefile's hooks: sh run-hook <hook-name>, event JSON on stdin.
+# Starter for casefile's hooks: sh run-hook <hook-name> [never-blocks], event JSON on stdin.
 #
 # Claude Code runs hooks through sh on macOS/Linux and Git Bash on Windows (casefile requires Git
 # for Windows), so this is plain POSIX sh. It finds Python 3.10 or newer and runs run.py with it.
-# With none found, a guard blocks (exit 2, reason on stderr) and session_start asks Claude to tell
-# the developer.
+# With none found, a guard blocks (exit 2, reason on stderr); a hook registered with never-blocks
+# exits 0, and on a SessionStart event asks Claude to tell the developer (GUARD-007).
 #
 # Only shell builtins are used before Python is found, so this works with an empty PATH. py is
 # tried first: python3 on Windows can be the Microsoft Store stub, and every candidate must pass
@@ -15,16 +15,22 @@ case "$0" in
   *) DIR=. ;;
 esac
 NAME="${1:-}"
+MODE="${2:-}"
 CHECK='import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)'
 for PY in "py -3" python3 python; do
   set -- $PY
   if command -v "$1" >/dev/null 2>&1 && $PY -c "$CHECK" >/dev/null 2>&1; then
-    exec $PY "$DIR/run.py" "$NAME"
+    exec $PY "$DIR/run.py" "$NAME" $MODE
   fi
 done
 
 INSTALL='Windows: winget install Python.Python.3.14 -- macOS: brew install python@3.14 -- Linux: the distribution package manager, for example sudo apt install python3'
-if [ "$NAME" = "session_start" ]; then
+if [ "$MODE" = "never-blocks" ]; then
+  EVENT=""
+  while IFS= read -r LINE || [ -n "$LINE" ]; do
+    case "$LINE" in *'"SessionStart"'*) EVENT=SessionStart ;; esac
+  done
+  [ "$EVENT" = "SessionStart" ] || exit 0
   printf '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "casefile needs Python 3.10 or newer, and none was found. At the start of your first response, tell the developer, give them the install command for their platform (%s), and wait for their yes before running it. Until Python is installed, every casefile guard refuses commands and file edits."}}\n' "$INSTALL"
   exit 0
 fi

@@ -39,3 +39,18 @@ Given `casefile:reviewer` runs a `git restore` that GUARD-003 allows
 When its working folder (`cwd`) is not a linked worktree: the main checkout, outside any repository,
 or git cannot tell
 Then it is denied, the reason saying breaks happen only in the reviewer's own worktree. See D-045.
+
+### GUARD-006 · The implementer never edits specs or plans
+Given `casefile:implementer` writes a file with Edit, Write, MultiEdit or NotebookEdit
+When the file is under the specs folder (`specs_dir`) or the plans folder (`plans_dir`), whether or
+not `protected_paths` lists them
+Then the write is denied, the reason saying to report `STATUS: blocked` with the question: a wrong or
+silent spec, and every change to a plan, are the developer's to rule on.
+
+### GUARD-007 · A hook registered as never-blocks never blocks
+Given a hook whose command in `hooks/hooks.json` ends with `never-blocks` (one that only adds context)
+When it cannot be found, its input cannot be read, it crashes, or no Python 3.10+ is found
+Then it prints nothing and exits 0; without Python, a `SessionStart` event instead gets the message
+asking Claude to tell the developer how to install it
+And every other hook is a guard: the same failures deny the call. Whether a hook may block is
+declared only in `hooks/hooks.json`, never by its name in the starter or the launcher.

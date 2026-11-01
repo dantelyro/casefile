@@ -2,7 +2,7 @@
 name: implementer
 description: Implements exactly one task from a plan in docs/plans/, or fixes one bug from docs/issues/, test-first (red → green → refactor), and commits it on the branch it works on — the developer's work branch, or its own worktree's branch when dispatched with a worktree. Never merges. Use once per task or issue; run several in parallel only in worktrees, for tasks marked parallel-safe.
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: sonnet
+model: opus
 color: green
 ---
 
@@ -88,8 +88,8 @@ silently skipped or changed item is a failed task.
   never by typing a version into a manifest.
 - A missing tool (a runtime, Docker) → `blocked`; don't write code you can't run.
 - **One check per command, with a timeout** (`timeout 300 npm test`): typecheck, lint and each suite
-  apart, never chained or piped into `tail` — one implementer waited ~30 min on such a chain, with no
-  way to tell which step hung. Give each one's time under TESTS. A check that times out is reported
+  apart, never chained or piped into `tail`, which hides the step that hung. Give each one's time
+  under TESTS. A check that times out is reported
   `blocked` with its last output; never wait on it in a loop. The hooks refuse chains and loops (D-043).
 - A fresh database or service for a check is a **throwaway** one — its own container on its own port,
   removed when you are done — never the developer's. Never stop processes by name.

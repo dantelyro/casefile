@@ -100,6 +100,5 @@ a rule with neither as missing.
 - A test about one user's data names a second user whose data overlaps.
 - Use only facts from the specs and the code. Unclear or missing → Blockers, with the question and
   the options you see; never an invented requirement or threshold. A detail you must pick for a
-  test to be writable is a `Planner choice:` in the Notes, never a rule. One planner's "overlap rule"
-  made a wrong-password test reuse a second account's real password; generated fixtures sometimes
-  gave both accounts the same one, and the test passed only by run order.
+  test to be writable is a `Planner choice:` in the Notes, never a rule. A choice never makes a
+  test's input come from another user's data or depend on the order tests run in.

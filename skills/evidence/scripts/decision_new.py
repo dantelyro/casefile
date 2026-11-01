@@ -1,10 +1,11 @@
 """decision_new.py --title … --context … --options … --decision … --trade-offs … --decided-by …
 
-Writes the next decision entry, `Status: Proposed`, in the log's format
-(references/decision-log.md) and prints its path. The file is `NNNN-<slug>.md`, the slug from the
-title's first eight words, and its number is one past the highest `NNNN-` filename: letter-suffixed
-entries (`0013b-…`) sit between two ids and never raise it. It becomes `Accepted` when the developer
-says yes; `Implemented by` is added once something implements it. Standard library only.
+Writes the next decision entry in the log's format (references/decision-log.md) and prints its
+path: `Status: Proposed`, or `--status Accepted` for a decision the developer has already made, or
+`--status Open`. The file is `NNNN-<slug>.md`, the slug from the title's first eight words, and its
+number is one past the highest `NNNN-` filename: letter-suffixed entries (`0013b-…`) sit between two
+ids and never raise it. `Implemented by` is added once something implements it. Standard library
+only.
 """
 
 import argparse
@@ -32,12 +33,13 @@ def main() -> None:
         ap.add_argument(f"--{field}", required=True)
     ap.add_argument("--dir", default=os.path.join("docs", "decisions"))
     ap.add_argument("--date", default=datetime.date.today().isoformat())
+    ap.add_argument("--status", choices=("Proposed", "Accepted", "Open"), default="Proposed")
     a = ap.parse_args()
 
     did = next_id(a.dir)
     path = os.path.join(a.dir, f"{int(did[2:]):04d}-{slug(a.title)}.md")
     text = (f"# {did} — {a.title}\n\n"
-            f"**Status:** Proposed ({a.date}).\n"
+            f"**Status:** {a.status} ({a.date}).\n"
             f"**Decided by:** {a.decided_by}\n\n"
             f"**Context:** {a.context}\n\n"
             f"**Options:** {a.options}\n\n"

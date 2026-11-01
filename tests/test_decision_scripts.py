@@ -168,3 +168,15 @@ def test_new_letter_suffixes_and_other_files_never_raise_the_number(log):
     log.write("README.md", "# Decision log\n")
     log.write("notes.txt", "0099\n")
     assert new(log, "Next").stdout.strip() == "docs/decisions/0004-next.md"
+
+
+def test_new_an_accepted_decision_is_written_accepted(log):
+    r = new(log, "Picked", "--status", "Accepted")
+    assert r.returncode == 0, r.stderr
+    assert "**Status:** Accepted (2026-10-16).\n" in (log.repo / r.stdout.strip()).read_text(encoding="utf-8")
+
+
+def test_new_only_proposed_accepted_or_open(log):
+    r = new(log, "Odd", "--status", "Superseded")
+    assert r.returncode != 0
+    assert not log.log.exists() or not any(log.log.iterdir())
