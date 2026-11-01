@@ -38,7 +38,7 @@ changes against their specs, and hooks that hold the rules every time.
 | `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
 | `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `casefile:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
 | `write-specs` | Turns a feature description, or the notes of a brainstorm that has ended, into spec rules with IDs (`### JOBS-020 · Title`), product decisions, decision entries, open questions and a new milestone in the build order. It drafts everything, asks the open questions together, and writes nothing until you say yes; `spec_lint.py` checks the specs hold together. Never starts or interrupts a brainstorm. |
-| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `casefile:planner` checks the milestone against your decisions, then writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does, each naming the existing code it can reuse — and after your approval each task is built on a `feat/` branch you name — by `casefile:implementer` one task at a time in your checkout, or several in parallel worktrees when they touch different files — reviewed by `casefile:reviewer` and accepted after your yes. You merge the branch into `main`; casefile never does. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next batch and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
+| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `casefile:planner` checks the milestone against your decisions, then writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does, each naming the existing code it can reuse — and after your approval each task is built on a `feat/` branch you name — by `casefile:implementer`, one task at a time in your checkout, left uncommitted — reviewed by `casefile:reviewer` in the same checkout, and committed once, with its status, after your yes. No worktrees, no merge commits, no status-only commits. You merge the branch into `main`; casefile never does. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next task and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
 | `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `casefile:implementer` reproduces it with a failing test and fixes it on a `fix/` branch you name ([`shared/work-branch.md`](shared/work-branch.md)), `casefile:reviewer` checks it, and you merge the branch. `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
 | `evidence` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
@@ -56,9 +56,10 @@ Hooks, on in every project where casefile is enabled, failing closed (D-028). Th
 - `git push` asks you in your own session and is refused to every agent (D-029).
 - `docker compose down -v` and `--no-verify` are refused to everyone.
 - Agents may not kill processes by name, or change any `.claude` folder.
-- `casefile:reviewer` edits only inside its own linked worktree, never tests or records, and may `git restore`;
-  `casefile:planner` writes only its plan file; casefile agents stay out of the project's protected paths
-  and never write `docs/issues/`; `casefile:implementer` may not merge, rebase or switch to the default branch.
+- `casefile:reviewer` edits only product code in your checkout, never tests or records, may `git restore`
+  and never switches branches; `casefile:planner` writes only its plan file; casefile agents stay out of
+  the project's protected paths and never write `docs/issues/`; `casefile:implementer` never commits,
+  merges, rebases, stashes, resets or switches branches.
 - Every commit: no skipped or focused tests, the design check on added UI lines, and the test
   command of every configured app it touches.
 - UI code may use only what the project's design system (`tokens.json`) defines.
@@ -68,14 +69,11 @@ Hooks, on in every project where casefile is enabled, failing closed (D-028). Th
 Per-project settings the guards and agents read; every key optional, and casefile never writes it
 unasked. Each app names its own test command (whatever the project uses: `npm test`, `npx vitest
 run`, `uv run pytest -q`…) and runs in its folder — `path`, defaulting to the app's name; `"."` is
-the whole repository. `lint` is optional: when set, the commit gate, the reviewer and the merge run
-it next to `test`. With the settings, casefile proposes `.claude/worktrees/` in `.gitignore` and in
-the ignores of the project's linters, formatters and test runners (D-042). The skipped-test check knows Node and Python test files only. `install` sets up a fresh worktree; `cleanup` runs in a
-worktree before it is removed at merge; `image` rebuilds the app's container when a merge touched it.
+the whole repository. `lint` is optional: when set, the commit gate and the reviewer run it next to
+`test`. The skipped-test check knows Node and Python test files only. `install` installs the app's
+locked dependencies; `image` rebuilds the app's container before a task that touched it is committed.
 `specs_dir`, `plans_dir` and `build_order` (the page whose "Build order" section lists the
-milestones) tell `implement` and the planner where things are; the values shown are the defaults. Alongside it,
-casefile proposes `"worktree": { "baseRef": "head" }` in `.claude/settings.json`, so agent worktrees
-start from your local commits rather than the remote's (D-040).
+milestones) tell `implement` and the planner where things are; the values shown are the defaults.
 
 Frontend and backend in separate repositories: give each `"repo"` (its own name) and `"siblings"`
 (the others' names and relative paths, `{"backend": "../backend"}`), and list those paths in
@@ -89,7 +87,7 @@ tasks it does not build (D-041).
   "protected_paths": ["docs/specs/", "docs/plans/", "docs/issues/", "docs/product/"],
   "specs_dir": "docs/specs", "plans_dir": "docs/plans", "build_order": "docs/product/blueprint.html",
   "apps": { "web": { "test": "npm test", "lint": "npm run lint", "install": "npm ci",
-                     "cleanup": "npm run test:db:drop", "image": "docker compose build web" } },
+                     "image": "docker compose build web" } },
   "design": { "tokens": "docs/product/design-system/tokens.json", "ui_paths": ["web/"],
               "components_dir": "web/components/ui/", "classes": "tailwind" }
 }
@@ -126,11 +124,10 @@ hooks/
 tests/                  # uv run pytest
 evals/                  # trigger evals, billed: claude plugin eval . --ablation none --scaffold
 agents/
-  implementer.md        # casefile:implementer: one task or issue, test-first, on the work branch or a worktree
+  implementer.md        # casefile:implementer: one task or issue, test-first, left uncommitted in your checkout
   planner.md            # casefile:planner: one milestone into test-first tasks; writes only its plan
   reviewer.md           # casefile:reviewer
 shared/
-  merge.md              # merging a parallel task into the feat/ branch
   work-branch.md        # naming and creating the feat/ or fix/ branch the developer merges
 skills/
   fix-bug/

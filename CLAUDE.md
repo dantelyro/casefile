@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `e384762` — 2026-11-01
+**Docs reconciled through:** `b80b510` — 2026-11-01
 
 ## What this repo is
 
@@ -77,8 +77,8 @@ already exists; `evidence` records *why* and keeps it honest; `review` dispatche
 `casefile:reviewer` for a verdict on one change; `fix-bug` takes one issue from `docs/issues/` through
 `casefile:implementer` and the reviewer on a `fix/` branch; `implement` builds a milestone of spec rules from
 a `casefile:planner` plan on a `feat/` branch, through the same implementer and reviewer, one task at a
-time on the branch or in parallel worktrees merged into it, and never
-writes code, tests or specs itself — the plan file is the progress record (D-034, D-035); a parallel task that conflicts at merge is redone from the `feat/` branch (D-036); the developer
+time in the developer's checkout with no worktrees, and never
+writes code, tests or specs itself — the plan file is the progress record (D-034, D-035); the orchestrator is the only one that commits, once per task after review, with the task's status in that commit (D-072); the developer
 names each branch and merges it into the default branch, never the session (D-062); `write-specs` drafts specs, product decisions, decision entries and a milestone from a feature or a finished brainstorm and writes them only after the developer's yes (D-037, D-039), recording decisions through the evidence skill's scripts (D-038). Instructions more than one skill uses live in
 `shared/` and are linked directly from each `SKILL.md` (D-032). None writes a document into
 a project that has not agreed to it. Agents live flat in `agents/` (a subfolder becomes part of the

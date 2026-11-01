@@ -97,7 +97,9 @@ Nobody edits or switches branches in this checkout while an agent works in it.
    pre-commit gate would otherwise test it with the next commit. Then set `Status: blocked: <reason>`
    and commit the plan alone: `chore(plans): <milestone> <task> blocked`.
 7. **Accept** (ORCH-003), after the developer's yes for this task. Set `Status: done` in the plan, with
-   unfixed minor findings under "Accepted", `git add -A`, and commit **once**:
+   unfixed minor findings under "Accepted". If the change touched an app that has an `image` command,
+   run it first: a green suite has passed with a broken image before. Then `git add -A`, and commit
+   **once**:
    `<type>(<scope>): <what> [<rule IDs>]` — the type fits the change (`feat`, `fix`, `test`,
    `refactor`, `docs`…), e.g. `feat(jobs): score required skills at 70% [MATCH-010]`. The pre-commit
    gate runs the tests. Then `git update-ref -d <ref>`. That is the task's only commit.
