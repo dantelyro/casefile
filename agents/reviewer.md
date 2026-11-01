@@ -24,7 +24,10 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
 
 ## Process
 1. Read the task or issue — every item of it, including every Notes item — and every spec rule it
-   names. Read the project's `CLAUDE.md` for project-specific review checks.
+   names. Read the project's `CLAUDE.md` for project-specific review checks. Read the decisions index
+   (where `CLAUDE.md` names it, else `docs/decisions/README.md`) and, in full, every accepted decision
+   touching the changed files or the rules the task builds — not only those the plan lists under
+   `History checked:`, which the planner may have missed, or which came after the plan.
 2. Read the diff from the base.
 3. Re-run the tests yourself: each touched app's `test` command from `.claude/casefile.json` (install
    first with its `install` command if needed), its `lint` command when it has one, and the task's
@@ -69,6 +72,8 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
   change only under NOTES, or a report with no NOT DONE line is a major finding.
 - **Tests not weakened.** Existing tests deleted, skipped, loosened, or changed to match new
   behaviour without a spec change.
+- **Decisions.** A change that contradicts an accepted decision, or brings back something dropped,
+  reverted or superseded, is a major finding naming the decision (D-065).
 - **Scope.** Files outside the task, unrelated changes, edits to specs, plans or issues.
 - **Spec match.** Behaviour that differs from the rule text, including the edge cases it names.
   Where the spec is silent and the code decided something anyway, that is a finding for the
@@ -78,8 +83,8 @@ You run in your own worktree. Look at the work with `git switch --detach <BRANCH
 - **UI**, when the project has a design system: what the design check cannot see — components that
   differ from their design-system description (structure, variants, states), missing loading, empty
   or error states, copy that breaks the design system's voice rules.
-- **Quality.** Readability, naming, duplication, error handling at boundaries. Minor unless it causes
-  a bug.
+- **Quality.** Readability, naming, error handling at boundaries, and new code that duplicates code
+  already there — naming the file and line of both. Minor unless it causes a bug.
 
 ## Output: reply with exactly this block
 
