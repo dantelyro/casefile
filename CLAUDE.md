@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Docs reconciled through:** `0cb329c` — 2026-10-29
+**Docs reconciled through:** `fc508b2` — 2026-11-01
 
 ## What this repo is
 
@@ -88,7 +88,9 @@ is where its contents are proposed: apps with `test`, `install` and optional `li
 `default_branch`, and `repo` with `siblings` for a frontend and backend in separate repositories,
 where every repository holds the same specs and plan and builds only its own tasks (D-041). The
 planner marks any detail no spec rule states as a `Planner choice:` and the developer rules on each
-(D-044).
+(D-044). The planner, implementer and reviewer each read the decision log before they act: work that
+brings back something dropped, or contradicts a decision, is a blocker or a major finding, and every
+planned task names the code it can reuse (D-065).
 
 ## Hook gotchas
 
