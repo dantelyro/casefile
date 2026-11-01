@@ -1,8 +1,9 @@
 """plan_status.py PLAN — where a plan stands. Run from inside the repository.
 
   ready        todo tasks whose dependencies are all done and that no open issue blocks
-  batch        the first ready task plus the ready tasks it lists as parallel-safe (--max, default 3)
-  in_progress  tasks an earlier session left in progress (the resume rule looks at their branches)
+  batch        the first ready task: tasks are built one at a time (ORCH-011)
+  in_progress  tasks whose work is saved under refs/casefile/wip/<milestone>/<task> (ORCH-009), the
+               milestone being the plan's file name
   waiting      todo tasks held by an open issue in docs/issues/ (Blocks: <plan> <task>), or by an
                entry of the plan's Blockers named in their Depends on (`needs Gabriel (B18)`)
   blocked      tasks marked `blocked: <reason>`
@@ -25,7 +26,7 @@ import sys
 
 TASK = re.compile(r"^### ([A-Z]\d+[a-z]?) · (.+)$")  # T3, F1 (fix tasks), T3b
 FIELD = re.compile(r"^- (Status|Depends on|Parallel-safe with|Repo|Notes):\s*(.*)$")
-STATUS = re.compile(r"^(todo|in-progress)$|^done \(([0-9a-f]{7,40})\)$|^blocked: (.+)$")
+STATUS = re.compile(r"^(todo|in-progress)$|^(done)(?: \([0-9a-f]{7,40}\))?$|^blocked: (.+)$")  # done: ORCH-010
 CHOICE = re.compile(r"Planner choice:\s*", re.IGNORECASE)
 CHOICE_END = re.compile(r"\n\s*[-*]\s")  # a sub-bullet of Notes ends the choice before it
 ISSUES_STATUS = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -61,7 +62,7 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
             notes["choices"] = choices("\n".join(notes.pop("notes")))
             notes = None
         if m:
-            current = {"id": m.group(1), "title": m.group(2), "status": None, "depends": [], "parallel": [], "blockers": [],
+            current = {"id": m.group(1), "title": m.group(2), "status": None, "depends": [], "blockers": [],
                        "repo": None}
             tasks.append(current)
         elif line.startswith("## "):
@@ -78,8 +79,6 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
             elif f and f.group(1) == "Notes":
                 notes = current
                 notes["notes"] = [f.group(2)]
-            elif f:
-                current["parallel"] = task_ids(f.group(2))
     if notes is not None:
         notes["choices"] = choices("\n".join(notes.pop("notes")))
     known = {t["id"] for t in tasks}
@@ -87,10 +86,10 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
     for t in tasks:
         s = STATUS.match(t.get("status_text", ""))
         if not s:
-            errors.append(f"{t['id']}: status `{t.get('status_text', '')}` is not todo, in-progress, "
-                          "done (<commit>) or blocked: <reason>")
+            errors.append(f"{t['id']}: status `{t.get('status_text', '')}` is not todo, done "
+                          "or blocked: <reason>")
             continue
-        t["status"] = s.group(1) or ("done" if s.group(2) else "blocked")
+        t["status"] = s.group(1) or s.group(2) or "blocked"
         t["reason"] = s.group(3)
         t["blockers"] = [d for d in t["depends"] if d in blockers and d not in known]
         t["depends"] = [d for d in t["depends"] if d not in t["blockers"]]
@@ -98,6 +97,18 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
             if dep not in known:
                 errors.append(f"{t['id']}: depends on {dep}, which is not in the plan")
     return tasks, errors
+
+
+def mark_in_progress(tasks: list[dict], plan: str, repo: str = ".") -> None:
+    """A todo task whose work is saved under its wip ref is in progress (ORCH-009)."""
+    milestone = pathlib.Path(plan).stem
+    prefix = f"refs/casefile/wip/{milestone}/"
+    refs = subprocess.run(["git", "for-each-ref", "--format=%(refname)", prefix], cwd=repo,
+                          capture_output=True, text=True, check=False).stdout.split()
+    saved = {ref[len(prefix):] for ref in refs}
+    for t in tasks:
+        if t["status"] == "todo" and t["id"] in saved:
+            t["status"] = "in-progress"
 
 
 def config(root: str) -> dict:
@@ -133,7 +144,9 @@ def take_sibling_statuses(tasks: list[dict], plan: str, errors: list[str]) -> li
         if name not in copies:
             path = os.path.join(root, siblings[name], rel)
             try:
-                copies[name] = {s["id"]: s for s in parse(pathlib.Path(path).read_text(encoding="utf-8"))[0]}
+                theirs_tasks = parse(pathlib.Path(path).read_text(encoding="utf-8"))[0]
+                mark_in_progress(theirs_tasks, plan, os.path.join(root, siblings[name]))
+                copies[name] = {s["id"]: s for s in theirs_tasks}
             except OSError as e:
                 copies[name] = {}
                 errors.append(f"{name}: its copy of the plan, {path}, cannot be read: {e.strerror}")
@@ -161,7 +174,6 @@ def blocking_issues(plan: str, task: str) -> list[str]:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("plan")
-    ap.add_argument("--max", type=int, default=3)
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
@@ -172,6 +184,7 @@ def main() -> None:
         print(json.dumps({"errors": [f"{plan}: {e.strerror}"]}) if args.json else f"ERROR {plan}: {e.strerror}")
         sys.exit(1)
     tasks, errors = parse(text)
+    mark_in_progress(tasks, plan)
     elsewhere = take_sibling_statuses(tasks, plan, errors)
     by_id = {t["id"]: t for t in tasks}
     here = [t for t in tasks if not t.get("elsewhere")]
@@ -185,11 +198,7 @@ def main() -> None:
             waiting.append({"task": t["id"], "issues": held, "blockers": t["blockers"]})
         else:
             ready.append(t["id"])
-    batch = []
-    if ready:
-        first = by_id[ready[0]]
-        batch = [first["id"]] + [p for p in first["parallel"] if p in ready]
-        batch = batch[:max(args.max, 1)]
+    batch = ready[:1]
 
     out = {
         "ready": ready, "batch": batch,

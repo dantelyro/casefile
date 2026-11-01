@@ -91,23 +91,51 @@ def test_a_dependency_that_is_blocked_holds_the_task(repo):
     assert status(repo)[1]["ready"] == []
 
 
-# Batch
+# Batch: one task at a time (ORCH-011)
 
-def test_first_ready_plus_its_parallel_safe_peers_at_most_three(repo):
+def test_ORCH_011_the_batch_is_the_first_ready_task_only(repo):
     write(repo, "docs/plans/M2.md", plan(
         task(1, parallel="T3, T4, T5, T6"), task(2), task(3), task(4, depends="T2"), task(5), task(6)))
     _, out, _ = status(repo)
-    assert out["batch"] == ["T1", "T3", "T5"]
+    assert out["batch"] == ["T1"]
+    assert out["ready"] == ["T1", "T2", "T3", "T5", "T6"]
 
 
-def test_max(repo):
-    write(repo, "docs/plans/M2.md", plan(task(1, parallel="T2, T3"), task(2), task(3)))
-    assert status(repo, "--max", "1")[1]["batch"] == ["T1"]
+# done needs no hash (ORCH-010)
+
+def test_ORCH_010_done_without_a_hash_is_done(repo):
+    write(repo, "docs/plans/M2.md", plan(task(1, "done"), task(2, depends="T1"), task(3, "done (abc1234)")))
+    code, out, err = status(repo)
+    assert code == 0, err
+    assert out["done"] == ["T1", "T3"]
+    assert out["ready"] == ["T2"]
 
 
-def test_peer_must_itself_be_ready(repo):
-    write(repo, "docs/plans/M2.md", plan(task(1, parallel="T2"), task(2, "in-progress")))
-    assert status(repo)[1]["batch"] == ["T1"]
+# In progress while the task's wip ref exists (ORCH-009)
+
+def wip(repo, ref):
+    """Saves the staged tree under a wip ref, as the orchestrator does before a review (ORCH-004)."""
+    run = lambda *a: subprocess.run(["git", *a], cwd=repo, capture_output=True, text=True, check=True).stdout.strip()
+    run("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "base")
+    tree = run("write-tree")
+    commit = run("-c", "user.name=t", "-c", "user.email=t@t", "commit-tree", tree, "-p", "HEAD", "-m", "wip")
+    run("update-ref", ref, commit)
+
+
+def test_ORCH_009_a_todo_task_with_a_wip_ref_is_in_progress(repo):
+    write(repo, "docs/plans/M2.md", plan(task(1), task(2)))
+    wip(repo, "refs/casefile/wip/M2/T1")
+    _, out, _ = status(repo)
+    assert out["in_progress"] == ["T1"]
+    assert out["ready"] == ["T2"]
+    assert out["batch"] == ["T2"]
+
+
+def test_ORCH_009_a_wip_ref_of_another_milestone_does_not_count(repo):
+    write(repo, "docs/plans/M2.md", plan(task(1)))
+    wip(repo, "refs/casefile/wip/M3/T1")
+    out = status(repo)[1]
+    assert (out["in_progress"], out["batch"]) == ([], ["T1"])
 
 
 def test_nothing_ready(repo):
@@ -217,7 +245,7 @@ def test_text_output(repo):
     proc = subprocess.run([sys.executable, str(SCRIPT), "docs/plans/M2.md"], cwd=repo,
                           capture_output=True, text=True, check=False)
     assert proc.returncode == 0
-    assert "batch: T1, T2" in proc.stdout
+    assert "batch: T1\n" in proc.stdout
 
 
 # Siblings: a frontend and a backend repository holding the same plan; each builds the tasks of its Repo
