@@ -17,6 +17,9 @@ Releases shipped through 0.19.1 predate these specs; the designs of 0.12.0–0.1
   IMPL-003, IMPL-004, REV-009, REV-010.
 - **M8 — Refactor existing code** (later): not specified yet; its questions are in
   `open-questions.md`.
-- **M9 — Lint at the end of each turn** (0.28.0): PRAC-010, PRAC-011, PRAC-012.
-- **M10 — The code-practices skill** (0.29.0): PRAC-001, PRAC-002, PRAC-003, PRAC-004, PRAC-005,
+- **M11 — One commit per task, no worktrees** (0.28.0): GUARD-001, GUARD-002, GUARD-005, GUARD-008,
+  REV-005, REV-011, IMPL-005, PLAN-005, ORCH-003, ORCH-004, ORCH-005, ORCH-006, ORCH-007, ORCH-008,
+  ORCH-009, ORCH-010, ORCH-011, ORCH-012. Built before M9 and M10.
+- **M9 — Lint at the end of each turn** (0.29.0): PRAC-010, PRAC-011, PRAC-012.
+- **M10 — The code-practices skill** (0.30.0): PRAC-001, PRAC-002, PRAC-003, PRAC-004, PRAC-005,
   PRAC-006, PRAC-007, PRAC-008, PRAC-009.

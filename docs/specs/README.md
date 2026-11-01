@@ -17,9 +17,9 @@ This folder is the source of truth: if code and a spec disagree, the spec wins o
 ## A rule
 
 ```
-### GUARD-001 · The reviewer edits only inside a linked worktree
+### GUARD-001 · The reviewer edits only inside the repository it works in
 Given the reviewer writes a file
-When the file is outside a linked worktree
+When the file is outside that repository
 Then the write is denied
 ```
 
@@ -44,6 +44,7 @@ carries out are untagged and have a test.
 | [20-reviewer.md](20-reviewer.md) | `casefile:reviewer` |
 | [21-implementer.md](21-implementer.md) | `casefile:implementer` |
 | [22-planner.md](22-planner.md) | `casefile:planner` knows the project's history and its code |
+| [23-orchestrator.md](23-orchestrator.md) | The session that runs `implement`, `fix-bug` and `review`, and commits |
 | [31-rules-and-tests.md](31-rules-and-tests.md) | What tags mean and what gets a test |
 | [40-code-practices.md](40-code-practices.md) | The code-practices skill and the lint Stop hook |
 | [50-tooling.md](50-tooling.md) | Shipped code stays standard library |

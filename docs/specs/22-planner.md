@@ -30,3 +30,8 @@ When the planner writes it
 Then it searches the code for functions, components, types, fixtures and tests the task can use,
 and the task has a `Reuse:` line naming each by file and symbol, or `Reuse: none found (searched:
 <terms>)`.
+
+### PLAN-005 · Tasks carry no Parallel-safe line      [MANUAL]
+Given a milestone to plan
+When the planner writes a task
+Then the task has no `Parallel-safe with:` line: tasks are built one at a time. See D-072.

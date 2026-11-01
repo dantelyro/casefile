@@ -1,7 +1,8 @@
 # Reviewer
 
 `casefile:reviewer` (`agents/reviewer.md`). The agent that writes a test never proves it can fail; the
-reviewer does, by breaking the code in its own worktree (see D-045). What it may edit and run is in
+reviewer does, by breaking the code in the developer's checkout and restoring it (see D-045,
+D-072). What it may edit and run is in
 [10-guards.md](10-guards.md).
 
 ### REV-001 · The reviewer breaks the line behind each rule's main test      [MANUAL]
@@ -29,16 +30,17 @@ When the test fails on a crash, a missing name or an import error instead of an 
 Then the break is not counted as red: the test is treated as not covering that line, reported as
 `not covered`, a major finding as a green break is (REV-003).
 
-### REV-005 · The worktree is clean before and after the breaks      [MANUAL]
+### REV-005 · The working files match the staged copy before and after the breaks      [MANUAL]
 Given the reviewer is about to break code
-When `git status --porcelain` is not empty, before the first break or after the last restore
+When, before the first break or after the last restore, a file differs from the staged copy (`git diff`
+is not empty) or a new untracked file exists
 Then it gives no verdict and says what was left.
 
 ### REV-006 · The report carries a BREAKS line      [MANUAL]
 Given a review of a change with rule tests
 When the reviewer replies
 Then its block has `BREAKS: <per test: the change → red (the failing assertion) | green | not covered
-| not runnable>; git status: clean`, where `not runnable` is a break whose file `git restore` cannot
+| not runnable>; checkout: matches staged`, where `not runnable` is a break whose file `git restore` cannot
 name (GUARD-003).
 
 ### REV-007 · The reviewer never commits or writes a test
@@ -68,3 +70,10 @@ Then it checks it against every accepted decision touching the changed files or 
 builds, not only those the plan lists under `History checked:`
 And a contradiction, or work that brings back something dropped, is a major finding naming the
 decision. See D-065.
+
+### REV-011 · The reviewer reviews the staged change in the developer's checkout      [MANUAL]
+Given a task or a fix to review
+When the reviewer is dispatched
+Then it works with no worktree, in the developer's checkout, and the change is the staged diff
+(`git diff --cached`) against `HEAD`; for a commit range it reviews the range as checked out, and it
+never switches branches. See D-072.

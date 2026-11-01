@@ -25,3 +25,9 @@ Given a task or an issue, with the project context every agent starts with (CTX-
 When it would contradict an accepted decision touching the files it changes or the rules it builds,
 or bring back something dropped, reverted or superseded
 Then the implementer reports `STATUS: blocked`, naming the decision, and builds nothing. See D-065.
+
+### IMPL-005 · The implementer leaves its work uncommitted      [MANUAL]
+Given a task or an issue
+When the implementer finishes it, or a fix round
+Then its work stays uncommitted in the developer's checkout, on the current branch, and its report
+lists every file it changed; the orchestrator commits it after review (ORCH-003, GUARD-008). See D-072.
