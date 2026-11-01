@@ -52,7 +52,7 @@ so.
 | [D-033](0033-bugs-are-issues-fixed-on-their-own-branch.md) | Bugs are issues in `docs/issues/`, fixed on their own branch; a blocking bug blocks by reference | Accepted |
 | [D-034](0034-rules-with-ids-are-the-unit-of-specification.md) | Rules with IDs are the unit of specification, testing and review | Accepted |
 | [D-035](0035-the-orchestrator-never-writes-product-code-tests-or.md) | The orchestrator never writes product code, tests or specs; the plan file is the progress record | Accepted |
-| [D-036](0036-a-task-that-conflicts-at-merge-is-redone.md) | A task that conflicts at merge is redone from the default branch, never resolved in place | Accepted |
+| [D-036](0036-a-task-that-conflicts-at-merge-is-redone.md) | A task that conflicts at merge is redone from the default branch, never resolved in place | SUPERSEDED by D-072 |
 | [D-037](0037-product-answers-and-logged-decisions-are-kept-apart.md) | Product answers and logged decisions are kept apart, and nothing is accepted by silence | Accepted |
 | [D-038](0038-the-decision-logs-numbering-entries-and-index-are.md) | The decision log's numbering, entries and index are scripts | Accepted |
 | [D-039](0039-designs-live-in-the-project-as-copies-of.md) | Designs live in the project as copies of their artifacts | Accepted |
@@ -83,6 +83,7 @@ so.
 | [D-069](0069-committing-a-tasks-status-by-amending-the-tasks.md) | Committing a task's status by amending the task's commit is dropped as a workaround | Accepted |
 | [D-070](0070-project-context-reaches-every-agent-through-a-subagentstart.md) | Project context reaches every agent through a SubagentStart hook, not through agent prompts | Accepted |
 | [D-071](0071-the-implementer-agent-runs-on-opus-and-the.md) | The implementer agent runs on Opus, and the evidence skill sets no model | Accepted |
+| [D-072](0072-the-orchestrator-commits-each-task-once-after-review.md) | The orchestrator commits each task once, after review; implementers never commit and parallel mode is dropped | Accepted |
 
 ## Conventions
 

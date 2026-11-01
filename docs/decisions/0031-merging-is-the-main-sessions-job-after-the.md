@@ -25,3 +25,4 @@ for one change never carries to the next, so an unattended run stops at every me
 
 **Changed by:**
 - 2026-10-29 · dantelyro — by D-062: the main session merges only a parallel task into the milestone's `feat/` branch; a task-by-task task or a fix is committed on its branch directly, and the developer merges the branch into the default branch.
+- 2026-11-01 · dantelyro — by D-072: the main session merges nothing; it commits each approved task once, and shared/merge.md goes with parallel mode. Agents still never merge or commit the work.

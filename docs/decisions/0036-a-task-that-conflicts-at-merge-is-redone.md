@@ -1,6 +1,6 @@
 # D-036 — A task that conflicts at merge is redone from the default branch, never resolved in place
 
-**Status:** Accepted (2026-10-16).
+**Status:** **SUPERSEDED by D-072 (2026-11-01).** Parallel mode is dropped, so no task is merged and none can conflict. Accepted (2026-10-16).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: chose option A in session on
 2026-10-16, after the 0.15.0 live run.
 **Implemented by:** `6c2bbf8` — 2026-10-16 (`shared/merge.md`, `implement`, `devflow:implementer`).
@@ -30,3 +30,4 @@ the second review is what catches that.
 
 **Changed by:**
 - 2026-10-29 · dantelyro — by D-062: the redo starts from the milestone's `feat/` branch, not the default branch, and happens only in parallel mode.
+- 2026-11-01 · dantelyro — superseded by D-072: parallel mode and its merges are removed; the redo had nothing left to apply to.

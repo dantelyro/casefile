@@ -10,3 +10,6 @@
 **Decision:** (b): dropped unmerged, the branch deleted, on the developer's choice 'Drop it'. The git-based design is an open question for the cleanup the developer is starting, not decided here. The status commits stay until then.
 
 **Trade-offs:** Status-only commits remain in implement for now. ORCH-001 and ORCH-002 and the fix's decision entry never reached main; this entry is their only record.
+
+**Changed by:**
+- 2026-11-01 · dantelyro — by D-072: the open design is settled without reading status from git: the orchestrator commits each task once after review, with Status: done in that commit, and in progress is the uncommitted work.

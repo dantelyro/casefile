@@ -10,3 +10,6 @@
 **Decision:** (d), the developer's call. The implementer writes tests and code; the reviewer breaks the code under each rule's main test and its own edge cases, quotes each result, restores with git restore and ends with a clean git status. A break that stays green is a major finding. guard_paths lets the reviewer edit only inside a linked worktree and never a test file; guard_bash adds git restore without --staged or --source. A task whose behaviour already exists reports RED: none, accepted only when it touches no product code. Rules: REV-001 to REV-008 (docs/specs/20-reviewer.md), IMPL-001 and IMPL-002 (21-implementer.md), GUARD-001 to GUARD-004 (10-guards.md).
 
 **Trade-offs:** The reviewer is no longer strictly read-only, so its limits move from 'never edits' to a path rule a hook must get right. A break left unrestored only breaks the reviewer's own throwaway worktree, never the merged branch. Review rounds take longer, since breaks are run instead of reasoned about.
+
+**Changed by:**
+- 2026-11-01 · dantelyro — by D-072: no worktrees; the reviewer breaks and restores in the developer's checkout, restoring to the staged copy the orchestrator made, and the orchestrator checks the checkout after every review.
