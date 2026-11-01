@@ -35,16 +35,6 @@ def make_repo(root, config):
     return root
 
 
-def commit_empty(repo):
-    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
-                    "--allow-empty", "-m", "i"], cwd=repo, check=True)
-
-
-def add_worktree(repo, path):
-    subprocess.run(["git", "worktree", "add", "-q", str(path)], cwd=repo, check=True)
-    return path
-
-
 @pytest.fixture
 def repo(tmp_path):
     return make_repo(tmp_path / "repo", CONFIG)
@@ -54,13 +44,6 @@ def repo(tmp_path):
 def bare_repo(tmp_path):
     """A repository with no `.claude/casefile.json`."""
     return make_repo(tmp_path / "repo", None)
-
-
-@pytest.fixture
-def wt(repo):
-    """A real linked worktree of `repo`, where a reviewer's session runs."""
-    commit_empty(repo)
-    return add_worktree(repo, repo / ".claude" / "worktrees" / "agent-1")
 
 
 def decide(repo, agent, path, tool="Write", cwd=None, raw_path=False):
@@ -118,7 +101,7 @@ EDITS = (("Edit", "web/a.ts"), ("Write", "web/a.ts"), ("MultiEdit", "web/a.ts"),
 
 
 class TestReviewerCheckout:
-    """GUARD-001: the reviewer breaks code in the developer's checkout, with no worktree (D-072)."""
+    """GUARD-001: the reviewer breaks code in the developer's checkout (D-072)."""
 
     @pytest.mark.parametrize(("tool", "path"), EDITS)
     def test_GUARD_001_reviewer_may_edit_product_code_in_the_checkout(self, tool, path, repo):
@@ -153,50 +136,51 @@ class TestReviewerCheckout:
 
 
 class TestReviewerLimits:
-    """GUARD-002: inside a real linked worktree, so a deny here is not GUARD-001's."""
+    """GUARD-002: in the checkout, where GUARD-001 allows the reviewer's product-code edits, so a deny here
+    is GUARD-002's."""
 
     TOOLS = ("Edit", "Write", "MultiEdit")
 
     @staticmethod
-    def configure(wt, cfg):  # the worktree holds its own copy of the committed settings
-        (wt / ".claude").mkdir(exist_ok=True)
-        (wt / ".claude" / "casefile.json").write_text(json.dumps(cfg), encoding="utf-8")
+    def configure(repo, cfg):
+        (repo / ".claude").mkdir(exist_ok=True)
+        (repo / ".claude" / "casefile.json").write_text(json.dumps(cfg), encoding="utf-8")
 
-    def check(self, repo, wt, paths, decision):
+    def check(self, repo, paths, decision):
         for path in paths:
             for tool in self.TOOLS:
-                got, reason = decide(repo, "casefile:reviewer", str(wt / path), tool=tool, cwd=wt)
+                got, reason = decide(repo, "casefile:reviewer", path, tool=tool)
                 assert got == decision, f"{tool} {path}: {reason}"
 
-    def test_GUARD_002_reviewer_may_not_edit_test_files_in_its_worktree(self, repo, wt):
+    def test_GUARD_002_reviewer_may_not_edit_test_files(self, repo):
         paths = ("tests/test_score.py", "worker/app/score_test.py", "web/score.test.ts", "web/e2e/login.spec.ts")
         for p in paths:
             assert TEST_FILE.search(p), p  # the cases are what pre_commit calls a test file
-        self.check(repo, wt, paths, "deny")
+        self.check(repo, paths, "deny")
 
-    def test_GUARD_002_reviewer_may_not_edit_claude_issues_plans_or_specs(self, repo, wt):
-        self.check(repo, wt, ("docs/issues/0001-x.md", "docs/plans/M1.md", "docs/specs/10-x.md",
-                              ".claude/settings.json"), "deny")
+    def test_GUARD_002_reviewer_may_not_edit_claude_issues_plans_or_specs(self, repo):
+        self.check(repo, ("docs/issues/0001-x.md", "docs/plans/M1.md", "docs/specs/10-x.md",
+                          ".claude/settings.json"), "deny")
 
-    def test_GUARD_002_plans_and_specs_folders_come_from_config(self, repo, wt):
-        self.configure(wt, {"plans_dir": "plans", "specs_dir": "rules", "protected_paths": ["vendor/"]})
-        self.check(repo, wt, ("plans/M1.md", "rules/10-x.md", "vendor/lib.js"), "deny")
-        self.check(repo, wt, ("docs/plans/M1.md",), "allow")
+    def test_GUARD_002_plans_and_specs_folders_come_from_config(self, repo):
+        self.configure(repo, {"plans_dir": "plans", "specs_dir": "rules", "protected_paths": ["vendor/"]})
+        self.check(repo, ("plans/M1.md", "rules/10-x.md", "vendor/lib.js"), "deny")
+        self.check(repo, ("docs/plans/M1.md",), "allow")
 
-    def test_GUARD_002_the_defaults_apply_without_configuration(self, repo, wt):
-        self.check(repo, wt, ("docs/plans/M1.md", "docs/specs/10-x.md", "docs/issues/0001-x.md"), "deny")
+    def test_GUARD_002_the_defaults_apply_without_configuration(self, bare_repo):
+        self.check(bare_repo, ("docs/plans/M1.md", "docs/specs/10-x.md", "docs/issues/0001-x.md"), "deny")
 
-    def test_GUARD_002_reviewer_may_not_edit_protected_paths(self, repo, wt):
-        self.configure(wt, {"protected_paths": ["docs/product/", "vendor"]})
-        self.check(repo, wt, ("docs/product/blueprint.md", "vendor/lib.js"), "deny")
+    def test_GUARD_002_reviewer_may_not_edit_protected_paths(self, repo):
+        self.configure(repo, {"protected_paths": ["docs/product/", "vendor"]})
+        self.check(repo, ("docs/product/blueprint.md", "vendor/lib.js"), "deny")
 
-    def test_GUARD_002_product_code_next_to_them_is_allowed(self, repo, wt):
-        self.check(repo, wt, ("web/score.ts", "worker/app/score.py", "README.md", "docs/testing.md"), "allow")
+    def test_GUARD_002_product_code_next_to_them_is_allowed(self, repo):
+        self.check(repo, ("web/score.ts", "worker/app/score.py", "README.md", "docs/testing.md"), "allow")
 
     @pytest.mark.parametrize("tool", ["Edit", "Write"])
     @pytest.mark.parametrize("path", ["tests/test_score.py", "web/score.test.ts"])
-    def test_REV_007_reviewer_never_writes_a_test(self, tool, path, repo, wt):
-        got, _ = decide(repo, "casefile:reviewer", str(wt / path), tool=tool, cwd=wt)
+    def test_REV_007_reviewer_never_writes_a_test(self, tool, path, repo):
+        got, _ = decide(repo, "casefile:reviewer", path, tool=tool)
         assert got == "deny", f"{tool} {path}"
 
 
@@ -242,19 +226,6 @@ class TestImplementer:
         got, reason = decide(repo, "casefile:implementer", os.path.join(tempfile.gettempdir(), "x.txt"))
         assert got == "deny"
         assert "outside" in reason
-
-    def test_paths_in_an_agent_worktree_folder_use_their_repo_path(self, repo):
-        wt = repo / ".claude" / "worktrees" / "agent-1"
-        expect(repo, ["casefile:implementer"], (str(wt / "docs" / "specs" / "x.md"),), "deny")
-        expect(repo, ["casefile:implementer"], (str(wt / "web" / "a.ts"),), "allow")
-
-    def test_inside_a_real_worktree(self, repo, tmp_path):
-        commit_empty(repo)
-        wt = add_worktree(repo, tmp_path / "wt")
-        (wt / ".claude").mkdir(exist_ok=True)
-        (wt / ".claude" / "casefile.json").write_text(json.dumps(CONFIG), encoding="utf-8")
-        expect(repo, ["casefile:implementer"], (str(wt / "docs" / "specs" / "x.md"),), "deny", cwd=wt)
-        expect(repo, ["casefile:implementer"], (str(wt / "web" / "a.ts"),), "allow", cwd=wt)
 
 
 class TestOtherAgents:

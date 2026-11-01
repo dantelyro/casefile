@@ -84,6 +84,7 @@ so.
 | [D-070](0070-project-context-reaches-every-agent-through-a-subagentstart.md) | Project context reaches every agent through a SubagentStart hook, not through agent prompts | Accepted |
 | [D-071](0071-the-implementer-agent-runs-on-opus-and-the.md) | The implementer agent runs on Opus, and the evidence skill sets no model | Accepted |
 | [D-072](0072-the-orchestrator-commits-each-task-once-after-review.md) | The orchestrator commits each task once, after review; implementers never commit and parallel mode is dropped | Accepted |
+| [D-073](0073-no-reference-to-worktrees-is-left-in-the.md) | No reference to worktrees is left in the plugin | Accepted |
 
 ## Conventions
 

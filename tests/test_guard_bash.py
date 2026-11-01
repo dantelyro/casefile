@@ -139,24 +139,15 @@ class TestReviewer:
 
 @pytest.fixture
 def repo(tmp_path):
-    """A repository with one commit, so a linked worktree can be added to it."""
+    """The developer's checkout, where the reviewer works."""
     path = tmp_path / "repo"
     path.mkdir()
     subprocess.run(["git", "init", "-q"], cwd=path, check=True)
-    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q",
-                    "--allow-empty", "-m", "i"], cwd=path, check=True)
     return path
 
 
-@pytest.fixture
-def wt(repo):
-    path = repo / ".claude" / "worktrees" / "agent-1"
-    subprocess.run(["git", "worktree", "add", "-q", str(path)], cwd=repo, check=True)
-    return path
-
-
-def reviewer_in(wt, commands, decision):
-    expect(["casefile:reviewer"], commands, decision, cwd=wt)
+def reviewer_in(repo, commands, decision):
+    expect(["casefile:reviewer"], commands, decision, cwd=repo)
 
 
 class TestRestore:
@@ -189,16 +180,16 @@ class TestRestore:
     def test_GUARD_003_the_reviewer_never_switches_the_checkout(self, repo):
         reviewer_in(repo, ("git switch --detach feat", "git switch feat", "git checkout feat"), "deny")
 
-    def test_GUARD_003_reviewer_may_git_restore_paths(self, wt):
-        reviewer_in(wt, (
+    def test_GUARD_003_reviewer_may_git_restore_paths(self, repo):
+        reviewer_in(repo, (
             "git restore web/x.ts", "git restore -- web/x.ts", "git restore web/a.ts web/b.ts",
             "git restore -- -odd-name.ts"), "allow")
 
-    def test_GUARD_003_restore_without_a_path_is_denied(self, wt):
-        reviewer_in(wt, ("git restore", "git restore --"), "deny")
+    def test_GUARD_003_restore_without_a_path_is_denied(self, repo):
+        reviewer_in(repo, ("git restore", "git restore --"), "deny")
 
-    def test_GUARD_003_restore_with_staged_or_source_is_denied(self, wt):
-        reviewer_in(wt, (
+    def test_GUARD_003_restore_with_staged_or_source_is_denied(self, repo):
+        reviewer_in(repo, (
             "git restore --staged web/x.ts", "git restore -S web/x.ts",
             "git restore --source HEAD~1 web/x.ts", "git restore -s HEAD~1 web/x.ts",
             "git restore --source=HEAD~1 web/x.ts", "git restore -sHEAD~1 web/x.ts",
@@ -215,30 +206,30 @@ class TestRestore:
         "git restore web/x.ts <(echo hi)", "git restore web/x.ts {--staged,}",
         "git restore web/x.ts *", "git restore ~/x.ts", "git restore web/x.ts !!",
         "git restore 'web/a(1).ts'", 'git restore "web/$x.ts"',
-        "git restore web/x.ts ?", "git restore web/[xy].ts", "git restore web/x.ts #c"])
-    def test_GUARD_003_shell_escapes_other_flags_and_git_options_are_denied(self, command, wt):
-        reviewer_in(wt, (command,), "deny")
+        "git restore web/x.ts ?", "git restore web/[xy].ts", "git restore web/x.ts #c",
+        "git restore -W web/x.ts", "git restore --worktree web/x.ts"])
+    def test_GUARD_003_shell_escapes_other_flags_and_git_options_are_denied(self, command, repo):
+        reviewer_in(repo, (command,), "deny")
 
     @pytest.mark.parametrize("command", [
-        "git restore -W web/x.ts", "git restore -q -- web/x.ts",
-        "git restore --worktree --quiet web/x.ts", "git restore -p web/x.ts",
-        'git restore "web/my file.ts"', "git restore -W -q -- web/x.ts",
+        "git restore -q -- web/x.ts", "git restore --patch --quiet web/x.ts", "git restore -p web/x.ts",
+        'git restore "web/my file.ts"', "git restore -p -q -- web/x.ts",
         "git restore web/a_b-c@2+x.ts"])
-    def test_GUARD_003_listed_flags_are_allowed(self, command, wt):
-        reviewer_in(wt, (command,), "allow")
+    def test_GUARD_003_listed_flags_are_allowed(self, command, repo):
+        reviewer_in(repo, (command,), "allow")
 
-    def test_GUARD_003_other_repository_changes_stay_denied(self, wt):
-        reviewer_in(wt, (
+    def test_GUARD_003_other_repository_changes_stay_denied(self, repo):
+        reviewer_in(repo, (
             "git add -A", "git commit -m x", "git stash", "git checkout -- web/x.ts", "git reset HEAD~1",
             "rm web/x.ts", "sed -i s/a/b/ web/x.ts", "echo x > web/x.ts",
             "git restore web/x.ts > out.txt", "git restore web/x.ts && npm test"), "deny")
 
-    def test_GUARD_004_planner_may_not_git_restore(self, wt):
-        expect(["casefile:reviewer"], ("git restore web/x.ts",), "allow", cwd=wt)
-        expect(["casefile:planner"], ("git restore web/x.ts",), "deny", cwd=wt)
+    def test_GUARD_004_planner_may_not_git_restore(self, repo):
+        expect(["casefile:reviewer"], ("git restore web/x.ts",), "allow", cwd=repo)
+        expect(["casefile:planner"], ("git restore web/x.ts",), "deny", cwd=repo)
 
-    def test_REV_007_reviewer_never_commits(self, wt):
-        reviewer_in(wt, ("git commit -m x", "git commit -am x", "git add -A"), "deny")
+    def test_REV_007_reviewer_never_commits(self, repo):
+        reviewer_in(repo, ("git commit -m x", "git commit -am x", "git add -A"), "deny")
 
 
 class TestImplementer:

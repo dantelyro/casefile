@@ -108,19 +108,6 @@ def test_relative_and_absolute_paths(repo_in):
     assert lib.repo_relative(event, str(repo_in / "web" / "a.ts")) == "web/a.ts"
 
 
-def test_path_into_an_agent_worktree_folder(repo_in):
-    event = {"cwd": str(repo_in)}
-    path = repo_in / ".claude" / "worktrees" / "agent-1" / "web" / "a.ts"
-    assert lib.repo_relative(event, str(path)) == "web/a.ts"
-
-
-def test_inside_a_real_worktree(repo_in, tmp_path):
-    wt = tmp_path / "wt"
-    git("worktree", "add", "-q", str(wt), cwd=repo_in)
-    event = {"cwd": str(wt)}
-    assert lib.repo_relative(event, str(wt / "docs" / "x.md")) == "docs/x.md"
-
-
 def test_outside_the_repo(repo_in, tmp_path):
     event = {"cwd": str(repo_in)}
     assert lib.repo_relative(event, str(tmp_path / "elsewhere.txt")) is None

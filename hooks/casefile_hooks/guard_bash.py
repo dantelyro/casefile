@@ -161,14 +161,14 @@ def _read_only_violation(s: Statement) -> str | None:
     return None
 
 
-_RESTORE_FLAGS = {"-W", "--worktree", "-p", "--patch", "-q", "--quiet"}
+_RESTORE_FLAGS = {"-p", "--patch", "-q", "--quiet"}
 _PLAIN = r"[A-Za-z0-9._/@+-]+"
 _QUOTED_PATH = r"\"[A-Za-z0-9._/@+ -]+\"|'[A-Za-z0-9._/@+ -]+'"
 _WORD = rf"(?:{_QUOTED_PATH}|{_PLAIN})"
 _RESTORE_COMMAND = re.compile(rf"git restore(?:[ \t]+{_WORD})+")
 
 
-def _restores_worktree_paths(command: str) -> bool:
+def _restores_paths(command: str) -> bool:
     """`git restore <path>…` that only discards edits in the working tree (GUARD-003). An allow-list
     over the raw command text: the whole command is `git restore` plus words made of plain
     characters (a quoted path may also hold spaces), so no chain, redirect, git option, glob, brace
@@ -258,7 +258,7 @@ def main(event: dict) -> None:
     if role in ("reviewer", "planner"):
         for s in parsed:
             why = _read_only_violation(s)
-            if why and role == "reviewer" and _restores_worktree_paths(command):
+            if why and role == "reviewer" and _restores_paths(command):
                 if lib.git_root(event.get("cwd") or os.getcwd()) is None:
                     lib.deny("the reviewer restores files only inside the repository it reviews, and this "
                              f"folder is not in one. (`{shown}`)")

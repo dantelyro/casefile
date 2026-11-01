@@ -1,7 +1,7 @@
 # Orchestrator
 
 The session that runs `implement`, `fix-bug` and `review`, or builds a task itself. It is the only one
-that commits: once per task or fix, after review, with no worktrees and no parallel tasks (see D-072).
+that commits: once per task or fix, after review, with no parallel tasks (see D-072).
 ORCH-001 and ORCH-002 were used on a branch that was dropped (D-069); numbering starts at 003.
 
 ### ORCH-003 · One commit per task, made after approval      [MANUAL]
@@ -25,11 +25,11 @@ When the orchestrator reads the verdict
 Then before anything else it checks the working files against the staged copy; a difference is
 restored with `git restore .` and any new untracked file is listed to the developer.
 
-### ORCH-006 · One task at a time, without worktrees      [MANUAL]
+### ORCH-006 · One task at a time      [MANUAL]
 Given a milestone or a fix
 When it is built
-Then one task runs at a time, the implementer and the reviewer are dispatched without a worktree, and
-there is no parallel mode and no merge of a task.
+Then one task runs at a time, in the developer's checkout, and there is no parallel mode and no merge
+of a task.
 
 ### ORCH-007 · A branch is reviewed only from a clean checkout      [MANUAL]
 Given a review of a branch that is not checked out

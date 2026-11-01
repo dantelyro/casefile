@@ -20,9 +20,8 @@
   (D-048) and CLAUDE.md, and M2's four tooling rules leave the specs (2026-10-20); TOOL-004 stays,
   because shipped code being standard library is what users rely on
 - A milestone is built on a `feat/` branch and a fix on a `fix/` branch, each named with the developer,
-  who merges it; tasks run one by one on the branch or in parallel worktrees, and the reviewer keeps
-  its own worktree in every case, because it breaks code on purpose (2026-10-29), see D-062. This
-  answers whether the reviewer could share the implementer's worktree: it does not
+  who merges it (2026-10-29), see D-062; tasks run one by one in the developer's checkout, where the
+  reviewer also works, and only the orchestrator commits (2026-11-01), see D-072
 - The planner is responsible for knowing what was decided, dropped and already built before it plans
   (2026-10-29) → PLAN-001, PLAN-002, PLAN-003, PLAN-004, IMPL-003, REV-009, see D-065
 - The implementer and the reviewer check the decision log themselves too, not only through the

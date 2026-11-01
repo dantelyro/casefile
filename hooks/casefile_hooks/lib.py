@@ -7,7 +7,6 @@ exit-code form, and one output style is one thing to test.
 
 import json
 import os
-import re
 import subprocess
 import sys
 
@@ -51,7 +50,7 @@ def casefile_agent(event: dict) -> str | None:
 
 
 def git_root(cwd: str | None) -> str | None:
-    """Root of the checkout or worktree that `cwd` belongs to."""
+    """Root of the repository that `cwd` belongs to."""
     if not cwd:
         return None
     try:
@@ -64,12 +63,9 @@ def git_root(cwd: str | None) -> str | None:
     return out.stdout.strip() or None
 
 
-_WORKTREE_PREFIX = re.compile(r"^\.claude/worktrees/[^/]+/")
-
-
 def repo_relative(event: dict, path: str | None) -> str | None:
-    """`path` relative to the repository being worked in, with forward slashes; a path into an
-    agent's worktree folder maps to the same repo path. None when outside the repository."""
+    """`path` relative to the repository being worked in, with forward slashes. None when outside
+    the repository."""
     if not path:
         return None
     cwd = event.get("cwd") or os.getcwd()
@@ -82,7 +78,7 @@ def repo_relative(event: dict, path: str | None) -> str | None:
             continue
         rel = rel.replace("\\", "/")
         if not rel.startswith(".."):
-            return _WORKTREE_PREFIX.sub("", rel)
+            return rel
     return None
 
 

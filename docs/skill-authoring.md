@@ -176,10 +176,9 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   `disallowedTools`, `skills`, `memory`, `background`, `omitClaudeMd`, `isolation` (only
   `"worktree"`), `color`, and `experimental.cacheTtl`. **Ignored:** `permissionMode`, `hooks`, `mcpServers`, `initialPrompt` — an
   agent's rules have to be plugin hooks. Malformed frontmatter loads the agent with every field
-  ignored. [PL] Which branch a plugin agent's worktree starts from is not documented. New worktrees in a bare repository sometimes started from local HEAD instead of the default branch, and unchanged subagent worktrees were sometimes not cleaned up; fixed in v2.1.305. [CL] Subagents that were messaged
+  ignored. [PL] Subagents that were messaged
   or resumed sometimes forgot their latest work; fixed in v2.1.304. Fork subagents (`subagent_type:
-  "fork"`) are on by default in `claude -p` (v2.1.302). A subagent's isolated worktree was removed
-  while a background subagent it started still worked in it; fixed in v2.1.311. `autoCompactWindow`
+  "fork"`) are on by default in `claude -p` (v2.1.302). `autoCompactWindow`
   now lowers the window `CLAUDE_CODE_AUTO_COMPACT_WINDOW` sets, never raises it (v2.1.312). [CL]
 - `claude --plugin-dir <path>` loads a plugin for one session without installing it; the plugin is
   named after the directory. [CLI][PL]

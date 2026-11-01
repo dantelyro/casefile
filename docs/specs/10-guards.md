@@ -7,7 +7,7 @@ rules".
 ### GUARD-001 · The reviewer edits only inside the repository it works in
 Given `casefile:reviewer` writes a file with Edit, Write, MultiEdit or NotebookEdit
 When the file lies inside the repository of the reviewer's working folder (`cwd`): the developer's
-checkout, where it reviews with no worktree
+checkout, where it reviews
 Then the write is allowed, subject to GUARD-002
 And outside that repository, or when git cannot tell, it is denied. See D-045 and D-072.
 
@@ -19,8 +19,8 @@ Then the write is denied. The reviewer breaks product code; it does not change t
 
 ### GUARD-003 · The reviewer may restore files with git restore
 Given `casefile:reviewer` runs a command
-When the whole command is one `git restore` statement whose every word is one of the flags `-W`,
-`--worktree`, `-p`, `--patch`, `-q`, `--quiet`, `--`, or a path of plain characters (letters, digits,
+When the whole command is one `git restore` statement whose every word is one of the flags `-p`,
+`--patch`, `-q`, `--quiet`, `--`, or a path of plain characters (letters, digits,
 `. _ - / @ +`, and spaces only inside quotes), with at least one path
 Then it is allowed
 And any other `git restore` is denied — no path, any other flag (`--staged`, `-S`, `--source`, `-s`
@@ -36,7 +36,7 @@ Then it is denied, as every other repository-changing command is.
 ### GUARD-005 · The reviewer restores only inside the repository it works in
 Given `casefile:reviewer` runs a `git restore` that GUARD-003 allows
 When its working folder (`cwd`) is outside any repository, or git cannot tell
-Then it is denied; in the developer's checkout, where it reviews with no worktree, it is allowed. See
+Then it is denied; in the developer's checkout, where it reviews, it is allowed. See
 D-045 and D-072.
 
 ### GUARD-006 · The implementer never edits specs or plans

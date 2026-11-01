@@ -15,7 +15,7 @@ description: >
 You are the **orchestrator**. You coordinate agents and keep the plan; you never write product code,
 tests or specs yourself. The specs define correct behaviour; the plan file is the single record of
 progress. **You are the only one who commits**: each task once, after review, with its status in the
-same commit. One task at a time, in the developer's checkout, with no worktrees (D-072).
+same commit. One task at a time, in the developer's checkout (D-072).
 
 Scripts below run as `<python> "${CLAUDE_PLUGIN_ROOT}/skills/<skill>/scripts/<name>.py"`, where
 `<python>` is `py -3` on Windows and `python3` elsewhere. Execute them; act on their output; do not
@@ -73,7 +73,7 @@ Nobody edits or switches branches in this checkout while an agent works in it.
 
 1. **Next task.** Run `implement/scripts/plan_status.py <plan>`. Its `batch` is the one next task;
    `waiting` tasks are held by an open issue or by an entry of the plan's Blockers, and stay out.
-2. **Implement.** Commit nothing. Dispatch `casefile:implementer` without a worktree:
+2. **Implement.** Commit nothing. Dispatch `casefile:implementer`:
    `Implement <plan> <task>.`, adding the minor findings carried over from earlier tasks that touch
    the same files. Keep its id. A plan change that reaches the running task (after the developer's
    ruling) goes to it as text.
@@ -83,7 +83,7 @@ Nobody edits or switches branches in this checkout while an agent works in it.
    - `git write-tree`, then `git commit-tree <tree> -p HEAD -m "wip <milestone> <task>"`, then
      `git update-ref <ref> <commit>`
 
-   Then dispatch `casefile:reviewer` without a worktree, with the plan path, the task and the full
+   Then dispatch `casefile:reviewer` with the plan path, the task and the full
    report. It reviews the staged change in this checkout.
 4. **Check the checkout** (ORCH-005), before reading the verdict: `git diff --quiet` and
    `git ls-files --others --exclude-standard` printing nothing mean the working files match the staged

@@ -57,13 +57,13 @@ Get the id and file prefix from the script, never by counting by hand:
 2. **The branch.** Create the `fix/` branch following
    [`${CLAUDE_PLUGIN_ROOT}/shared/work-branch.md`](../../shared/work-branch.md). Commit the issue on
    it (`docs(issues): I-0007 <title>`), with `in-progress`.
-3. **Implement.** Dispatch `casefile:implementer` with the issue path only, without a worktree: it
+3. **Implement.** Dispatch `casefile:implementer` with the issue path only: it
    works in this checkout, on the `fix/` branch, and leaves its work uncommitted. Nobody edits or
    switches branches here until it reports. It writes the failing test, confirms it fails for the
    right reason, and fixes.
 4. **Save, then review** (ORCH-004). With `<ref>` = `refs/casefile/wip/issues/<number>`, one command
    each: `git add -A`; `git write-tree`; `git commit-tree <tree> -p HEAD -m "wip I-0007"`;
-   `git update-ref <ref> <commit>`. Then dispatch `casefile:reviewer`, without a worktree, with the
+   `git update-ref <ref> <commit>`. Then dispatch `casefile:reviewer` with the
    issue path and the implementer's report verbatim; it reviews the staged change in this checkout.
    When it replies, check the checkout before the verdict (ORCH-005): `git diff --quiet` and
    `git ls-files --others --exclude-standard` printing nothing; otherwise `git restore .` and tell the

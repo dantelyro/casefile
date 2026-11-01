@@ -74,6 +74,6 @@ decision. See D-065.
 ### REV-011 · The reviewer reviews the staged change in the developer's checkout      [MANUAL]
 Given a task or a fix to review
 When the reviewer is dispatched
-Then it works with no worktree, in the developer's checkout, and the change is the staged diff
+Then it works in the developer's checkout, and the change is the staged diff
 (`git diff --cached`) against `HEAD`; for a commit range it reviews the range as checked out, and it
 never switches branches. See D-072.
