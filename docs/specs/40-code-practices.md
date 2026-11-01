@@ -45,12 +45,12 @@ When `session_start` emits its context
 Then the context asks for `casefile:code-practices` before the session's first change to code, as a
 pointer, not the skill's body (D-003).
 
-### PRAC-007 · casefile's agents preload the skill      [VERIFY]
+### PRAC-007 · casefile's agents preload the skill
 Given `agents/planner.md`, `agents/implementer.md` and `agents/reviewer.md`
 When their frontmatter is read
 Then each lists `casefile:code-practices` under `skills`
-Verify first: that a plugin agent's `skills` field resolves a plugin-namespaced skill name, with a
-live probe. If it does not, each agent's prompt says to invoke the skill instead.
+A live probe on Claude Code 2.1.312 (2026-10-31) showed a plugin agent with only the Read tool
+recite a word found only in a skill its `skills` field named as `<plugin>:<skill>` (grade 1).
 
 ### PRAC-008 · Reviewer findings cite the practice      [MANUAL]
 Given the reviewer finds code that breaks a practice
@@ -74,16 +74,17 @@ Then the hook runs that app's `lint`, and on failure blocks the end of the turn 
 output as the reason
 And an app whose files did not change during the turn is not linted, even with changes from before.
 
-### PRAC-011 · The Stop hook does not block a retry      [VERIFY]
+### PRAC-011 · The Stop hook does not block a retry
 Given the turn is already continuing because of a Stop hook (`stop_hook_active`)
 When the hook runs
 Then it does not block again
-Verify first: the `stop_hook_active` field and its meaning, against the hooks reference and a live
-run.
+The field is documented in the hooks reference (grade 3); the developer confirms it in a live run
+when the milestone finishes.
 
 ### PRAC-012 · The Stop hook never blocks without something to lint
 Given no `.claude/casefile.json`, no app with `lint`, no change during the turn, or a `lint` that
 times out or cannot start
 When the hook runs
-Then it does not block; a timeout or a start failure is reported to the session as context. A Stop
-hook cannot fail closed: `onFailure` has no effect on Stop events.
+Then it does not block; a timeout or a start failure is reported to the developer as a
+`systemMessage`, because the hooks reference gives a Stop hook no field that reaches the session
+without continuing the turn. A Stop hook cannot fail closed: `onFailure` has no effect on Stop events.

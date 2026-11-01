@@ -179,6 +179,9 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   now lowers the window `CLAUDE_CODE_AUTO_COMPACT_WINDOW` sets, never raises it (v2.1.312). [CL]
 - `claude --plugin-dir <path>` loads a plugin for one session without installing it; the plugin is
   named after the directory. [CLI][PL]
+- A plugin agent's `skills` field preloads a skill named `<plugin>:<skill>` as well as by its bare
+  name: an agent with only the Read tool recited a word found only in that skill (live probe on
+  2.1.312, 2026-10-31; PRAC-007).
 
 ## Dynamic context and forks
 

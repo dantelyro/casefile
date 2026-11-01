@@ -10,3 +10,10 @@
 **Decision:** (a). The skill proposes the stack's linter rules and writes them after a yes; the Stop hook runs the lint of each app whose files changed during the turn, measured against the state when the previous turn ended or the session started, blocks with the lint output on failure, never blocks again on a retry, and never blocks with nothing to lint (PRAC-009..012). Agents are covered by the reviewer, which already runs lint.
 
 **Trade-offs:** Lint runs at most once per turn, so a failure surfaces at the end of the turn, not at the edit. The hook must remember each app's state between turns. stop_hook_active is unverified (PRAC-011 [VERIFY]). A Stop hook cannot fail closed.
+
+**Changed by:**
+- 2026-10-31 · dantelyro — the hooks reference (grade 3, re-read 2026-10-29) documents
+  `stop_hook_active` as true when the turn already continues because of a Stop hook, so PRAC-011 is
+  built from it and confirmed live by hand. It also gives Stop no output that reaches the session
+  without continuing the turn: a lint that times out or cannot start is reported to the developer
+  as a `systemMessage` (PRAC-012). Both on the developer's go-ahead of 2026-10-31.

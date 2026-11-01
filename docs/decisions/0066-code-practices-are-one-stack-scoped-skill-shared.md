@@ -10,3 +10,8 @@
 **Decision:** (b), the skill casefile:code-practices. Its body holds stack-independent do/don'ts under 150 lines; Node, React, Vue and Python each have a reference, plus a shared backend and a shared frontend file, read only for the stack of the changed code (PRAC-001..009). The project's own CLAUDE.md, linter config and design system win.
 
 **Trade-offs:** A skill is guidance the session can drift from; D-067 enforces what a linter can measure. Every session that changes code pays for the body. Whether plugin agents resolve a namespaced skill in their skills field is unverified (PRAC-007 [VERIFY]).
+
+**Changed by:**
+- 2026-10-31 · dantelyro — a live probe on Claude Code 2.1.312 showed a plugin agent with only the
+  Read tool recite a word found only in a skill its `skills` field named as `<plugin>:<skill>`
+  (grade 1), so the agents preload `casefile:code-practices` and PRAC-007 is no longer `[VERIFY]`.
