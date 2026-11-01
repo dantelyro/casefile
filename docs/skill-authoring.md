@@ -1,6 +1,6 @@
 # Skill authoring — what Anthropic documents
 
-**Verified against:** Claude Code `2.1.312` — 2026-10-27
+**Verified against:** Claude Code `2.1.314` — 2026-11-01
 
 Facts about how skills load and behave, taken from Anthropic's own pages. This file records what
 the vendor says; the rules casefile layers on top live in `CLAUDE.md`. Each fact cites its page so a
@@ -158,6 +158,10 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
 - `if` takes exactly one permission rule, runs only on tool events, and is best-effort: when Claude
   Code cannot tell which commands a Bash input runs, the hook runs regardless. The page says to use
   the permission system, not a hook, for a hard allow or deny. [HK]
+- Hooks matching `Bash` also run on the shell commands the Monitor tool starts, and can block or ask
+  but not approve or rewrite them; an `if` such as `Monitor(tail *)` matches them as `Bash(tail *)`
+  matches Bash's (v2.1.314). A PreCompact hook's output is cut at 10,000 characters (v2.1.314). [CL]
+  casefile's agents list no Monitor tool, so their guards see only Bash and PowerShell calls.
 - A PreToolUse hook's deny reason was replaced by a timeout error; fixed in v2.1.304. Prompt and agent
   hooks run at most 12 of one event at a time [HK]; since v2.1.312 also at most 24 per session,
   subagents included, and a `timeout` under 1 second counts as 1 second. casefile's hooks are
