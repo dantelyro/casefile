@@ -5,7 +5,8 @@
   issues_status.py --next-id            the next free issue id and file prefix
   add --json for machine-readable output.
 
-A `fixed (<commit>)` issue is checked, not believed: the commit must exist and be on the current
+A `fixed` issue is checked, not believed: its commit (the one named, else the last commit touching the
+issue, ORCH-013) must exist, say `fixed` and be on the current
 branch — the `fix/` or `feat/` branch the issue file is read from — and every name in backticks under
 "Test that must fail first" that is not a path must be found in that branch's files. Exit 1 when any issue has an error.
 
@@ -24,7 +25,7 @@ ISSUES_DIR = "docs/issues"
 FILE = re.compile(r"^(\d{4})([a-z]?)-[a-z0-9-]+\.md$")
 TITLE = re.compile(r"^# (I-(\d{4})([a-z]?)) — (.+)$")
 FIELD = re.compile(r"^- (Status|Found|Blocks|Related to|Rules):\s*(.*)$")
-STATUS = re.compile(r"^(open|in-progress)$|^fixed \(([0-9a-f]{7,40})\)$|^wontfix: (.+)$")
+STATUS = re.compile(r"^(open|in-progress)$|^(fixed)(?: \(([0-9a-f]{7,40})\))?$|^wontfix: (.+)$")  # ORCH-013
 SECTIONS = ("What happens", "What should happen", "How to see it", "Test that must fail first")
 BACKTICKED = re.compile(r"`([^`]+)`")
 
@@ -69,7 +70,7 @@ def parse(path: str, name: str) -> tuple[dict | None, list[str]]:
     status = STATUS.match(fields.get("Status", ""))
     if "Status" in fields and not status:
         errors.append(f"{name}: status `{fields['Status']}` is not open, in-progress, "
-                      "fixed (<commit>) or wontfix: <reason>")
+                      "fixed or wontfix: <reason>")
     test_section, inside = [], False
     for line in lines:
         if line.startswith("## "):
@@ -80,8 +81,8 @@ def parse(path: str, name: str) -> tuple[dict | None, list[str]]:
     return {
         "id": title.group(1), "title": title.group(4), "file": f"{ISSUES_DIR}/{name}",
         "status": "fixed" if status and status.group(2) else
-                  "wontfix" if status and status.group(3) else fields.get("Status"),
-        "commit": status.group(2) if status else None,
+                  "wontfix" if status and status.group(4) else fields.get("Status"),
+        "commit": status.group(3) if status else None,
         "blocks": None if blocks.lower() in ("none", "") else blocks,
         "tests": BACKTICKED.findall("\n".join(test_section)),
     }, errors
@@ -89,16 +90,21 @@ def parse(path: str, name: str) -> tuple[dict | None, list[str]]:
 
 def check_fixed(root: str, branch: str, issue: dict) -> list[str]:
     name, commit = issue["file"], issue["commit"]
-    if git(root, "cat-file", "-e", f"{commit}^{{commit}}").returncode != 0:
+    if commit is None:  # fixed in the fix's own commit: the last one touching the issue (ORCH-013)
+        commit = git(root, "log", "-1", "--format=%H", branch, "--", name).stdout.strip()
+        committed = git(root, "show", f"{commit}:{name}").stdout if commit else ""
+        if not re.search(r"^- Status:\s*fixed\s*$", committed, re.MULTILINE):
+            return [f"{name}: marked fixed, but not committed as fixed on `{branch}`"]
+    elif git(root, "cat-file", "-e", f"{commit}^{{commit}}").returncode != 0:
         return [f"{name}: fixed in `{commit}`, but no such commit exists"]
-    if git(root, "merge-base", "--is-ancestor", commit, branch).returncode != 0:
+    elif git(root, "merge-base", "--is-ancestor", commit, branch).returncode != 0:
         return [f"{name}: fixed in `{commit}`, but that commit is not on `{branch}`"]
     names = [t for t in issue["tests"] if not re.search(r"[\\/]|\.\w{1,5}$", t)]
     if not names:
         return [f"{name}: names no test (in backticks) under `## Test that must fail first`"]
     errors = []
     for test in names:
-        if git(root, "grep", "-q", "-F", "-e", test, branch).returncode != 0:
+        if git(root, "grep", "-q", "-F", "-e", test, branch, "--", ".", f":!{ISSUES_DIR}").returncode != 0:
             errors.append(f"{name}: the test `{test}` is not in any file on `{branch}`")
     return errors
 

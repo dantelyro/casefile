@@ -64,3 +64,11 @@ Given a task that becomes blocked
 When the orchestrator records it
 Then `Status: blocked: <reason>` is committed alone, as `chore(plans): <milestone> <task> blocked`,
 and the task's uncommitted work is kept under its wip ref.
+
+### ORCH-013 · fixed needs no commit hash
+Given an issue whose status is `fixed`, without a hash, because it is committed in the fix's own
+commit (ORCH-003)
+When `issues_status.py` checks it
+Then the fixing commit is the last commit on the current branch that touches the issue file, and the
+issue is an error when that commit's copy of the file does not say `fixed`, or when a test it names
+is not on the branch; `fixed (<commit>)`, as older issues write it, is checked as before.

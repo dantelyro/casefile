@@ -124,6 +124,33 @@ def test_fixed_named_test_missing(repo):
     assert "BUG-7: upload keeps the file" in out["errors"][0]
 
 
+def test_ORCH_013_fixed_without_a_hash_committed_with_the_fix(repo):
+    repo.git("switch", "-q", "-c", "fix/i-0001-a")
+    repo.write("web/x.test.ts", "it('BUG-7: upload keeps the file', () => {})\n")
+    repo.write("docs/issues/0001-a.md", issue(1, "A", status="fixed"))
+    repo.commit("fix(upload): keep the file [I-0001]")
+    code, out, err = repo.run_script()
+    assert (code, out["errors"]) == (0, []), err
+
+
+def test_ORCH_013_fixed_without_a_hash_but_never_committed(repo):
+    repo.write("web/x.test.ts", "it('BUG-7: upload keeps the file', () => {})\n")
+    repo.write("docs/issues/0001-a.md", issue(1, "A", status="open"))
+    repo.commit("issue")
+    repo.write("docs/issues/0001-a.md", issue(1, "A", status="fixed"))
+    code, out, _ = repo.run_script()
+    assert code == 1
+    assert "not committed" in out["errors"][0]
+
+
+def test_ORCH_013_fixed_without_a_hash_and_its_test_missing(repo):
+    repo.write("docs/issues/0001-a.md", issue(1, "A", status="fixed"))
+    repo.commit("fix without test")
+    code, out, _ = repo.run_script()
+    assert code == 1
+    assert "BUG-7: upload keeps the file" in out["errors"][0]
+
+
 def test_fixed_on_the_current_fix_branch(repo):
     repo.git("switch", "-q", "-c", "fix/i-0001-a")
     repo.write("web/x.test.ts", "it('BUG-7: upload keeps the file', () => {})\n")

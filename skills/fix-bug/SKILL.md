@@ -43,7 +43,7 @@ Get the id and file prefix from the script, never by counting by hand:
 `web/tests/image.test.ts` — `ARCH-001: nested test files stay out of the image`
 ```
 
-- `Status` is `open`, `in-progress`, `fixed (<implementer commit>)` or `wontfix: <reason>`.
+- `Status` is `open`, `in-progress`, `fixed` (set in the fix's own commit, ORCH-013) or `wontfix: <reason>`.
 - `Blocks` names the plan task that cannot proceed until this is fixed: a bug in accepted work the
   task builds on. That task waits until the developer has merged the fix into the milestone's branch.
 - A bug in the change under review is not an issue: it is a review finding for that change.
@@ -56,20 +56,26 @@ Get the id and file prefix from the script, never by counting by hand:
    saving.
 2. **The branch.** Create the `fix/` branch following
    [`${CLAUDE_PLUGIN_ROOT}/shared/work-branch.md`](../../shared/work-branch.md). Commit the issue on
-   it (`docs(issues): I-0007 <title>`), with `in-progress`, and note the commit as the fix's base
-   (`git rev-parse HEAD`).
-3. **Implement.** Dispatch `casefile:implementer` with the issue path only, **without a worktree**:
-   it works in this checkout, on the `fix/` branch. Nobody edits or switches branches here until it
-   reports. It writes the failing test, confirms it fails for the right reason, fixes, and commits.
-4. **Review.** Dispatch `casefile:reviewer` with the issue path, `BASE: <the fix's base>` and the
-   implementer's report verbatim. The reviewer works in its own worktree, because it breaks code on
-   purpose.
+   it (`docs(issues): I-0007 <title>`), with `in-progress`.
+3. **Implement.** Dispatch `casefile:implementer` with the issue path only, without a worktree: it
+   works in this checkout, on the `fix/` branch, and leaves its work uncommitted. Nobody edits or
+   switches branches here until it reports. It writes the failing test, confirms it fails for the
+   right reason, and fixes.
+4. **Save, then review** (ORCH-004). With `<ref>` = `refs/casefile/wip/issues/<number>`, one command
+   each: `git add -A`; `git write-tree`; `git commit-tree <tree> -p HEAD -m "wip I-0007"`;
+   `git update-ref <ref> <commit>`. Then dispatch `casefile:reviewer`, without a worktree, with the
+   issue path and the implementer's report verbatim; it reviews the staged change in this checkout.
+   When it replies, check the checkout before the verdict (ORCH-005): `git diff --quiet` and
+   `git ls-files --others --exclude-standard` printing nothing; otherwise `git restore .` and tell the
+   developer about every untracked file left.
 5. **Fix loop.** `changes-requested` → send the blocker and major findings to **the same**
-   implementer (continue it), to fix in a new commit and report again. At most 2 rounds; then stop
-   and show the developer the findings — the commits stay on the branch for them to keep or drop.
-6. **Record** after the reviewer approves and the developer says yes: the issue becomes
-   `- Status: fixed (<implementer commit>)`, with unfixed minor findings under "Accepted at merge",
-   committed as `docs(issues): I-0007 fixed`.
+   implementer (continue it), to fix on top of its uncommitted work and report again; save and review
+   again as in step 4. At most 2 rounds; then stop and show the developer the findings — the work stays
+   under `<ref>` for them to keep or drop.
+6. **Commit once** (ORCH-003), after the reviewer approves and the developer says yes: the issue
+   becomes `- Status: fixed`, with unfixed minor findings under "Accepted", `git add -A`, and one
+   commit holds the test, the fix and the status: `fix(<scope>): <what> [I-0007]`. Then
+   `git update-ref -d <ref>`.
 7. **Check.** Run `issues_status.py` (as in *The issue*) and show the developer its result; a fixed
    issue it reports as an error is not fixed. Then tell them the branch is ready to merge.
 
