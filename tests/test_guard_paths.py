@@ -109,26 +109,26 @@ class TestClaudeFolder:
 
 
 class TestReviewer:
-    def test_writes_nothing(self, repo):
-        expect(repo, ["casefile:reviewer"], ("web/a.ts", "docs/plans/M1.md", "notes.txt"), "deny")
-        expect(repo, ["casefile:reviewer"], ("nb.ipynb",), "deny", tool="NotebookEdit")
+    def test_GUARD_002_writes_no_records_in_the_checkout(self, repo):
+        expect(repo, ["casefile:reviewer"], ("docs/plans/M1.md", "docs/issues/0001-x.md"), "deny")
 
 
 EDITS = (("Edit", "web/a.ts"), ("Write", "web/a.ts"), ("MultiEdit", "web/a.ts"),
          ("NotebookEdit", "nb.ipynb"), ("Write", "web/new-folder/b.ts"))
 
 
-class TestReviewerWorktree:
+class TestReviewerCheckout:
+    """GUARD-001: the reviewer breaks code in the developer's checkout, with no worktree (D-072)."""
+
     @pytest.mark.parametrize(("tool", "path"), EDITS)
-    def test_GUARD_001_reviewer_may_edit_product_code_in_a_linked_worktree(self, tool, path, repo, wt):
-        got, reason = decide(repo, "casefile:reviewer", str(wt / path), tool=tool, cwd=wt)
+    def test_GUARD_001_reviewer_may_edit_product_code_in_the_checkout(self, tool, path, repo):
+        got, reason = decide(repo, "casefile:reviewer", path, tool=tool)
         assert got == "allow", f"{tool} {path}: {reason}"
 
-    @pytest.mark.usefixtures("wt")  # a linked worktree exists, so the main checkout must still be refused
-    @pytest.mark.parametrize(("tool", "path"), EDITS)
-    def test_GUARD_001_reviewer_is_denied_in_the_main_checkout(self, tool, path, repo):
-        got, reason = decide(repo, "casefile:reviewer", path, tool=tool)
-        assert got == "deny", f"{tool} {path}: {reason}"
+    def test_GUARD_001_a_relative_path_resolves_against_the_cwd(self, repo):
+        (repo / "web").mkdir()
+        got, reason = decide(repo, "casefile:reviewer", "a.ts", cwd=repo / "web", raw_path=True)
+        assert got == "allow", reason
 
     def test_GUARD_001_reviewer_is_denied_outside_any_repository(self, repo, tmp_path):
         other = tmp_path / "elsewhere"
@@ -136,54 +136,20 @@ class TestReviewerWorktree:
         got, _ = decide(repo, "casefile:reviewer", str(other / "x.txt"), cwd=other)
         assert got == "deny"
 
-    def test_GUARD_001_reviewer_is_denied_in_another_repositorys_worktree(self, repo, wt, tmp_path):
+    def test_GUARD_001_reviewer_is_denied_in_another_repository(self, repo, tmp_path):
         other = make_repo(tmp_path / "other", None)
-        commit_empty(other)
-        other_wt = add_worktree(other, tmp_path / "other-wt")
-        got, _ = decide(repo, "casefile:reviewer", str(other_wt / "web" / "a.ts"), cwd=wt)
-        assert got == "deny"
+        got, reason = decide(repo, "casefile:reviewer", str(other / "web" / "a.ts"))
+        assert got == "deny", reason
 
-    @pytest.mark.parametrize(("tool", "path"), [
-        ("Edit", "web/a.ts"), ("Write", "web/new-folder/b.ts"), ("NotebookEdit", "nb.ipynb")])
-    def test_GUARD_001_reviewer_is_denied_in_another_linked_worktree_of_the_same_repository(
-            self, tool, path, repo, wt, monkeypatch):
-        implementer_wt = add_worktree(repo, repo / ".claude" / "worktrees" / "agent-2")
-        # Claude Code sets CLAUDE_PROJECT_DIR to the main repo, which makes the path repo-relative.
-        monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(repo))
-        got, reason = decide(repo, "casefile:reviewer", str(implementer_wt / path), tool=tool, cwd=wt)
-        assert got == "deny", f"{tool} {path}: {reason}"
-        assert "worktree" in reason
-
-    def test_GUARD_001_a_relative_path_resolves_against_the_cwd(self, repo, wt):
-        got, reason = decide(repo, "casefile:reviewer", "web/a.ts", cwd=wt, raw_path=True)
-        assert got == "allow", reason
-
-    def test_GUARD_001_the_files_directory_is_judged_not_the_session_cwd(self, repo, wt, monkeypatch):
-        monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(repo))
-        got, _ = decide(repo, "casefile:reviewer", str(repo / "web" / "a.ts"), cwd=wt)
-        assert got == "deny"
-
-    @pytest.mark.parametrize("flag", ["--git-dir", "--git-common-dir"])
     @pytest.mark.parametrize("fake", [
         {"side_effect": OSError("no git")},
         {"return_value": subprocess.CompletedProcess([], 128, "", "fatal")}],
         ids=["git-missing", "git-fails"])
-    def test_GUARD_001_reviewer_is_denied_when_git_cannot_tell(self, flag, fake, repo, wt, monkeypatch):
-        real = subprocess.run
-
-        def run_git(cmd, *a, **kw):
-            if flag in cmd:  # only this one call fails
-                return mock.Mock(**fake)(cmd, *a, **kw)
-            return real(cmd, *a, **kw)
-
-        monkeypatch.setattr(lib.subprocess, "run", run_git)
-        got, _ = decide(repo, "casefile:reviewer", str(wt / "web" / "a.ts"), cwd=wt)
-        assert got == "deny", f"{flag} {fake}"
-
-    def test_GUARD_001_reason_says_breaks_happen_only_in_the_reviewers_own_worktree(self, repo):
-        got, reason = decide(repo, "casefile:reviewer", "web/a.ts")
+    def test_GUARD_001_reviewer_is_denied_when_git_cannot_tell(self, fake, repo, monkeypatch):
+        monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(repo))  # a fallback root must not stand in for git
+        monkeypatch.setattr(lib.subprocess, "run", mock.Mock(**fake))
+        got, _ = decide(repo, "casefile:reviewer", "web/a.ts")
         assert got == "deny"
-        assert "worktree" in reason
 
 
 class TestReviewerLimits:

@@ -38,8 +38,8 @@ def main(event: dict) -> None:
         lib.allow()
 
     if role == "reviewer":
-        if rel is None or not lib.in_own_worktree(path, event.get("cwd")):
-            lib.deny("breaks happen only in the reviewer's own worktree, where it makes them and restores "
+        if rel is None or lib.git_root(event.get("cwd") or os.getcwd()) is None:
+            lib.deny("the reviewer breaks code only inside the repository it reviews, where it restores "
                      f"them; `{rel or path}` is not in it. Put the problem in your findings instead.")
         cfg = lib.config(event)
         folders = [ISSUES, cfg["plans_dir"].strip("/") + "/", cfg["specs_dir"].strip("/") + "/"]

@@ -70,8 +70,8 @@ class TestPush:
 
     def test_not_a_push(self):
         expect(EVERYONE, ["git status", "echo git push", "gitpush", "git log --grep push"], "allow")
-        # commit and pull are not pushes; the read-only agents are refused them for another reason
-        expect((MAIN, "casefile:implementer") + OTHER_AGENTS,
+        # commit and pull are not pushes; casefile's agents are refused them for another reason
+        expect((MAIN,) + OTHER_AGENTS,
                ['git commit -m "docs: never git push from agents"',
                 "git commit -m 'git push later'", "git pull",
                 'git commit -m "fix: x; git push comes later"',
@@ -125,7 +125,7 @@ class TestReviewer:
     def test_reads_and_tests(self):
         expect(["casefile:reviewer"], (
             "git diff main...feat", "git log --oneline -5", "git show HEAD", "git status",
-            "git switch --detach feat", "npm test 2>&1", "uv run pytest -q", "npm ci",
+            "npm test 2>&1", "uv run pytest -q", "npm ci",
             "uv sync", "npm test > /dev/null", "npm test 2>/dev/null", "git branch --list"), "allow")
 
     def test_changes_nothing(self):
@@ -160,35 +160,34 @@ def reviewer_in(wt, commands, decision):
 
 
 class TestRestore:
-    """GUARD-003 and GUARD-004, run inside a real linked worktree (GUARD-005 decides elsewhere)."""
+    """GUARD-003 and GUARD-004; GUARD-005: the reviewer restores in the developer's checkout (D-072)."""
 
-    def test_GUARD_005_reviewer_restore_allowed_in_its_worktree(self, wt):
-        reviewer_in(wt, ("git restore web/x.ts",), "allow")
-        (wt / "web").mkdir()
-        expect(["casefile:reviewer"], ("git restore web/x.ts",), "allow", cwd=wt / "web")
+    def test_GUARD_005_reviewer_restore_allowed_in_the_checkout(self, repo):
+        expect(["casefile:reviewer"], ("git restore web/x.ts",), "allow", cwd=repo)
+        (repo / "web").mkdir()
+        expect(["casefile:reviewer"], ("git restore web/x.ts",), "allow", cwd=repo / "web")
 
-    @pytest.mark.parametrize("where", ["repo", "plain"])
-    def test_GUARD_005_reviewer_restore_denied_outside_a_linked_worktree(self, where, repo, wt, tmp_path):
+    def test_GUARD_005_reviewer_restore_denied_outside_any_repository(self, tmp_path):
         outside = tmp_path / "plain"
         outside.mkdir()
-        got, reason = decide("casefile:reviewer", "git restore web/x.ts",
-                             cwd={"repo": repo, "plain": outside}[where])
+        got, reason = decide("casefile:reviewer", "git restore web/x.ts", cwd=outside)
         assert got == "deny", reason
-        assert "worktree" in reason
+        assert "repository" in reason
 
     @pytest.mark.parametrize("failing", [
         mock.Mock(side_effect=OSError("no git")),
         mock.Mock(return_value=mock.Mock(returncode=128, stdout="", stderr="fatal")),
     ], ids=["git-missing", "git-fails"])
-    def test_GUARD_005_reviewer_restore_denied_when_git_cannot_tell(self, failing, wt, monkeypatch):
+    def test_GUARD_005_reviewer_restore_denied_when_git_cannot_tell(self, failing, repo, monkeypatch):
         monkeypatch.setattr(lib.subprocess, "run", failing)
-        got, reason = decide("casefile:reviewer", "git restore web/x.ts", cwd=wt)
+        got, reason = decide("casefile:reviewer", "git restore web/x.ts", cwd=repo)
         assert got == "deny", reason
-        assert "worktree" in reason
 
-    def test_GUARD_005_location_does_not_change_other_decisions(self, repo, wt):
-        expect(["casefile:reviewer"], ("git status",), "allow", cwd=repo)
-        expect(["casefile:planner"], ("git restore web/x.ts",), "deny", cwd=wt)
+    def test_GUARD_005_location_does_not_change_other_decisions(self, repo):
+        expect(["casefile:planner"], ("git restore web/x.ts",), "deny", cwd=repo)
+
+    def test_GUARD_003_the_reviewer_never_switches_the_checkout(self, repo):
+        reviewer_in(repo, ("git switch --detach feat", "git switch feat", "git checkout feat"), "deny")
 
     def test_GUARD_003_reviewer_may_git_restore_paths(self, wt):
         reviewer_in(wt, (
@@ -243,15 +242,22 @@ class TestRestore:
 
 
 class TestImplementer:
-    def test_works_on_its_branch(self):
+    def test_works_in_the_checkout(self):
         expect(["casefile:implementer"], (
-            "git add -A", "git commit -m 'feat(M1/T1): x [MATCH-010]'", "npm test", "git status",
-            "npm install zod", "uv add httpx", "git switch -c fix/x", "rm web/old.ts"), "allow")
+            "git add -A", "npm test", "git status", "git diff", "git log --oneline -5",
+            "git restore web/x.ts", "npm install zod", "uv add httpx", "rm web/old.ts"), "allow")
 
-    def test_does_not_merge_rewrite_or_touch_the_default_branch(self):
+    def test_GUARD_008_never_commits_or_moves_a_ref(self):
         expect(["casefile:implementer"], (
-            "git merge main", "git rebase main", "git cherry-pick abc", "git reset --hard HEAD~1",
-            "git switch main", "git checkout main", "git branch -D feat"), "deny")
+            "git commit -m 'feat(M1/T1): x [MATCH-010]'", "git commit -am x", "git merge main",
+            "git rebase main", "git cherry-pick abc", "git revert HEAD", "git reset HEAD~1",
+            "git reset --hard HEAD~1", "git stash", "git stash pop", "git switch -c fix/x",
+            "git switch main", "git checkout main", "git checkout -- web/x.ts",
+            "git update-ref refs/heads/x HEAD", "git tag v1", "git branch -D feat"), "deny")
+
+    def test_GUARD_008_reason_says_the_orchestrator_commits(self):
+        _, reason = decide("casefile:implementer", "git commit -m x")
+        assert "orchestrator" in reason and "uncommitted" in reason
 
 
 class TestOneCommandPerCall:

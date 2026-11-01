@@ -153,8 +153,6 @@ def _read_only_violation(s: Statement) -> str | None:
         if sub == "branch" and not ({"d", "D", "m", "M", "c", "C"} & _short_flags(args)) \
                 and not any(not a.startswith("-") for a in args):
             return None
-        if sub == "switch" and "--detach" in args:
-            return None
         return f"`git {sub}` changes the repository"
     if s.name in _FILE_CHANGERS:
         return f"`{s.name}` changes files"
@@ -206,14 +204,15 @@ def _writes_by_redirect(command: str) -> bool:
 
 # --- implementer ---------------------------------------------------------------------------
 
-def _implementer_violation(s: Statement, default_branch: str) -> str | None:
+_COMMITS_OR_MOVES_A_REF = {"commit", "merge", "rebase", "cherry-pick", "revert", "reset", "stash", "switch",
+                           "checkout", "update-ref", "tag", "push"}
+
+
+def _implementer_violation(s: Statement) -> str | None:
     sub, args = s.git()
-    if sub in ("merge", "rebase", "cherry-pick"):
-        return f"implementers may not `git {sub}`; the main session merges after the developer's yes"
-    if sub == "reset" and "--hard" in args:
-        return "implementers may not hard-reset"
-    if sub in ("switch", "checkout") and default_branch in args:
-        return f"implementers stay on their own branch, never `{default_branch}`"
+    if sub in _COMMITS_OR_MOVES_A_REF:
+        return (f"implementers never `git {sub}`: leave your work uncommitted in the checkout; the "
+                "orchestrator commits the task once after review (GUARD-008)")
     if sub == "branch" and "D" in _short_flags(args):
         return "implementers may not force-delete branches"
     return None
@@ -260,9 +259,9 @@ def main(event: dict) -> None:
         for s in parsed:
             why = _read_only_violation(s)
             if why and role == "reviewer" and _restores_worktree_paths(command):
-                if lib._linked_worktree_dir(event.get("cwd") or os.getcwd()) is None:
-                    lib.deny("the reviewer restores files only in its own worktree: breaks happen only "
-                             f"in a linked worktree, and this folder is not one. (`{shown}`)")
+                if lib.git_root(event.get("cwd") or os.getcwd()) is None:
+                    lib.deny("the reviewer restores files only inside the repository it reviews, and this "
+                             f"folder is not in one. (`{shown}`)")
                 why = None
             if why:
                 lib.deny(f"the {role} only reads: {why}. (`{shown}`)")
@@ -270,9 +269,8 @@ def main(event: dict) -> None:
             lib.deny(f"the {role} only reads: redirecting output into a file writes it. (`{shown}`)")
 
     if role == "implementer":
-        default_branch = lib.config(event)["default_branch"]
         for s in parsed:
-            why = _implementer_violation(s, default_branch)
+            why = _implementer_violation(s)
             if why:
                 lib.deny(f"{why}. (`{shown}`)")
 

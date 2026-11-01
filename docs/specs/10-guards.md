@@ -25,7 +25,8 @@ When the whole command is one `git restore` statement whose every word is one of
 Then it is allowed
 And any other `git restore` is denied — no path, any other flag (`--staged`, `-S`, `--source`, `-s`
 and their abbreviations among them), a git option before `restore`, or any other character — as are
-`git add`, `commit`, `stash`, `checkout`, `reset`, file-changing shell and redirects into files.
+`git add`, `commit`, `stash`, `checkout`, `switch`, `reset`, file-changing shell and redirects into files: the
+reviewer works in the developer's checkout and never moves it (D-072).
 
 ### GUARD-004 · The planner stays read-only
 Given `casefile:planner` runs a command
