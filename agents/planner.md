@@ -51,8 +51,8 @@ You are sent a milestone ID (`M2`) or name. Everything else is in the repository
 6. For each task, search the code for functions, components, types, fixtures and tests it can use,
    and name each on its `Reuse:` line by file and symbol; none found → say what you searched for.
    Code written twice is a review finding (REV-009).
-7. Order them so each task depends only on earlier ones. Mark tasks that touch none of the same files
-   as parallel-safe with each other.
+7. Order them so each task depends only on earlier ones: tasks are built one at a time, and a task
+   carries no `Parallel-safe with:` line (PLAN-005).
 
 ## Output
 Write `<plans_dir>/<milestone>.md` in exactly this format, then reply with one line:
@@ -77,7 +77,6 @@ What exists already: <what the code already has that the tasks build on>
 - Reuse: <file and symbol, each> | none found (searched: <terms>)
 - Done when: <one observable check, e.g. "uv run pytest -q passes in worker/">
 - Depends on: <task IDs, or none>
-- Parallel-safe with: <task IDs touching none of the same files, or none>
 - Notes: <what the implementer must not miss; part of the task, not background. Anything no spec
   rule states — a test value, an extra condition, a data shape — starts with `Planner choice:`>
 
