@@ -35,6 +35,13 @@ def test_CTX_002_the_main_session_gets_the_project_context_then_the_evidence_poi
     assert text.index("docs/decisions/README.md") < text.index("casefile:evidence"), text
 
 
+def test_the_code_guidelines_follow_the_evidence_pointer():
+    text = output({"CLAUDE_PLUGIN_ROOT": "/x"})["hookSpecificOutput"]["additionalContext"]
+    assert text.endswith("</casefile-guidelines>"), text
+    assert "Never use single-letter names" in text and "No magic numbers" in text, text
+    assert text.index("casefile:evidence") < text.index("<casefile-guidelines>"), text
+
+
 @pytest.mark.parametrize("env", [{"CLAUDE_PLUGIN_ROOT": "/x"}, {}])
 def test_exactly_one_context_field(env):
     out = output(env)

@@ -67,7 +67,8 @@ not the skill body**, so the per-session cost is a few hundred tokens. Preserve 
 The pointer asks for the skill before the session's first change to code or docs, not before its
 first answer, and again the moment a decision is settled. See D-003, D-004, D-057 and D-064.
 The same hook gives the main session the project context first: where the decisions and product
-documents are, read the ones touching its work, never revive dropped work. It runs on `SessionStart`
+documents are, read the ones touching its work, never revive dropped work; and last, the code
+guidelines, in their own `<casefile-guidelines>` block (D-076). It runs on `SessionStart`
 only; no agent gets casefile's context, and the reviewer reads the decisions itself (CTX-002, D-074).
 
 **Six skills and one agent, each with its own moment.** `repo-discovery` reads a project that
