@@ -22,7 +22,7 @@ produced it is how a change gets approved by the reasoning that wrote it.
 1. **Resolve the target** to a branch or commit range: a branch name, a PR (`gh pr view <n>
    --json headRefName`), a commit, or "the current branch" (`git merge-base <default> HEAD`..HEAD).
    Note the plan task or issue it implements, and the author's report if there is one. Ask
-   when the target is ambiguous; do not guess which branch.
+   when the target is ambiguous.
 2. **Project settings.** Read `.claude/casefile.json`. If it does not exist, propose one — the
    default branch, each app's folder with its `test` and `install` commands as found in the
    project files, its `lint` command when the app has a linter, and the protected paths. When the project's frontend

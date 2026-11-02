@@ -82,8 +82,8 @@ developer. Commit there touching only that file (`git -C <sibling> commit -- <pl
    `refactor`, `docs`…), e.g. `feat(jobs): score required skills at 70% [MATCH-010]`. The pre-commit
    gate runs the tests. That is the task's only commit.
 
-**Bugs found along the way** are never fixed inside a task. One in accepted work → propose an issue to
-the developer and hand it to `fix-bug`, whose `fix/` branch starts from the `feat/` branch. If it blocks
+**A bug found along the way** in accepted work → propose an issue to the developer and hand it to
+`fix-bug`, whose `fix/` branch starts from the `feat/` branch. If it blocks
 a task, the issue says so (`Blocks: <plan> <task>`) and `plan_status.py` keeps that task out of every
 batch until the developer has merged the fix into the `feat/` branch.
 
@@ -101,7 +101,6 @@ merge it yourself.
 
 ## Rules
 
-- Something unexpected — a spec contradiction, a check you cannot run → stop and ask; don't improvise.
 - **A blanket yes covers accepting and resuming only** ("commit each task", "build and execute"). A
   spec gap, a spec-silent choice, and any change to an approved plan each need the developer's ruling
   on that point. Record it in the plan quoting them: `Ruled by the developer (<date>): "…"`. Never write

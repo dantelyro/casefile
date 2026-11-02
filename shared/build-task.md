@@ -30,23 +30,21 @@ developer's checkout, and leave it uncommitted until the developer says yes (ORC
      "How to see it" describes, so undoing the fix turns it red again. A test of a helper you are about
      to write fails only because the helper is missing, and stays green if the bug comes back.
 2. **Green.** The least code that makes them pass.
-3. **Refactor.** Clean names and duplication without changing behaviour; run the tests again.
+3. **Refactor** the code you just wrote: clean names and duplication without changing behaviour; run
+   the tests again.
 4. **Check.** The task's "Done when", then the `test` and `lint` commands of every app you touched.
 
 ## Rules
 
-- **Only this task.** A bug elsewhere is proposed to the developer as an issue for `fix-bug`; never
-  fixed inside the task.
 - **A spec that is wrong, unclear or silent** where you need a decision → stop and ask. The spec is
   changed first (`write-specs`); never invent the rule, never edit a spec to fit the code.
-- **Never weaken a test** to make it pass: no deleting, skipping, loosening, or marking expected to fail.
 - Dependencies are added with the package manager's command (`npm install zod`, `uv add httpx`), never
   by typing a version into a manifest. A missing tool (a runtime, Docker) → stop; don't write code you
   can't run.
 - **One check per command, with a timeout** (`timeout 300 npm test`), never chained or piped into
   `tail`: an implementer once waited half an hour on a hung check hidden inside a chain (D-043).
 - A fresh database or service for a check is a throwaway one, on its own port, removed afterwards; never
-  the developer's. Tests never call real outside services, and hold no secrets.
+  the developer's. Tests never call real outside services.
 
 ## Report, then wait
 

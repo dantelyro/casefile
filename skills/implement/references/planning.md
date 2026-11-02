@@ -28,7 +28,7 @@ README, and the plans (`plans_dir` [`docs/plans`]), whose earlier files show the
    written twice is a review finding (REV-009).
 7. A detail no rule states that a test needs — a value, an extra condition, a data shape — is a
    `Planner choice:` in the task's Notes, for the developer to accept or cut (D-044). Never an invented
-   requirement; a test's input never comes from another user's data or depends on test order.
+   requirement; a test's input never comes from another user's data.
 8. With `siblings` in the config, plan the whole milestone in every repository and name each task's
    repository on its `Repo:` line.
 
