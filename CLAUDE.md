@@ -46,9 +46,9 @@ intentional duplications in the repo, with `version` above. Change both together
 
 ## Architecture
 
-**Root is the plugin.** `marketplace.json` points its one entry at `source: "./"`, so
-`.claude-plugin/` holds both manifests side by side rather than nesting the plugin under
-`plugins/`. A *second* plugin would therefore need `plugins/<name>/.claude-plugin/plugin.json`
+**Root is the plugin.** `.claude-plugin/` holds both manifests side by side rather than nesting
+the plugin under `plugins/`; `marketplace.json`'s one entry fetches that root from
+`https://github.com/dantelyro/casefile.git` (a `url` source, so installs need no SSH key, `814d985`). A *second* plugin would therefore need `plugins/<name>/.claude-plugin/plugin.json`
 and its own `marketplace.json` entry — the root is taken. See D-002.
 
 **`hooks/hooks.json` is auto-discovered.** No `plugin.json` entry references it. Its command
