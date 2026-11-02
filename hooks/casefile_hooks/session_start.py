@@ -85,6 +85,9 @@ Apply these to every line of code you write or change.
 - Tests are deterministic and isolated: no sleeps, control time and randomness, no shared state,
   and no dependence on run order.
 - Mock only at boundaries you own.
+- Test files sit beside the code they test (`user.service.ts` + `user.service.test.ts`); where
+  the stack's tooling does not allow it, in a test folder that mirrors the source tree. In a repo
+  with no tests yet, or one whose layout differs, ask the developer which to use.
 </casefile-guidelines>"""
 
 
