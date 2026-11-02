@@ -1,9 +1,8 @@
-"""SessionStart and SubagentStart: the project context for everyone, the evidence pointer for the
-main session.
+"""SessionStart: the project context and the evidence pointer for the main session.
 
-Every session and every agent starts with CONTEXT: where the project's decisions and product
-documents are, and what to do with them (CTX-001, D-070). Only the main session also gets
-DIRECTIVE, the pointer to the evidence skill: agents never reconcile docs or record decisions.
+The main session starts with CONTEXT, where the project's decisions and product documents are and
+what to do with them, followed by DIRECTIVE, the pointer to the evidence skill (CTX-002). No agent
+is given either: casefile's one agent, the reviewer, reads the decisions itself (D-074).
 
 The evidence skill triggers on "the start of a session", which no user prompt ever says, so the
 skill never fires on its own judgement; this injects the trigger (D-003). It injects a pointer,
@@ -18,7 +17,7 @@ import sys
 CONTEXT = """<casefile-context>
 This project may record why it is the way it is. Before you act on code, specs or plans, read what applies to your work: the decision index (`docs/decisions/README.md`, or where the project's `CLAUDE.md` says) and, in full, every decision whose subject or cited rules touch the files or rules you work on; `docs/product/product-decisions.md` and `docs/product/open-questions.md` when the work concerns the product. A document the project does not have is absent; never invent one.
 
-A decision marked superseded, and work recorded as dropped or reverted, is not brought back. When your work would contradict an accepted decision or revive dropped work, do not build around it: say so, naming the decision. Agents never edit these documents.
+A decision marked superseded, and work recorded as dropped or reverted, is not brought back. When your work would contradict an accepted decision or revive dropped work, do not build around it: say so, naming the decision.
 </casefile-context>"""
 
 DIRECTIVE = """<casefile>
@@ -37,10 +36,7 @@ What the skill will have you do, so you know what you are opting into:
 
 
 def main(event: dict) -> None:
-    if event.get("hook_event_name") == "SubagentStart":
-        name, text = "SubagentStart", CONTEXT
-    else:
-        name, text = "SessionStart", CONTEXT + "\n\n" + DIRECTIVE
+    text = CONTEXT + "\n\n" + DIRECTIVE
     # Claude Code reads both the top-level and the nested field without deduplicating, so emit
     # exactly one: the nested form.
-    sys.stdout.write(json.dumps({"hookSpecificOutput": {"hookEventName": name, "additionalContext": text}}))
+    sys.stdout.write(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": text}}))
