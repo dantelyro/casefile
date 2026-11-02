@@ -13,3 +13,4 @@
 
 **Changed by:**
 - 2026-11-01 · dantelyro — by D-072: no worktrees; the reviewer breaks and restores in the developer's checkout, restoring to the staged copy the orchestrator made, and the orchestrator checks the checkout after every review.
+- 2026-11-01 · dantelyro — by D-074: the implementer is removed; the reviewer still runs the breaks, now only when the developer invokes `review`.

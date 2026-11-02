@@ -13,5 +13,6 @@
 
 **Changed by:**
 - 2026-10-31 · dantelyro — a live probe on Claude Code 2.1.312 showed a plugin agent with only the
+- 2026-11-01 · dantelyro — by D-074: of casefile's agents only the reviewer is left, so the skill is shared by the main session and the reviewer.
   Read tool recite a word found only in a skill its `skills` field named as `<plugin>:<skill>`
   (grade 1), so the agents preload `casefile:code-practices` and PRAC-007 is no longer `[VERIFY]`.

@@ -10,3 +10,6 @@
 **Decision:** (b), the developer's call. A cut choice leaves the task's Notes; an accepted one stays part of the task.
 
 **Trade-offs:** The approval step gets longer on plans with many choices. A choice the planner fails to mark still reads as part of the task; the reviewer's spec-match check is what catches it.
+
+**Changed by:**
+- 2026-11-01 · dantelyro — by D-074: the main session marks planner choices when implement plans a milestone (references/planning.md); the `Planner choice:` marker is unchanged.

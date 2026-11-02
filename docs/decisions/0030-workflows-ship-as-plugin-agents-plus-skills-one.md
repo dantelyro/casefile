@@ -1,6 +1,6 @@
 # D-030 — Workflows ship as plugin agents plus skills, one spec and one release each
 
-**Status:** Accepted (2026-10-14).
+**Status:** **SUPERSEDED by D-074 (2026-11-01).** casefile ships one agent, the reviewer; the planner and implementer workflows are gone. Accepted (2026-10-14).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: decided in session, 2026-10-14: "Code
 review, Bug fix, Build from a plan, all 3 but each one in a different spec and version", with
 write-specs added the same day, and "Design doc first".
@@ -25,3 +25,6 @@ stands between a workflow and its agents.
 **Trade-offs:** Four releases instead of one, each waiting for its the pilot project test before the next
 builds on it. A workflow skill whose description overlaps a built-in skill (`review` and
 `code-review`) needs trigger evals, which are billed and run on demand.
+
+**Changed by:**
+- 2026-11-01 · dantelyro — superseded by D-074: the planner and implementer agents are removed; the main session builds, and only the reviewer ships as an agent.

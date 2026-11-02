@@ -22,3 +22,6 @@ commit message mentioning a push does not trigger it.
 **Trade-offs:** Every push in the developer's session costs one confirmation. A session started
 with `--agent` carries `agent_type` (documented, not probed) and is treated as that agent: its
 pushes are denied, not asked.
+
+**Changed by:**
+- 2026-11-01 · dantelyro — by D-074: no agent is denied `git push` any more; it asks the developer from an agent as from the main session (GUARD-009).

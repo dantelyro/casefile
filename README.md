@@ -29,17 +29,17 @@ without bumping it and every existing install keeps the cached copy.
 
 ### `casefile`
 
-Workflow skills and guards for building with agents — orienting in a codebase, recording why it
-is the way it is, building a milestone of spec rules with agents, fixing bugs test-first, reviewing
-changes against their specs, and hooks that hold the rules every time.
+Workflow skills and guards — orienting in a codebase, recording why it is the way it is, building
+a milestone of spec rules in the main session, fixing bugs test-first, reviewing changes against
+their specs with an isolated agent, and hooks that hold the rules every time.
 
 | Skill | What it does |
 | --- | --- |
 | `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
-| `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `casefile:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Never merges or fixes. |
+| `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `casefile:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Runs only when you ask; never merges or fixes. |
 | `write-specs` | Turns a feature description, or the notes of a brainstorm that has ended, into spec rules with IDs (`### JOBS-020 · Title`), product decisions, decision entries, open questions and a new milestone in the build order. It drafts everything, asks the open questions together, and writes nothing until you say yes; `spec_lint.py` checks the specs hold together. Never starts or interrupts a brainstorm. |
-| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings): `casefile:planner` checks the milestone against your decisions, then writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does, each naming the existing code it can reuse — and after your approval each task is built on a `feat/` branch you name — by `casefile:implementer`, one task at a time in your checkout, left uncommitted — reviewed by `casefile:reviewer` in the same checkout, and committed once, with its status, after your yes. No merge commits, no status-only commits. You merge the branch into `main`; casefile never does. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next task and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. Never writes code, tests or specs itself. |
-| `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, `casefile:implementer` reproduces it with a failing test and fixes it on a `fix/` branch you name ([`shared/work-branch.md`](shared/work-branch.md)), `casefile:reviewer` checks it, and you merge the branch. `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
+| `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings) in the main session, with no agent: it checks the milestone against your decisions, then writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does, each naming the existing code it can reuse — and after your approval builds each task on a `feat/` branch you name, one at a time in your checkout, test-first, and commits it once, with its status, after your yes. No merge commits, no status-only commits. You merge the branch into `main`; casefile never does. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next task and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. |
+| `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, reproduced with a failing test and fixed in the main session on a `fix/` branch you name ([`shared/work-branch.md`](shared/work-branch.md)), committed once after your yes, and you merge the branch. `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
 | `evidence` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
 
 The two compose: `repo-discovery` answers what an existing project **is**, and
@@ -53,27 +53,25 @@ including `review`, which proposes `.claude/casefile.json` on first use.
 Hooks, on in every project where casefile is enabled, failing closed (D-028). The full table is in
 `docs/specs/history/2026-10-14-review-design.md`, *Guard rules*.
 
-- `git push` asks you in your own session and is refused to every agent (D-029).
+- `git push` asks you, whether it comes from your session or from an agent (D-029).
 - `docker compose down -v` and `--no-verify` are refused to everyone.
-- Agents may not kill processes by name, or change any `.claude` folder.
-- `casefile:reviewer` edits only product code in your checkout, never tests or records, may `git restore`
-  and never switches branches; `casefile:planner` writes only its plan file; casefile agents stay out of
-  the project's protected paths and never write `docs/issues/`; `casefile:implementer` never commits,
-  merges, rebases, stashes, resets or switches branches.
+- `casefile:reviewer` edits only product code in your checkout, never tests, records, settings or the
+  project's protected paths, may `git restore` and never switches branches. No other agent has rules
+  of its own (GUARD-009).
 - Every commit: no skipped or focused tests, the design check on added UI lines, and the test
   command of every configured app it touches.
 - UI code may use only what the project's design system (`tokens.json`) defines.
 
 #### `.claude/casefile.json`
 
-Per-project settings the guards and agents read; every key optional, and casefile never writes it
+Per-project settings the guards, the skills and the reviewer read; every key optional, and casefile never writes it
 unasked. Each app names its own test command (whatever the project uses: `npm test`, `npx vitest
 run`, `uv run pytest -q`…) and runs in its folder — `path`, defaulting to the app's name; `"."` is
 the whole repository. `lint` is optional: when set, the commit gate and the reviewer run it next to
 `test`. The skipped-test check knows Node and Python test files only. `install` installs the app's
 locked dependencies; `image` rebuilds the app's container before a task that touched it is committed.
 `specs_dir`, `plans_dir` and `build_order` (the page whose "Build order" section lists the
-milestones) tell `implement` and the planner where things are; the values shown are the defaults.
+milestones) tell `implement` where things are; the values shown are the defaults.
 
 Frontend and backend in separate repositories: give each `"repo"` (its own name) and `"siblings"`
 (the others' names and relative paths, `{"backend": "../backend"}`), and list those paths in
@@ -107,15 +105,15 @@ reading the repo, and reading the repo is what the skill is for.
 So the session-start hook (`hooks/casefile_hooks/session_start.py`) injects the trigger the prompt cannot supply: a short directive naming
 the skill, emitted on `startup`, `clear` and `compact`. It injects a **pointer, not the skill
 body** — the `Skill` tool loads the content on demand, keeping the per-session cost to a few
-hundred tokens rather than the whole file. The same hook gives every agent, on `SubagentStart`, the
-project context alone: where your decisions are, and that dropped work stays dropped.
+hundred tokens rather than the whole file. Ahead of it comes the project context: where your
+decisions are, and that dropped work stays dropped. No agent is given either.
 
 ## Layout
 
 ```
 .claude-plugin/
   marketplace.json      # makes this repo a marketplace
-  plugin.json           # makes it a plugin too — source is "./"
+  plugin.json           # makes it a plugin too
 hooks/
   hooks.json            # auto-discovered; no plugin.json entry needed
   run-hook              # sh starter: finds Python 3.10+, runs run.py
@@ -124,17 +122,17 @@ hooks/
 tests/                  # uv run pytest
 evals/                  # trigger evals, billed: claude plugin eval . --ablation none --scaffold
 agents/
-  implementer.md        # casefile:implementer: one task or issue, test-first, left uncommitted in your checkout
-  planner.md            # casefile:planner: one milestone into test-first tasks; writes only its plan
-  reviewer.md           # casefile:reviewer
+  reviewer.md           # casefile:reviewer, dispatched only by review
 shared/
   work-branch.md        # naming and creating the feat/ or fix/ branch the developer merges
+  build-task.md         # building one task or fix test-first, for implement and fix-bug
 skills/
   fix-bug/
     SKILL.md
     scripts/issues_status.py
   implement/
     SKILL.md
+    references/planning.md      # how the main session plans a milestone, and the plan format
     scripts/plan_status.py      # the next batch, stuck tasks, tasks waiting on an issue
     scripts/rules_coverage.py   # each rule it checks: tested, untested with a reason, or missing
   write-specs/
@@ -163,8 +161,9 @@ docs/
   skill-authoring.md    # what Anthropic documents about skills, version-watermarked
 ```
 
-This repo is both the marketplace and the single plugin it offers — the marketplace entry points
-at `./`, so the two manifests sit side by side in one `.claude-plugin/` folder rather than nested.
+This repo is both the marketplace and the single plugin it offers — the plugin is the repository
+root, so the two manifests sit side by side in one `.claude-plugin/` folder rather than nested; the
+marketplace entry fetches it from GitHub over HTTPS.
 
 A skill's `SKILL.md` is what gets loaded when it triggers, so it stays small. Anything long —
 formats, procedures, reference material — goes in `references/` and is read only when the work
