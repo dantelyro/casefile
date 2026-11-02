@@ -6,8 +6,8 @@ description: >
   or a bug fix for an issue in docs/issues/. An isolated
   casefile:reviewer agent checks the change against its task or issue and the project's spec rules,
   re-runs the tests itself, and returns approve or changes-requested with findings. Triggers on:
-  "review this branch/task/fix before I merge", "is T3 ready to merge", "check the implementer's
-  work", "does this change meet the spec". Not for a general read of the current diff for bugs
+  "review this branch/task/fix before I merge", "is T3 ready to merge", "review what you just
+  built", "does this change meet the spec". Not for a general read of the current diff for bugs
   with no plan, issue or spec to judge it against: that is the built-in code-review.
 ---
 
@@ -21,7 +21,7 @@ produced it is how a change gets approved by the reasoning that wrote it.
 
 1. **Resolve the target** to a branch or commit range: a branch name, a PR (`gh pr view <n>
    --json headRefName`), a commit, or "the current branch" (`git merge-base <default> HEAD`..HEAD).
-   Note the plan task or issue it implements, and the implementer's report if there is one. Ask
+   Note the plan task or issue it implements, and the author's report if there is one. Ask
    when the target is ambiguous; do not guess which branch.
 2. **Project settings.** Read `.claude/casefile.json`. If it does not exist, propose one — the
    default branch, each app's folder with its `test` and `install` commands as found in the
@@ -43,10 +43,12 @@ produced it is how a change gets approved by the reasoning that wrote it.
    run the tests cannot approve.
 4. **Check out the target** (ORCH-007). The reviewer works in this checkout and never switches
    branches. A target that is not checked out: `git status --porcelain` not empty →
-   stop and tell the developer what is uncommitted; otherwise `git switch <branch>`.
+   stop and tell the developer what is uncommitted; otherwise `git switch <branch>`. A target that is
+   the uncommitted work in this checkout: stage it first with `git add -A` (ORCH-004), so each break
+   the reviewer makes is restored to that staged copy.
 5. **Dispatch `casefile:reviewer`** with paths and IDs, not file contents: the
-   target and its base, the plan task or issue path, and the implementer's report verbatim. When it
-   replies, check that the working files match what was checked out (`git diff --quiet`, no untracked
+   target and its base, the plan task or issue path, and the author's report verbatim. When it
+   replies, check that the working files match what was checked out or staged (`git diff --quiet`, no untracked
    files from `git ls-files --others --exclude-standard`); otherwise `git restore .` and tell the
    developer about every untracked file left (ORCH-005).
 6. **Report** the verdict as a short table: what was checked, which test commands ran and their

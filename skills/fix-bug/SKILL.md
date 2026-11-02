@@ -2,26 +2,24 @@
 name: fix-bug
 description: >
   Use first — before reading or editing any code — when the developer asks to fix a bug or an
-  issue, or when a bug needs recording as an issue in docs/issues/. The bug is reproduced with a
-  failing test first, fixed on a fix/ branch by the casefile:implementer agent, reviewed by
-  casefile:reviewer, and left for the developer to merge. Triggers on: "fix
-  docs/issues/0007", "there's a bug: … fix it", "the upload fails when …, can you fix it", a bug an
-  agent reported in its NOTES, a bug found while building a feature. Not for a typo or one-line
+  issue, or when a bug needs recording as an issue in docs/issues/. The main session reproduces the
+  bug with a failing test first, fixes it on a fix/ branch, commits it once after the developer says
+  yes, and leaves the branch for the developer to merge. Triggers on: "fix docs/issues/0007",
+  "there's a bug: … fix it", "the upload fails when …, can you fix it", a bug found while building a
+  feature. Not for a typo or one-line
   change the developer asks to make directly, and not for explaining an error without fixing it.
 ---
 
 # Fix a bug
 
 A bug is fixed **on its own `fix/` branch, never inside a feature's**, and proven by a test that
-failed before the fix. The main session coordinates; it does not write the fix or the test itself.
+failed before the fix. You write the test and the fix yourself, with no agent (ORCH-017, D-074).
 The developer merges the branch; you never do.
 
 ## The issue
 
 Every bug is a file in `docs/issues/`, whoever found it. `docs/issues/` is created the first time
-an issue is filed, only after the developer agrees to it. Agents never write issues (the hooks
-refuse it): they report bugs in their `NOTES`, and the main session files them once the developer
-says yes.
+an issue is filed, only after the developer agrees to it.
 
 Get the id and file prefix from the script, never by counting by hand:
 `<python> "${CLAUDE_PLUGIN_ROOT}/skills/fix-bug/scripts/issues_status.py" --next-id`, where
@@ -57,32 +55,17 @@ Get the id and file prefix from the script, never by counting by hand:
 2. **The branch.** Create the `fix/` branch following
    [`${CLAUDE_PLUGIN_ROOT}/shared/work-branch.md`](../../shared/work-branch.md). Commit the issue on
    it (`docs(issues): I-0007 <title>`), with `in-progress`.
-3. **Implement.** Dispatch `casefile:implementer` with the issue path only: it
-   works in this checkout, on the `fix/` branch, and leaves its work uncommitted. Nobody edits or
-   switches branches here until it reports. It writes the failing test, confirms it fails for the
-   right reason, and fixes.
-4. **Save, then review** (ORCH-004). With `<ref>` = `refs/casefile/wip/issues/<number>`, one command
-   each: `git add -A`; `git write-tree`; `git commit-tree <tree> -p HEAD -m "wip I-0007"`;
-   `git update-ref <ref> <commit>`. Then dispatch `casefile:reviewer` with the
-   issue path and the implementer's report verbatim; it reviews the staged change in this checkout.
-   When it replies, check the checkout before the verdict (ORCH-005): `git diff --quiet` and
-   `git ls-files --others --exclude-standard` printing nothing; otherwise `git restore .` and tell the
-   developer about every untracked file left.
-5. **Fix loop.** `changes-requested` → send the blocker and major findings to **the same**
-   implementer (continue it), to fix on top of its uncommitted work and report again; save and review
-   again as in step 4. At most 2 rounds; then stop and show the developer the findings — the work stays
-   under `<ref>` for them to keep or drop.
-6. **Commit once** (ORCH-003), after the reviewer approves and the developer says yes: the issue
-   becomes `- Status: fixed`, with unfixed minor findings under "Accepted", `git add -A`, and one
-   commit holds the test, the fix and the status: `fix(<scope>): <what> [I-0007]`. Then
-   `git update-ref -d <ref>`.
-7. **Check.** Run `issues_status.py` (as in *The issue*) and show the developer its result; a fixed
-   issue it reports as an error is not fixed. Then tell them the branch is ready to merge.
+3. **Fix** following [`${CLAUDE_PLUGIN_ROOT}/shared/build-task.md`](../../shared/build-task.md): the
+   issue's test first, failing on an assertion through the code the bug is in, then the least fix that
+   makes it pass. Report to the developer as that file says.
+4. **Commit once** (ORCH-003), after the developer's yes: the issue becomes `- Status: fixed`, then
+   `git add -A`, and one commit holds the test, the fix and the status: `fix(<scope>): <what> [I-0007]`.
+5. **Check.** Run `issues_status.py` (as in *The issue*) and show the developer its result; a fixed
+   issue it reports as an error is not fixed. Then tell them the branch is ready to merge, and that
+   `review` can check it first if they want.
 
 ## Never
 
 - Never fix a bug inside a feature branch, or a feature inside a bug branch.
-- Never write the test or the fix in the main session: a second, isolated implementer and an
-  isolated reviewer are the point.
-- Never mark an issue fixed before the reviewer approved and the developer said yes.
+- Never mark an issue fixed before its test failed, then passed, and the developer said yes.
 - Never merge the `fix/` branch: the developer does.
