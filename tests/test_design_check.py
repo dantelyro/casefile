@@ -35,7 +35,7 @@ class Project:
             (path / ".claude").mkdir()
             (path / ".claude" / "casefile.json").write_text(json.dumps(config), encoding="utf-8")
 
-    def decide(self, tool_input, agent="casefile:implementer", tool="Write"):
+    def decide(self, tool_input, agent=None, tool="Write"):
         e = json.loads((FIXTURES / "write_main.json").read_text(encoding="utf-8"))
         e.update({"cwd": str(self.repo), "tool_name": tool, "tool_input": tool_input})
         e.pop("agent_type", None)
@@ -48,7 +48,7 @@ class Project:
         hso = json.loads(out)["hookSpecificOutput"]
         return hso["permissionDecision"], hso["permissionDecisionReason"]
 
-    def write(self, path, content, expected="allow", agent="casefile:implementer"):
+    def write(self, path, content, expected="allow", agent=None):
         got, reason = self.decide({"file_path": str(self.repo / path), "content": content}, agent=agent)
         assert got == expected, f"{path}: {content!r}\n{reason}"
         return reason

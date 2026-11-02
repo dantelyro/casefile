@@ -10,3 +10,6 @@
 **Decision:** (b), in the quick-fix batch the developer asked for ('make you quick fixes'). The implementer's code is what the reviewer then judges, so it gets the same model; the evidence skill runs on whatever model the session uses.
 
 **Trade-offs:** An implementer run costs more than on Sonnet. Whether the model field of a skill really switched the session was not probed; it is removed either way.
+
+**Changed by:**
+- 2026-11-01 · dantelyro — by D-074: the implementer is removed, so its model no longer applies; the evidence skill still sets no model.

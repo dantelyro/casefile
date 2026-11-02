@@ -1,4 +1,0 @@
-schema_version: "1.1"
-name: fix-bug-report
-context:
-  scaffold_script: fixture.sh

@@ -46,9 +46,9 @@ intentional duplications in the repo, with `version` above. Change both together
 
 ## Architecture
 
-**Root is the plugin.** `marketplace.json` points its one entry at `source: "./"`, so
-`.claude-plugin/` holds both manifests side by side rather than nesting the plugin under
-`plugins/`. A *second* plugin would therefore need `plugins/<name>/.claude-plugin/plugin.json`
+**Root is the plugin.** `.claude-plugin/` holds both manifests side by side rather than nesting
+the plugin under `plugins/`; `marketplace.json`'s one entry fetches that root from
+`https://github.com/dantelyro/casefile.git` (a `url` source, so installs need no SSH key, `814d985`). A *second* plugin would therefore need `plugins/<name>/.claude-plugin/plugin.json`
 and its own `marketplace.json` entry — the root is taken. See D-002.
 
 **`hooks/hooks.json` is auto-discovered.** No `plugin.json` entry references it. Its command
@@ -66,37 +66,36 @@ user message states. `hooks/casefile_hooks/session_start.py` injects that trigge
 not the skill body**, so the per-session cost is a few hundred tokens. Preserve that property.
 The pointer asks for the skill before the session's first change to code or docs, not before its
 first answer, and again the moment a decision is settled. See D-003, D-004, D-057 and D-064.
-The same hook, registered on `SubagentStart` too, gives **every** agent — casefile's, built-in or
-another plugin's — the project context: where the decisions and product documents are, read the
-ones touching its work, never revive dropped work. The main session gets that context plus the
-evidence pointer; agents never get the pointer, since they neither reconcile docs nor record
-decisions (CTX-001, D-070).
+The same hook gives the main session the project context first: where the decisions and product
+documents are, read the ones touching its work, never revive dropped work. It runs on `SessionStart`
+only; no agent gets casefile's context, and the reviewer reads the decisions itself (CTX-002, D-074).
 
-**Six skills and three agents, each with its own moment.** `repo-discovery` reads a project that
-already exists; `evidence` records *why* and keeps it honest; `review` dispatches
-`casefile:reviewer` for a verdict on one change; `fix-bug` takes one issue from `docs/issues/` through
-`casefile:implementer` and the reviewer on a `fix/` branch; `implement` builds a milestone of spec rules from
-a `casefile:planner` plan on a `feat/` branch, through the same implementer and reviewer, one task at a
-time in the developer's checkout, and never
-writes code, tests or specs itself — the plan file is the progress record (D-034, D-035); the orchestrator is the only one that commits, once per task after review, with the task's status in that commit (D-072); the developer
+**Six skills and one agent, each with its own moment.** `repo-discovery` reads a project that
+already exists; `evidence` records *why* and keeps it honest; `review` dispatches `casefile:reviewer`,
+the only agent, for an independent verdict on one change, and only when the developer asks;
+`fix-bug` takes one issue from `docs/issues/` to a failing test and a fix on a `fix/` branch;
+`implement` plans a milestone of spec rules (`references/planning.md`) and builds it on a `feat/`
+branch, one task at a time in the developer's checkout. Both build in the main session under
+`shared/build-task.md` and commit each task once, after the developer's yes, with its status in that
+commit (D-072, D-074); the plan file is the progress record (D-034); the developer
 names each branch and merges it into the default branch, never the session (D-062); `write-specs` drafts specs, product decisions, decision entries and a milestone from a feature or a finished brainstorm and writes them only after the developer's yes (D-037, D-039), recording decisions through the evidence skill's scripts (D-038). Instructions more than one skill uses live in
 `shared/` and are linked directly from each `SKILL.md` (D-032). None writes a document into
-a project that has not agreed to it. Agents live flat in `agents/` (a subfolder becomes part of the
-name), and every rule an agent must obey is a plugin hook branching on `agent_type`, because a
-plugin agent's own `hooks` and `permissionMode` are ignored (D-030). The two greenfield skills were removed in 0.12.0 (D-026); the
-agent workflows above replace them, and their designs are in `docs/specs/history/2026-10-14-*`.
+a project that has not agreed to it. The reviewer lives in `agents/` (a subfolder becomes part of the
+name), and every rule it must obey is a plugin hook branching on `agent_type`, because a plugin
+agent's own `hooks` and `permissionMode` are ignored; no other agent has rules of its own
+(GUARD-009). The two greenfield skills were removed in 0.12.0 (D-026), and the planner and
+implementer agents in 0.29.0 (D-074); their designs are in `docs/specs/history/` and the decisions.
 
 **Per-project settings are `.claude/casefile.json`**, read through `hooks/casefile_hooks/lib.py`
 (`_DEFAULTS`, `_TYPES`: a new key is added to both). A leftover `.claude/devflow.json` with no
-`casefile.json` makes the hooks fail closed rather than fall back to defaults (D-060). Skills and agents read it, and `review` step 2
+`casefile.json` makes the hooks fail closed rather than fall back to defaults (D-060). Skills and the reviewer read it, and `review` step 2
 is where its contents are proposed: apps with `test`, `install` and optional `lint` (D-042),
 `default_branch`, and `repo` with `siblings` for a frontend and backend in separate repositories,
-where every repository holds the same specs and plan and builds only its own tasks (D-041). The
-planner marks any detail no spec rule states as a `Planner choice:` and the developer rules on each
-(D-044). With the project context the hook gives every agent, work that
-brings back something dropped, or contradicts a decision, is a blocker for the planner and the
-implementer and a major finding for the reviewer, and every planned task names the code it can reuse
-(D-065).
+where every repository holds the same specs and plan and builds only its own tasks (D-041). A plan
+marks any detail no spec rule states as a `Planner choice:` and the developer rules on each (D-044).
+Work that brings back something dropped, or contradicts a decision, is a blocker for `implement` and
+`fix-bug` and a major finding for the reviewer, and every planned task names the code it can reuse
+(ORCH-015, D-074).
 
 ## Hook gotchas
 
@@ -119,9 +118,6 @@ Each of these is load-bearing; the comments in the files say so too.
 - **Emit exactly one context field.** Claude Code reads both `additionalContext` and
   `hookSpecificOutput.additionalContext` without deduplicating, so `session_start` emits only the
   nested form.
-- **Casefile agents get one command per call.** `guard_bash` denies `;`, `&&`, `||`, several lines,
-  `| tail` and `sleep`/`until` loops for casefile's own agents (`casefile:*`), so a hung check cannot hide
-  inside a chain (D-043).
 - **Only the standard library in `hooks/` and `skills/`.** A test fails on any import outside
   `sys.stdlib_module_names` there; tests may import pytest (D-048).
 

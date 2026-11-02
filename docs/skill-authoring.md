@@ -187,7 +187,8 @@ on 2026-10-15; the 0.13.0 probe checks the ones the hooks depend on against a li
   2.1.312, 2026-10-31; PRAC-007).
 - A `SubagentStart` hook's `hookSpecificOutput.additionalContext` reaches the spawned agent's
   context, for plugin agents and built-in ones (`Explore`) alike, and not the main session's: live
-  probe on 2.1.312, 2026-11-01 (CTX-001). [HK] documents it the same way.
+  probe on 2.1.312, 2026-11-01 (CTX-001). [HK] documents it the same way. casefile no longer
+  registers a `SubagentStart` hook (D-074).
 
 ## Dynamic context and forks
 

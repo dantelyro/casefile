@@ -1,5 +1,5 @@
-"""session_start: the project context for every session and agent, and the evidence pointer for the
-main session, in exactly one field."""
+"""session_start: the project context and the evidence pointer for the main session, in exactly one
+field (CTX-002). No agent is given casefile's context (D-074)."""
 
 import io
 import json
@@ -27,31 +27,12 @@ def output(env: dict, event: dict | None = None) -> dict:
     return json.loads(out.getvalue())
 
 
-def agent_context(agent_type: str) -> dict:
-    return output({"CLAUDE_PLUGIN_ROOT": "/x"},
-                  {"hook_event_name": "SubagentStart", "agent_id": "a1", "agent_type": agent_type})["hookSpecificOutput"]
-
-
-@pytest.mark.parametrize("agent_type", ["Explore", "general-purpose", "casefile:reviewer", "other-plugin:helper"])
-def test_CTX_001_every_agent_starts_with_the_project_context(agent_type):
-    out = agent_context(agent_type)
-    assert out["hookEventName"] == "SubagentStart", out
-    assert "docs/decisions/README.md" in out["additionalContext"], out
-    assert "in full" in out["additionalContext"], out
-
-
-@pytest.mark.parametrize("agent_type", ["Explore", "casefile:implementer"])
-def test_CTX_001_an_agent_never_gets_the_main_sessions_behaviour(agent_type):
-    text = agent_context(agent_type)["additionalContext"]
-    assert "casefile:evidence" not in text, text
-    assert "watermark" not in text, text
-
-
 def test_CTX_002_the_main_session_gets_the_project_context_then_the_evidence_pointer():
-    text = output({"CLAUDE_PLUGIN_ROOT": "/x"})["hookSpecificOutput"]["additionalContext"]
-    agent = agent_context("Explore")["additionalContext"]
-    assert text.startswith(agent), text
-    assert "casefile:evidence" in text[len(agent):], text
+    out = output({"CLAUDE_PLUGIN_ROOT": "/x"})["hookSpecificOutput"]
+    text = out["additionalContext"]
+    assert out["hookEventName"] == "SessionStart", out
+    assert "docs/decisions/README.md" in text and "in full" in text, text
+    assert text.index("docs/decisions/README.md") < text.index("casefile:evidence"), text
 
 
 @pytest.mark.parametrize("env", [{"CLAUDE_PLUGIN_ROOT": "/x"}, {}])

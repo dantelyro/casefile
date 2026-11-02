@@ -26,6 +26,9 @@ needs `plugins/<name>/.claude-plugin/plugin.json` and its own `marketplace.json`
 repo would hold two different layouts at once. Accepted on the basis that one plugin is the
 current reality and the asymmetry is documented rather than discovered.
 
+**Changed by:**
+- 2026-11-01 · dantelyro — `source` retargeted from `"./"` to a `url` source (`https://github.com/dantelyro/casefile.git`) by `7ba0f92` and `814d985`, so installs need no SSH key; the root is still the plugin. The commit marks it a trial: revert to `"./"` if an in-session install fails.
+
 **The open question this exposes, deliberately not decided here:** whether a second plugin should
 trigger a move back to a uniform nested layout, or live alongside the root plugin as an
 exception.

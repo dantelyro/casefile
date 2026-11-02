@@ -46,12 +46,12 @@ so.
 | [D-027](0027-hooks-are-standard-library-python-310-tested-with-unittest.md) | Hooks are standard-library Python ≥ 3.10, tested with unittest | Accepted |
 | [D-028](0028-enforcement-hooks-fail-closed-and-are-plugin-wide.md) | Enforcement hooks fail closed and are plugin-wide | Accepted, supersedes D-005 |
 | [D-029](0029-git-push-asks-the-developer-and-is-denied.md) | `git push` asks the developer and is denied to every agent | Accepted |
-| [D-030](0030-workflows-ship-as-plugin-agents-plus-skills-one.md) | Workflows ship as plugin agents plus skills, one spec and one release each | Accepted |
+| [D-030](0030-workflows-ship-as-plugin-agents-plus-skills-one.md) | Workflows ship as plugin agents plus skills, one spec and one release each | SUPERSEDED by D-074 |
 | [D-031](0031-merging-is-the-main-sessions-job-after-the.md) | Merging is the main session's job, after the developer's yes for each change | Accepted |
 | [D-032](0032-instructions-used-by-more-than-one-skill-live.md) | Instructions used by more than one skill live in `shared/` | Accepted |
 | [D-033](0033-bugs-are-issues-fixed-on-their-own-branch.md) | Bugs are issues in `docs/issues/`, fixed on their own branch; a blocking bug blocks by reference | Accepted |
 | [D-034](0034-rules-with-ids-are-the-unit-of-specification.md) | Rules with IDs are the unit of specification, testing and review | Accepted |
-| [D-035](0035-the-orchestrator-never-writes-product-code-tests-or.md) | The orchestrator never writes product code, tests or specs; the plan file is the progress record | Accepted |
+| [D-035](0035-the-orchestrator-never-writes-product-code-tests-or.md) | The orchestrator never writes product code, tests or specs; the plan file is the progress record | SUPERSEDED by D-074 |
 | [D-036](0036-a-task-that-conflicts-at-merge-is-redone.md) | A task that conflicts at merge is redone from the default branch, never resolved in place | SUPERSEDED by D-072 |
 | [D-037](0037-product-answers-and-logged-decisions-are-kept-apart.md) | Product answers and logged decisions are kept apart, and nothing is accepted by silence | Accepted |
 | [D-038](0038-the-decision-logs-numbering-entries-and-index-are.md) | The decision log's numbering, entries and index are scripts | Accepted |
@@ -59,7 +59,7 @@ so.
 | [D-040](0040-devflow-proposes-worktree-baseref-head-with-devflow-json.md) | Devflow proposes worktree.baseRef head with devflow.json | SUPERSEDED by D-072 |
 | [D-041](0041-sibling-repositories-hold-the-same-specs-and-plan.md) | Sibling repositories hold the same specs and plan, and each builds its own tasks | Accepted |
 | [D-042](0042-devflows-setup-makes-the-projects-tools-ignore-agent.md) | Devflow's setup makes the project's tools ignore agent worktrees, and runs lint when the project has it | Accepted |
-| [D-043](0043-devflow-agents-run-one-command-per-call-with.md) | Devflow agents run one command per call, with a timeout, and never wait in a loop | Accepted |
+| [D-043](0043-devflow-agents-run-one-command-per-call-with.md) | Devflow agents run one command per call, with a timeout, and never wait in a loop | SUPERSEDED by D-074 |
 | [D-044](0044-what-no-spec-rule-states-is-a-planner.md) | What no spec rule states is a planner choice the developer accepts or cuts | Accepted |
 | [D-045](0045-the-reviewer-runs-the-breaks-in-its-own.md) | The reviewer runs the breaks in its own worktree; the implementer no longer proves its own tests | Accepted |
 | [D-046](0046-tests-for-existing-code-are-specified-by-write.md) | Tests for existing code are specified by write-specs and built by implement; there is no separate test-writing skill | SUPERSEDED by D-056 |
@@ -76,15 +76,17 @@ so.
 | [D-062](0062-a-milestone-or-fix-is-built-on-its.md) | A milestone or fix is built on its own branch, which the developer merges | Accepted |
 | [D-063](0063-the-claim-audit-milestone-is-dropped-a-full.md) | The claim-audit milestone is dropped; a full read of the docs is done on request | Accepted |
 | [D-064](0064-decisions-are-recorded-unasked-including-ones-with-no.md) | Decisions are recorded unasked, including ones with no change and dropped work | Accepted |
-| [D-065](0065-the-planner-checks-every-milestone-against-the-decision.md) | The planner checks every milestone against the decision log and the codebase | Accepted |
-| [D-066](0066-code-practices-are-one-stack-scoped-skill-shared.md) | Code practices are one stack-scoped skill shared by the main session and the agents | Accepted |
-| [D-067](0067-measurable-code-practices-are-enforced-by-the-projects.md) | Measurable code practices are enforced by the project's linter through a Stop hook | Accepted |
+| [D-065](0065-the-planner-checks-every-milestone-against-the-decision.md) | The planner checks every milestone against the decision log and the codebase | SUPERSEDED by D-074 |
+| [D-066](0066-code-practices-are-one-stack-scoped-skill-shared.md) | Code practices are one stack-scoped skill shared by the main session and the agents | SUPERSEDED by D-075 |
+| [D-067](0067-measurable-code-practices-are-enforced-by-the-projects.md) | Measurable code practices are enforced by the project's linter through a Stop hook | SUPERSEDED by D-075 |
 | [D-068](0068-m7-is-split-into-three-milestones-the-agents.md) | M7 is split into three milestones: the agents' history checks, the Stop lint and the code-practices skill | Accepted |
 | [D-069](0069-committing-a-tasks-status-by-amending-the-tasks.md) | Committing a task's status by amending the task's commit is dropped as a workaround | Accepted |
-| [D-070](0070-project-context-reaches-every-agent-through-a-subagentstart.md) | Project context reaches every agent through a SubagentStart hook, not through agent prompts | Accepted |
+| [D-070](0070-project-context-reaches-every-agent-through-a-subagentstart.md) | Project context reaches every agent through a SubagentStart hook, not through agent prompts | SUPERSEDED by D-074 |
 | [D-071](0071-the-implementer-agent-runs-on-opus-and-the.md) | The implementer agent runs on Opus, and the evidence skill sets no model | Accepted |
 | [D-072](0072-the-orchestrator-commits-each-task-once-after-review.md) | The orchestrator commits each task once, after review; implementers never commit and parallel mode is dropped | Accepted |
 | [D-073](0073-no-reference-to-worktrees-is-left-in-the.md) | No reference to worktrees is left in the plugin | Accepted |
+| [D-074](0074-casefile-drops-its-multi-agent-workflow-the-main.md) | casefile drops its multi-agent workflow; the main session does the work | Accepted |
+| [D-075](0075-casefile-drops-its-specs-plans-build-order-and.md) | casefile drops its specs, plans, build order and evals, built and unbuilt alike; new milestones start fresh | Accepted |
 
 ## Conventions
 

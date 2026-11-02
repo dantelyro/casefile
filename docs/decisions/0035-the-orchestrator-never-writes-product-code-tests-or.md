@@ -1,6 +1,6 @@
 # D-035 — The orchestrator never writes product code, tests or specs; the plan file is the progress record
 
-**Status:** Accepted (2026-10-14).
+**Status:** **SUPERSEDED by D-074 (2026-11-01).** The main session now plans, builds and tests each task itself (ORCH-015, ORCH-016). Accepted (2026-10-14).
 **Decided by:** dantelyro <beyondmind9@gmail.com> — Grade 1: approved with the 0.15.0 spec
 (`docs/specs/history/2026-10-14-implement-design.md`) on 2026-10-14.
 **Implemented by:** `9d894b4` — 2026-10-15 (`plan_status.py`), `2a03d6c` (`devflow:planner`),
@@ -28,3 +28,6 @@ statuses are only as true as the orchestrator keeps them: an `in-progress` task 
 unreviewed commit, so resuming checks the task's branch before discarding anything. Nothing but the
 skill's own instructions stops the main session from editing code — the planner's and the reviewer's
 limits are hooks (D-030), the orchestrator's are not, because it is the developer's own session.
+
+**Changed by:**
+- 2026-11-01 · dantelyro — superseded by D-074: with no implementer, the orchestrator writes the code and tests itself, under shared/build-task.md.

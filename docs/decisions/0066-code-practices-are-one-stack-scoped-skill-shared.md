@@ -1,6 +1,6 @@
 # D-066 — Code practices are one stack-scoped skill shared by the main session and the agents
 
-**Status:** Accepted (2026-10-29).
+**Status:** **SUPERSEDED by D-075 (2026-11-01).** The planned code-practices skill is dropped unbuilt, with its specs (M10). Accepted (2026-10-29).
 **Decided by:** dantelyro — Grade 1: decided in session on 2026-10-29, in the developer's words quoted under Context
 
 **Context:** The developer asked for best practices that sessions follow, researched into a guide (the Code Practice Field Guide artifact). A file read only by the agents was proposed first; the developer: 'yeah but those are for the agents only i also want the main session to follow those', and 'i want as a rule you will match the best practices for whatever we are building no more than that you dont need react best one if we are working with node'. Against leaving out rules the model already knows: 'you said you already have most of those and still like to make unreadble code and single letter variables'. An invoked skill is re-attached after compaction (first 5,000 tokens); a file read with Read is not (docs/skill-authoring.md, grade 3).
@@ -13,5 +13,7 @@
 
 **Changed by:**
 - 2026-10-31 · dantelyro — a live probe on Claude Code 2.1.312 showed a plugin agent with only the
+- 2026-11-01 · dantelyro — by D-074: of casefile's agents only the reviewer is left, so the skill is shared by the main session and the reviewer.
+- 2026-11-01 · dantelyro — superseded by D-075: the code-practices skill was never built, and its specs and milestone are dropped.
   Read tool recite a word found only in a skill its `skills` field named as `<plugin>:<skill>`
   (grade 1), so the agents preload `casefile:code-practices` and PRAC-007 is no longer `[VERIFY]`.
