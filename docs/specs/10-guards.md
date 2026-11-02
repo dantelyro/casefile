@@ -1,8 +1,10 @@
 # Guards
 
-What `hooks/casefile_hooks/guard_paths.py` and `guard_bash.py` let each casefile agent do. Rules here
-cover only what changed in 0.20.0; the rest is in `history/2026-10-14-review-design.md`, "Guard
-rules".
+What `hooks/casefile_hooks/guard_bash.py` refuses or asks about, and how every hook fails. The rules
+apply alike to the main session and to any agent (see D-074). Rules here cover what changed since
+0.20.0; the rest is in `history/2026-10-14-review-design.md`, "Guard rules", where GUARD-009
+overrides anything that design gives an agent alone. GUARD-004, 006 and 008, the planner's and the
+implementer's rules, were removed with them (D-074); the reviewer keeps its own.
 
 ### GUARD-001 · The reviewer edits only inside the repository it works in
 Given `casefile:reviewer` writes a file with Edit, Write, MultiEdit or NotebookEdit
@@ -28,23 +30,11 @@ and their abbreviations among them), a git option before `restore`, or any other
 `git add`, `commit`, `stash`, `checkout`, `switch`, `reset`, file-changing shell and redirects into files: the
 reviewer works in the developer's checkout and never moves it (D-072).
 
-### GUARD-004 · The planner stays read-only
-Given `casefile:planner` runs a command
-When it is `git restore`
-Then it is denied, as every other repository-changing command is.
-
 ### GUARD-005 · The reviewer restores only inside the repository it works in
 Given `casefile:reviewer` runs a `git restore` that GUARD-003 allows
 When its working folder (`cwd`) is outside any repository, or git cannot tell
 Then it is denied; in the developer's checkout, where it reviews, it is allowed. See
 D-045 and D-072.
-
-### GUARD-006 · The implementer never edits specs or plans
-Given `casefile:implementer` writes a file with Edit, Write, MultiEdit or NotebookEdit
-When the file is under the specs folder (`specs_dir`) or the plans folder (`plans_dir`), whether or
-not `protected_paths` lists them
-Then the write is denied, the reason saying to report `STATUS: blocked` with the question: a wrong or
-silent spec, and every change to a plan, are the developer's to rule on.
 
 ### GUARD-007 · A hook registered as never-blocks never blocks
 Given a hook whose command in `hooks/hooks.json` ends with `never-blocks` (one that only adds context)
@@ -54,9 +44,8 @@ asking Claude to tell the developer how to install it
 And every other hook is a guard: the same failures deny the call. Whether a hook may block is
 declared only in `hooks/hooks.json`, never by its name in the starter or the launcher.
 
-### GUARD-008 · The implementer never commits or moves a ref
-Given `casefile:implementer` runs a command
-When it is `git commit`, `merge`, `rebase`, `cherry-pick`, `revert`, `reset`, `stash`, `switch`,
-`checkout`, `update-ref`, `tag` or `push`
-Then it is denied, the reason saying the orchestrator commits the task once after review and the
-implementer leaves its work uncommitted (IMPL-005). See D-072.
+### GUARD-009 · An agent gets no rules of its own
+Given a tool call from an agent — casefile's, a built-in one such as `Explore`, or another plugin's
+When the guards check it
+Then it is allowed, denied or asked about exactly as the same call from the main session would be, except for the
+reviewer's own rules (GUARD-001, 002, 003, 005): no other rule reads `agent_id` or `agent_type`, and `git push` asks the developer from either (see D-074).

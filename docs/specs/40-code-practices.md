@@ -1,7 +1,7 @@
 # Code practices
 
-The `casefile:code-practices` skill, which the main session and casefile's agents follow when they
-write or review code, and the Stop hook that runs the project's linter (see D-066, D-067). The
+The `casefile:code-practices` skill, which the main session and the reviewer follow
+when they write or review code, and the Stop hook that runs the project's linter (see D-066, D-067). The
 practices are scoped to the stack being changed: a Node change never gets React's rules. The stacks
 are Node, React, Vue and Python, with a shared backend file and a shared frontend file.
 
@@ -45,10 +45,10 @@ When `session_start` emits its context
 Then the context asks for `casefile:code-practices` before the session's first change to code, as a
 pointer, not the skill's body (D-003).
 
-### PRAC-007 · casefile's agents preload the skill
-Given `agents/planner.md`, `agents/implementer.md` and `agents/reviewer.md`
-When their frontmatter is read
-Then each lists `casefile:code-practices` under `skills`
+### PRAC-007 · The reviewer preloads the skill
+Given `agents/reviewer.md`
+When its frontmatter is read
+Then it lists `casefile:code-practices` under `skills`
 A live probe on Claude Code 2.1.312 (2026-10-31) showed a plugin agent with only the Read tool
 recite a word found only in a skill its `skills` field named as `<plugin>:<skill>` (grade 1).
 

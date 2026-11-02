@@ -1,9 +1,9 @@
 # Reviewer
 
-`casefile:reviewer` (`agents/reviewer.md`). The agent that writes a test never proves it can fail; the
-reviewer does, by breaking the code in the developer's checkout and restoring it (see D-045,
-D-072). What it may edit and run is in
-[10-guards.md](10-guards.md).
+`casefile:reviewer` (`agents/reviewer.md`). Whoever writes a test never proves it can fail; the reviewer
+does, by breaking the code in the developer's checkout and restoring it (see D-045,
+D-072). It runs only when the developer invokes `review`, never inside `implement` or `fix-bug` (see D-074).
+What it may edit and run is in [10-guards.md](10-guards.md).
 
 ### REV-001 · The reviewer breaks the line behind each rule's main test      [MANUAL]
 Given a change with rule tests, after the reviewer's own re-run
@@ -14,7 +14,7 @@ file with `git restore <file>`.
 ### REV-002 · The reviewer runs its own breaks and edge cases      [MANUAL]
 Given a rule's main test
 When the reviewer follows the code path the test covers
-Then it also breaks it the ways the implementer had no reason to try — a wrong branch, a missing
+Then it also breaks it the ways the author had no reason to try — a wrong branch, a missing
 filter, a redundant check, a constant off by one — and tries the edge cases the rule names or
 implies, running, quoting and restoring each the same way. An edge case the code gets
 wrong is a finding against the code, with the input that shows it.
