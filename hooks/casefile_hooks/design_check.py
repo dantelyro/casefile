@@ -218,6 +218,6 @@ def main(event: dict) -> None:
         shown = "\n  ".join(problems[:15]) + ("\n  …and more." if len(problems) > 15 else "")
         lib.deny("this would invent styles outside the design system "
                  f"(`{checker.tokens_path}`):\n  {shown}\n"
-                 "If the design system is missing something you need, don't work around it: report it "
-                 "(agents: STATUS: blocked) so the design system is extended first.")
+                 "If the design system is missing something you need, don't work around it: tell the "
+                 "developer, so the design system is extended first.")
     lib.allow()

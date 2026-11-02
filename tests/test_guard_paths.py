@@ -20,8 +20,8 @@ from casefile_hooks.pre_commit import TEST_FILE
 
 MAIN = None
 OTHER_AGENTS = ("Explore", "general-purpose", "other-plugin:helper")
-CASEFILE_AGENTS = ("casefile:reviewer", "casefile:implementer", "casefile:planner")
-EVERY_AGENT = OTHER_AGENTS + CASEFILE_AGENTS
+# Agents with no rules of their own (GUARD-009): any agent but the reviewer, casefile names included.
+PLAIN_AGENTS = OTHER_AGENTS + ("casefile:implementer", "casefile:planner")
 
 CONFIG = {"protected_paths": ["docs/specs/", "docs/product/", "docs/issues/"]}
 
@@ -75,20 +75,6 @@ class TestMainSession:
     def test_unrestricted(self, repo):
         expect(repo, [MAIN], ("docs/specs/12-matching.md", ".claude/settings.json", "web/a.ts",
                               os.path.join(tempfile.gettempdir(), "x.txt")), "allow")
-
-
-class TestClaudeFolder:
-    def test_no_agent_changes_claude_folder(self, repo):
-        expect(repo, EVERY_AGENT, (".claude/settings.json", ".claude/casefile.json",
-                                   ".claude/hooks/x.py", ".claude/agents/reviewer.md"), "deny")
-
-    def test_nor_the_user_claude_folder(self, repo):
-        home_claude = os.path.join(os.path.expanduser("~"), ".claude", "settings.json")
-        expect(repo, EVERY_AGENT, (home_claude,), "deny")
-
-    def test_reason_says_what_to_do(self, repo):
-        _, reason = decide(repo, "casefile:implementer", ".claude/settings.json")
-        assert "Report" in reason
 
 
 class TestReviewer:
@@ -174,69 +160,23 @@ class TestReviewerLimits:
         self.check(repo, ("web/score.ts", "worker/app/score.py", "README.md", "docs/testing.md"), "allow")
 
 
+class TestNoAgentOnlyRules:
+    """GUARD-009: any agent but the reviewer writes where the main session may."""
 
-class TestPlanner:
-    def test_only_its_plan_file(self, repo):
-        expect(repo, ["casefile:planner"], ("docs/plans/M1.md", "docs/plans/saved-jobs.md"), "allow")
-        expect(repo, ["casefile:planner"], ("docs/specs/12-matching.md", "web/a.ts",
-                                           "docs/plans/sub/x.md", "docs/plans/M1.txt"), "deny")
+    def test_GUARD_009_an_agent_writes_where_the_main_session_may(self, repo):
+        paths = (".claude/settings.json", os.path.join(os.path.expanduser("~"), ".claude", "settings.json"),
+                 "docs/specs/12-matching.md", "docs/plans/M1.md", "docs/issues/0001-x.md",
+                 "docs/product/blueprint.md", "web/a.ts", os.path.join(tempfile.gettempdir(), "x.txt"))
+        expect(repo, (MAIN,) + PLAIN_AGENTS, paths, "allow")
 
-    def test_plans_dir_from_config(self, repo):
-        (repo / ".claude" / "casefile.json").write_text('{"plans_dir": "plans"}', encoding="utf-8")
-        expect(repo, ["casefile:planner"], ("plans/M1.md",), "allow")
-        expect(repo, ["casefile:planner"], ("docs/plans/M1.md",), "deny")
-
-
-class TestImplementer:
-    def test_writes_code_not_protected_paths(self, repo):
-        expect(repo, ["casefile:implementer"], ("web/features/score.ts", "worker/app/parse.py",
-                                               "README.md"), "allow")
-        expect(repo, ["casefile:implementer"], ("docs/specs/12-matching.md", "docs/product/blueprint.html",
-                                               "docs/issues/0001-x.md"), "deny")
-
-    def test_GUARD_006_never_specs_or_plans_even_unprotected(self, bare_repo):
-        expect(bare_repo, ["casefile:implementer"], ("docs/plans/M1.md", "docs/specs/12-matching.md"), "deny")
-        expect(bare_repo, ["casefile:implementer"], ("docs/plansx/a.md", "web/docs/plans.ts"), "allow")
-
-    def test_GUARD_006_the_folders_come_from_config(self, bare_repo):
-        (bare_repo / ".claude").mkdir(exist_ok=True)
-        (bare_repo / ".claude" / "casefile.json").write_text(
-            '{"plans_dir": "plans", "specs_dir": "rules"}', encoding="utf-8")
-        expect(bare_repo, ["casefile:implementer"], ("plans/M1.md", "rules/10-x.md"), "deny")
-        expect(bare_repo, ["casefile:implementer"], ("docs/plans/M1.md",), "allow")
-
-    def test_GUARD_006_reason_says_report_blocked(self, bare_repo):
-        _, reason = decide(bare_repo, "casefile:implementer", "docs/plans/M1.md")
-        assert "STATUS: blocked" in reason, reason
-
-    def test_outside_the_repository(self, repo):
-        got, reason = decide(repo, "casefile:implementer", os.path.join(tempfile.gettempdir(), "x.txt"))
-        assert got == "deny"
-        assert "outside" in reason
-
-
-class TestOtherAgents:
-    def test_only_the_claude_rule_applies(self, repo):
-        expect(repo, OTHER_AGENTS, ("docs/specs/x.md", "web/a.ts",
-                                    os.path.join(tempfile.gettempdir(), "x.txt")), "allow")
-
-
-class TestNoConfig:
-    def test_defaults_protect_claude_and_issues(self, bare_repo):
-        expect(bare_repo, ["casefile:implementer"], ("docs/guide.md",), "allow")
-        expect(bare_repo, ["casefile:implementer"], (".claude/x.json", "docs/issues/0001-x.md"), "deny")
-
-    def test_issues_are_the_main_sessions_to_write(self, bare_repo):
-        expect(bare_repo, [MAIN], ("docs/issues/0001-x.md",), "allow")
-        expect(bare_repo, OTHER_AGENTS, ("docs/issues/0001-x.md",), "allow")  # only casefile's rules for casefile agents
-        _, reason = decide(bare_repo, "casefile:implementer", "docs/issues/0001-x.md")
-        assert "NOTES" in reason
+    def test_GUARD_009_with_or_without_configuration(self, bare_repo):
+        expect(bare_repo, PLAIN_AGENTS, ("docs/plans/M1.md", "docs/issues/0001-x.md", ".claude/x.json"), "allow")
 
 
 class TestBrokenConfig:
-    def test_agents_are_refused_main_is_not(self, repo):
+    def test_the_reviewer_is_refused_others_are_not(self, repo):
         (repo / ".claude" / "casefile.json").write_text("{ nope", encoding="utf-8")
-        got, reason = decide(repo, "casefile:implementer", "web/a.ts")
+        got, reason = decide(repo, "casefile:reviewer", "web/a.ts")
         assert got == "deny"
         assert ".claude/casefile.json" in reason
-        expect(repo, [MAIN], (".claude/casefile.json",), "allow")
+        expect(repo, (MAIN,) + PLAIN_AGENTS, (".claude/casefile.json", "web/a.ts"), "allow")

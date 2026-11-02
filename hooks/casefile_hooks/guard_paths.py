@@ -1,8 +1,8 @@
-"""PreToolUse on Edit, Write and NotebookEdit: which files each kind of session may write.
+"""PreToolUse on Edit, Write and NotebookEdit: where the reviewer may write.
 
-The developer's own session is not restricted here. No agent changes a `.claude` folder — its own
-rules, the project's settings, or the user's. casefile's agents have their own limits; other agents
-get only the `.claude` rule.
+The reviewer breaks product code in the developer's checkout and restores it; it never changes a
+test, a record or settings (GUARD-001, GUARD-002). Every other session, the main one and any other
+agent, is not restricted here (GUARD-009, D-074).
 """
 
 import os
@@ -11,71 +11,33 @@ import re
 from casefile_hooks import lib
 from casefile_hooks.pre_commit import TEST_FILE
 
-ISSUES = "docs/issues/"  # always protected from casefile agents (0.14.0 spec, Issues)
+ISSUES = "docs/issues/"  # always protected from the reviewer (0.14.0 spec, Issues)
 
 
 def _in_a_claude_folder(path: str, rel: str | None) -> bool:
     if rel is not None:
         return rel == ".claude" or rel.startswith(".claude/")
-    return ".claude" in re.split(r"[\\/]+", os.path.normpath(path))
+    return ".claude" in re.split(r"[\/]+", os.path.normpath(path))
 
 
 def main(event: dict) -> None:
-    agent = lib.agent_of(event)
-    if not agent:
+    if lib.casefile_agent(event) != "reviewer":
         lib.allow()
 
     tool_input = event.get("tool_input") or {}
     path = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
     rel = lib.repo_relative(event, path)
-    role = lib.casefile_agent(event)
 
     if _in_a_claude_folder(path, rel):
-        lib.deny(f"agents may not change a `.claude` folder (agents, skills, hooks, settings): `{rel or path}`. "
-                 "Report what you need in your output instead.")
-
-    if role is None:
-        lib.allow()
-
-    if role == "reviewer":
-        if rel is None or lib.git_root(event.get("cwd") or os.getcwd()) is None:
-            lib.deny("the reviewer breaks code only inside the repository it reviews, where it restores "
-                     f"them; `{rel or path}` is not in it. Put the problem in your findings instead.")
-        cfg = lib.config(event)
-        folders = [ISSUES, cfg["plans_dir"].strip("/") + "/", cfg["specs_dir"].strip("/") + "/"]
-        folders += [p.strip("/") + "/" for p in cfg["protected_paths"]]
-        if TEST_FILE.search(rel) or any(rel.startswith(f) for f in folders):
-            lib.deny(f"the reviewer breaks product code; it never edits tests or records (`{rel}`). "
-                     "Report a weak test or a wrong record as a finding instead.")
-        lib.allow()
-
-    if rel is None:
-        lib.deny(f"the {role} only writes inside the repository it works in; `{path}` is outside it.")
-
+        lib.deny(f"the reviewer may not change a `.claude` folder (agents, skills, hooks, settings): "
+                 f"`{rel or path}`. Report what you need in your findings instead.")
+    if rel is None or lib.git_root(event.get("cwd") or os.getcwd()) is None:
+        lib.deny("the reviewer breaks code only inside the repository it reviews, where it restores "
+                 f"them; `{rel or path}` is not in it. Put the problem in your findings instead.")
     cfg = lib.config(event)
-
-    if role == "planner":
-        plans = cfg["plans_dir"].strip("/") + "/"
-        if not (rel.startswith(plans) and rel.endswith(".md") and "/" not in rel[len(plans):]):
-            lib.deny(f"the planner only writes its plan file, `{plans}<scope>.md`, not `{rel}`.")
-        lib.allow()
-
-    if rel.startswith(ISSUES):
-        lib.deny(f"casefile agents do not write issues (`{rel}`). Report the bug in your NOTES, with what "
-                 "happens, what should happen and how to see it; the main session files it after the "
-                 "developer agrees.")
-
-    if role == "implementer":
-        for folder in (cfg["specs_dir"], cfg["plans_dir"]):
-            prefix = folder.strip("/") + "/"
-            if rel.startswith(prefix):
-                lib.deny(f"the implementer never edits specs or plans (`{rel}`). If one is wrong or silent "
-                         "where you need a decision, report STATUS: blocked with the question.")
-
-    for protected in cfg["protected_paths"]:
-        prefix = protected.strip("/") + "/"
-        if rel.startswith(prefix):
-            lib.deny(f"casefile agents may not edit `{prefix}` (`{rel}`). If it is wrong or missing "
-                     "something, report STATUS: blocked with the question.")
-
+    folders = [ISSUES, cfg["plans_dir"].strip("/") + "/", cfg["specs_dir"].strip("/") + "/"]
+    folders += [p.strip("/") + "/" for p in cfg["protected_paths"]]
+    if TEST_FILE.search(rel) or any(rel.startswith(f) for f in folders):
+        lib.deny(f"the reviewer breaks product code; it never edits tests or records (`{rel}`). "
+                 "Report a weak test or a wrong record as a finding instead.")
     lib.allow()

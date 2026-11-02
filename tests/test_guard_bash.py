@@ -1,4 +1,4 @@
-"""guard_bash: the command rules of the 0.13.0 guard table, for every kind of session."""
+"""guard_bash: the command rules for every session alike, and the reviewer's own (GUARD-009)."""
 
 import json
 import pathlib
@@ -17,8 +17,9 @@ from casefile_hooks import lib
 
 MAIN = None
 OTHER_AGENTS = ("Explore", "general-purpose", "other-plugin:helper")
-CASEFILE_AGENTS = ("casefile:reviewer", "casefile:implementer", "casefile:planner")
-EVERY_AGENT = OTHER_AGENTS + CASEFILE_AGENTS
+# Agents with no rules of their own (GUARD-009): any agent but the reviewer, casefile names included.
+PLAIN_AGENTS = OTHER_AGENTS + ("casefile:implementer", "casefile:planner")
+EVERY_AGENT = PLAIN_AGENTS + ("casefile:reviewer",)
 EVERYONE = (MAIN,) + EVERY_AGENT
 
 
@@ -61,27 +62,26 @@ class TestPush:
     def test_main_session_is_asked(self):
         expect([MAIN], self.PUSHES, "ask")
 
-    def test_every_agent_is_denied(self):
-        expect(EVERY_AGENT, self.PUSHES, "deny")
+    def test_GUARD_009_every_agent_is_asked_like_the_main_session(self):
+        expect(EVERY_AGENT, self.PUSHES, "ask")
 
     def test_powershell_push_too(self):
         expect([MAIN], ["git push origin main"], "ask", tool="PowerShell")
-        expect(["casefile:implementer"], ["git push"], "deny", tool="PowerShell")
+        expect(["casefile:implementer"], ["git push"], "ask", tool="PowerShell")
 
     def test_not_a_push(self):
         expect(EVERYONE, ["git status", "echo git push", "gitpush", "git log --grep push"], "allow")
-        # commit and pull are not pushes; casefile's agents are refused them for another reason
-        expect((MAIN,) + OTHER_AGENTS,
+        # commit and pull are not pushes; the reviewer is refused them for another reason
+        expect((MAIN,) + PLAIN_AGENTS,
                ['git commit -m "docs: never git push from agents"',
                 "git commit -m 'git push later'", "git pull",
                 'git commit -m "fix: x; git push comes later"',
                 "git commit -m 'a && git push'"], "allow")
 
     def test_reasons_say_what_to_do(self):
-        _, reason = decide("casefile:implementer", "git push")
-        assert "developer" in reason
-        _, reason = decide(MAIN, "git push")
-        assert "push" in reason
+        for who in (MAIN, "casefile:implementer"):
+            _, reason = decide(who, "git push")
+            assert "push" in reason
 
 
 class TestComposeVolumes:
@@ -104,21 +104,6 @@ class TestNoVerify:
 
     def test_mentioning_it_is_fine(self):
         expect([MAIN], ['git commit -m "never use --no-verify"', "grep -r no-verify docs"], "allow")
-
-
-class TestKillByName:
-    KILLS = ("taskkill /IM node.exe /F", "taskkill /f /im node.exe", "pkill -f node", "pkill node",
-             "killall node", "Stop-Process -Name node", "Stop-Process -ProcessName node -Force",
-             "Get-Process node | Stop-Process")
-
-    def test_agents_may_not_kill_by_name(self):
-        expect(EVERY_AGENT, self.KILLS, "deny")
-
-    def test_main_session_may(self):
-        expect([MAIN], self.KILLS, "allow")
-
-    def test_killing_one_pid_is_fine(self):
-        expect(EVERY_AGENT, ("kill 1234", "taskkill /PID 1234", "Stop-Process -Id 1234"), "allow")
 
 
 class TestReviewer:
@@ -153,7 +138,7 @@ def reviewer_in(repo, commands, decision):
 
 
 class TestRestore:
-    """GUARD-003 and GUARD-004; GUARD-005: the reviewer restores in the developer's checkout (D-072)."""
+    """GUARD-003; GUARD-005: the reviewer restores in the developer's checkout (D-072)."""
 
     def test_GUARD_005_reviewer_restore_allowed_in_the_checkout(self, repo):
         expect(["casefile:reviewer"], ("git restore web/x.ts",), "allow", cwd=repo)
@@ -213,62 +198,30 @@ class TestRestore:
     def test_GUARD_003_listed_flags_are_allowed(self, command, repo):
         reviewer_in(repo, (command,), "allow")
 
-    def test_GUARD_004_planner_may_not_git_restore(self, repo):
-        expect(["casefile:planner"], ("git restore web/x.ts",), "deny", cwd=repo)
 
 
-class TestImplementer:
-    def test_works_in_the_checkout(self):
-        expect(["casefile:implementer"], (
-            "git add -A", "npm test", "git status", "git diff", "git log --oneline -5",
-            "git restore web/x.ts", "npm install zod", "uv add httpx", "rm web/old.ts"), "allow")
+class TestNoAgentOnlyRules:
+    """GUARD-009: an agent's call is judged as the main session's would be; only the reviewer has rules."""
 
-    def test_GUARD_008_never_commits_or_moves_a_ref(self):
-        expect(["casefile:implementer"], (
-            "git commit -m 'feat(M1/T1): x [MATCH-010]'", "git commit -am x", "git merge main",
-            "git rebase main", "git cherry-pick abc", "git revert HEAD", "git reset HEAD~1",
-            "git reset --hard HEAD~1", "git stash", "git stash pop", "git switch -c fix/x",
-            "git switch main", "git checkout main", "git checkout -- web/x.ts",
-            "git update-ref refs/heads/x HEAD", "git tag v1", "git branch -D feat"), "deny")
+    SAME_AS_MAIN = (
+        "taskkill /IM node.exe /F", "pkill -f node", "killall node", "Stop-Process -Name node",
+        "cd web && npm test", "npm test || true", "npm test\nnpm run lint", "npx playwright test e2e | tail -20",
+        "sleep 100; cat out.log", "until grep -q done out.log; do sleep 5; done", "Start-Sleep -Seconds 60",
+        "git commit -m x", "git merge feat", "git reset --hard HEAD~1", "git stash", "git switch main",
+        "git update-ref refs/heads/x HEAD", "git branch -D feat", "rm -rf build", "echo hi > x.txt")
 
-    def test_GUARD_008_reason_says_the_orchestrator_commits(self):
-        _, reason = decide("casefile:implementer", "git commit -m x")
-        assert "orchestrator" in reason and "uncommitted" in reason
+    def test_GUARD_009_an_agent_is_allowed_what_the_main_session_is(self):
+        for command in self.SAME_AS_MAIN:
+            main = decide(MAIN, command)[0]
+            assert main == "allow", command
+            for agent in PLAIN_AGENTS:
+                assert decide(agent, command)[0] == main, f"{agent!r}: {command!r}"
 
+    def test_GUARD_009_and_denied_what_it_is_denied(self):
+        expect(PLAIN_AGENTS, ("docker compose down -v", "git commit --no-verify -m x"), "deny")
 
-class TestOneCommandPerCall:
-    def test_casefile_agents_never_chain(self):
-        expect(CASEFILE_AGENTS, (
-            "npm run typecheck | tail; npm run lint | tail; git commit -m x", "cd web && npm test",
-            "npm test || true", "npm test\nnpm run lint", "npx playwright test e2e | tail -20"), "deny")
-
-    def test_one_command_quoted_separators_and_other_pipes_pass(self):
-        expect(CASEFILE_AGENTS, ('git log --grep "a; b && c"', "git log --oneline | head -5",
-                                "timeout 300 npm test"), "allow")
-        expect((MAIN,) + OTHER_AGENTS, ("npm test && npm run lint",), "allow")
-
-
-class TestNoWaitLoops:
-    def test_casefile_agents_do_not_poll(self):
-        expect(CASEFILE_AGENTS, (
-            "sleep 100; cat out.log", "until grep -q done out.log; do sleep 5; done",
-            "while true; do cat x; done", "sleep 1m", "Start-Sleep -Seconds 60"), "deny")
-
-    def test_a_short_pause_and_everyone_else_pass(self):
-        expect(CASEFILE_AGENTS, ("sleep 2", "timeout 120 npm test"), "allow")
-        expect((MAIN,) + OTHER_AGENTS, ("sleep 100", "until false; do sleep 5; done"), "allow")
-
-
-class TestPlanner:
-    def test_reads_only(self):
-        expect(["casefile:planner"], ("git log --oneline", "git status", "ls docs"), "allow")
-        expect(["casefile:planner"], ("git commit -m x", "rm x", "echo x > plan.md"), "deny")
-
-
-class TestOthersUnrestricted:
-    def test_main_and_other_agents(self):
-        expect((MAIN,) + OTHER_AGENTS, ("git merge feat", "git reset --hard", "rm -rf build",
-                                        "echo hi > x.txt"), "allow")
+    def test_GUARD_009_the_reviewer_keeps_its_own_rules(self):
+        expect(["casefile:reviewer"], ("git commit -m x", "rm x", "echo x > y"), "deny")
 
 
 class TestRobustness:

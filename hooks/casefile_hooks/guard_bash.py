@@ -1,4 +1,6 @@
-"""PreToolUse on Bash and PowerShell: the command rules of the 0.13.0 guard table.
+"""PreToolUse on Bash and PowerShell: the command rules for every session alike, and the reviewer's own.
+
+No agent but the reviewer has rules of its own (GUARD-009, D-074).
 
 Commands are split into statements (on ; & | && || ( ) { } and newlines) after quoted text is
 blanked out, so a commit message mentioning `git push` never counts. Each statement is judged by
@@ -91,50 +93,7 @@ def _skips_git_hooks(s: Statement) -> bool:
     return "--no-verify" in args or (sub == "commit" and "n" in _short_flags(args))
 
 
-# --- rules for agents ----------------------------------------------------------------------
-
-def _kills_by_name(s: Statement) -> bool:
-    lowered = [a.lower() for a in s.args]
-    if s.name == "taskkill":
-        return "/im" in lowered or "-im" in lowered
-    if s.name in ("pkill", "killall"):
-        return True
-    if s.name == "stop-process":
-        return not any(a in ("-id", "-inputobject") for a in lowered)
-    return False
-
-
-_SLEEP_LIMIT = 10  # seconds; an implementer once waited ~30 min in sleep/until loops on a hung check
-_DURATION = re.compile(r"^(\d+(?:\.\d+)?)([smhd]?)$")
-
-
-_CHAIN = re.compile(r"&&|\|\||;|\n|\|\s*tail\b")
-
-
-def _chained(command: str) -> bool:
-    """More than one command in one call, or output cut by `tail` (D-043). Quoted text never counts."""
-    return bool(_CHAIN.search(_QUOTED.sub("", command.strip())))
-
-
-def _waits_in_a_loop(s: Statement) -> bool:
-    """A casefile agent polling a command instead of running it with a timeout (D-043)."""
-    words = [s.name] + [a.lower() for a in s.args]
-    if words[0] == "do":  # `while …; do sleep 100; done` splits into `do sleep 100`
-        words = words[1:]
-    if not words:
-        return False
-    if words[0] in ("until", "while"):
-        return True
-    if words[0] in ("sleep", "start-sleep"):
-        for w in words[1:]:
-            m = _DURATION.match(w)
-            if m:
-                seconds = float(m.group(1)) * {"": 1, "s": 1, "m": 60, "h": 3600, "d": 86400}[m.group(2)]
-                return seconds >= _SLEEP_LIMIT
-    return False
-
-
-# --- read-only agents (reviewer, planner) --------------------------------------------------
+# --- the reviewer (GUARD-001 to 005) --------------------------------------------------
 
 _READ_GIT = {"log", "diff", "show", "status", "rev-parse", "ls-files", "blame", "grep", "describe",
              "merge-base", "cat-file", "shortlog", "show-ref", "for-each-ref", "rev-list"}
@@ -202,26 +161,8 @@ def _writes_by_redirect(command: str) -> bool:
     return False
 
 
-# --- implementer ---------------------------------------------------------------------------
-
-_COMMITS_OR_MOVES_A_REF = {"commit", "merge", "rebase", "cherry-pick", "revert", "reset", "stash", "switch",
-                           "checkout", "update-ref", "tag", "push"}
-
-
-def _implementer_violation(s: Statement) -> str | None:
-    sub, args = s.git()
-    if sub in _COMMITS_OR_MOVES_A_REF:
-        return (f"implementers never `git {sub}`: leave your work uncommitted in the checkout; the "
-                "orchestrator commits the task once after review (GUARD-008)")
-    if sub == "branch" and "D" in _short_flags(args):
-        return "implementers may not force-delete branches"
-    return None
-
-
 def main(event: dict) -> None:
     command = (event.get("tool_input") or {}).get("command") or ""
-    agent = lib.agent_of(event)
-    role = lib.casefile_agent(event)
     shown = command.strip()[:200]
     parsed = statements(command)
 
@@ -233,45 +174,22 @@ def main(event: dict) -> None:
             lib.deny(f"skipping git hooks (`--no-verify`) is not allowed; fix what the hook reports. (`{shown}`)")
 
     if any(s.git()[0] == "push" for s in parsed):
-        if agent:
-            lib.deny("agents may not `git push`. Commit locally and report back; the developer "
-                     f"reviews and pushes. (`{shown}`)")
         lib.ask(f"this pushes to a remote: `{shown}`. Push?")
 
-    if not agent:
+    # Every other agent gets the main session's rules (GUARD-009); only the reviewer has its own.
+    if lib.casefile_agent(event) != "reviewer":
         lib.allow()
 
     for s in parsed:
-        if _kills_by_name(s):
-            lib.deny("agents may not kill processes by name: it kills the developer's processes too. "
-                     f"Stop the one process you started, by its id. (`{shown}`)")
-
-    if role:
-        if _chained(command):
-            lib.deny("casefile agents run one command per call: no `;`, `&&`, `||`, several lines or "
-                     f"`| tail`. Split it, and give each check its own timeout. (`{shown}`)")
-        for s in parsed:
-            if _waits_in_a_loop(s):
-                lib.deny(f"casefile agents run each check once, with a timeout, and never wait on one in a "
-                         f"`sleep`/`until` loop. If it timed out, report it with its last output. (`{shown}`)")
-
-    if role in ("reviewer", "planner"):
-        for s in parsed:
-            why = _read_only_violation(s)
-            if why and role == "reviewer" and _restores_paths(command):
-                if lib.git_root(event.get("cwd") or os.getcwd()) is None:
-                    lib.deny("the reviewer restores files only inside the repository it reviews, and this "
-                             f"folder is not in one. (`{shown}`)")
-                why = None
-            if why:
-                lib.deny(f"the {role} only reads: {why}. (`{shown}`)")
-        if _writes_by_redirect(command):
-            lib.deny(f"the {role} only reads: redirecting output into a file writes it. (`{shown}`)")
-
-    if role == "implementer":
-        for s in parsed:
-            why = _implementer_violation(s)
-            if why:
-                lib.deny(f"{why}. (`{shown}`)")
+        why = _read_only_violation(s)
+        if why and _restores_paths(command):
+            if lib.git_root(event.get("cwd") or os.getcwd()) is None:
+                lib.deny("the reviewer restores files only inside the repository it reviews, and this "
+                         f"folder is not in one. (`{shown}`)")
+            why = None
+        if why:
+            lib.deny(f"the reviewer only reads: {why}. (`{shown}`)")
+    if _writes_by_redirect(command):
+        lib.deny(f"the reviewer only reads: redirecting output into a file writes it. (`{shown}`)")
 
     lib.allow()

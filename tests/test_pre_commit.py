@@ -290,5 +290,5 @@ def test_no_suites_run(make_repo, stub_dir):
 
 def test_agents_too(repo):
     repo.write("web/a.test.ts", f"{SKIP}('x', () => {{}})\n")
-    repo.expect("deny", agent="casefile:implementer")
+    repo.expect("deny", agent="Explore")
     repo.expect("deny", agent="general-purpose")
