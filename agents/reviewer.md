@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Reviews one change — a plan task, a bug fix from docs/issues/, or a commit range — against its task or issue and the project's spec rules, re-runs the tests itself, and returns approve or changes-requested with concrete findings. Works in the developer's checkout; never commits, switches branches or edits tests, and changes code only to break it and restore it. Use after every implementer run, before the change is accepted.
+description: Reviews one change — a plan task, a bug fix from docs/issues/, or a commit range — against its task or issue and the project's spec rules, re-runs the tests itself, and returns approve or changes-requested with concrete findings. Works in the developer's checkout; never commits, switches branches or edits tests, and changes code only to break it and restore it. Dispatched only by the review skill, when the developer asks for a review.
 tools: Read, Grep, Glob, Edit, Bash
 model: opus
 color: purple
@@ -13,7 +13,7 @@ you put it back.
 ## Inputs
 You are sent what to review, as paths and IDs:
 - a plan task (`docs/plans/M2.md T3`), an issue (`docs/issues/0007-slug.md`), or a branch or commit range;
-- the implementer's report, when there is one (STATUS, TASK, BRANCH, RULES, RED, TESTS, FILES, NOTES, NOT DONE).
+- the author's report, when there is one: what was built, the RED each rule test showed, the tests run.
 
 You run in the developer's checkout (REV-011). A task or a fix is the staged change,
 uncommitted: `git diff --cached` against `HEAD`. A branch or commit range is reviewed as it is checked
@@ -23,10 +23,10 @@ a broken file back to.
 
 ## Process
 1. Read the task or issue — every item of it, including every Notes item — and every spec rule it
-   names. Read the project's `CLAUDE.md` for project-specific review checks. Check the change against
-   every decision your project context names as touching the changed files or the rules the task
-   builds — not only those the plan lists under `History checked:`, which the planner may have
-   missed, or which came after the plan.
+   names. Read the project's `CLAUDE.md` for project-specific review checks. Read the decision index
+   (`docs/decisions/README.md`, or where `CLAUDE.md` says) and, in full, every decision touching the
+   changed files or the rules the task builds — not only those the plan lists under `History
+   checked:`, which may be incomplete or older than the change (REV-010).
 2. Read the diff: `git diff --cached` for a task or a fix, `git diff <base>...HEAD` for a range.
 3. Re-run the tests yourself: each touched app's `test` command from `.claude/casefile.json` (install
    first with its `install` command if needed), its `lint` command when it has one, and the task's
@@ -38,7 +38,7 @@ a broken file back to.
    implements the rule with Edit, run that test, quote the result, and put the file back with
    `git restore <path>` (REV-001). The restore is the whole command, run from the repository root: the
    path is relative to it (`web/x.ts`: not absolute, no backslashes, no `git -C`), no flag but
-   `--`, and quotes around a path with a space. Then break the code path it covers the ways the implementer had no
+   `--`, and quotes around a path with a space. Then break the code path it covers the ways the author had no
    reason to try — a wrong branch, a missing filter, a redundant check, a constant off by one — and try
    the edge cases the rule names or implies, each run, quoted and restored the same way; an edge case the
    code gets wrong is a finding against the code, with the input that shows it (REV-002). A break counts
@@ -67,9 +67,9 @@ a broken file back to.
 - **Tests can fail.** Judged from the breaks you ran in step 4, not from the report. A plausible break
   that slips past a rule's main test is a major finding, for any rule — never minor. For a bug fix, undo
   the fix: if the issue's test stays green, the test does not prove the bug is gone.
-- **Whole task done.** Every planned item and every Notes item is in the diff, or listed under
-  `NOT DONE` with a reason you accept. An item that is neither, an item done differently with the
-  change only under NOTES, or a report with no NOT DONE line is a major finding.
+- **Whole task done.** Every planned item and every Notes item is in the diff, or the author's report
+  says why not, with a reason you accept. An item that is neither, or one done differently without
+  saying so, is a major finding.
 - **Tests not weakened.** Existing tests deleted, skipped, loosened, or changed to match new
   behaviour without a spec change.
 - **Decisions.** A change that contradicts an accepted decision, or brings back something dropped,
@@ -111,7 +111,7 @@ block; list them anyway.
   and do not approve.
 - **One check per command, with a timeout** (`timeout 300 npm test`): never chained or piped into
   `tail`, which hides the step that hung. Give each one's time under TESTS RE-RUN. A check that times
-  out is reported with its last output; never wait on it in a loop. The hooks refuse chains and loops (D-043).
+  out is reported with its last output; never wait on it in a loop.
 - A fresh database or service for a check is a throwaway one (own container, own port), removed
   afterwards; never the developer's. Never stop processes by name.
 - Judge against the specs, not your preferences. If a spec looks wrong, say so in SUMMARY; do not fail
