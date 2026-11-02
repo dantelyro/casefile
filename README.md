@@ -29,21 +29,17 @@ without bumping it and every existing install keeps the cached copy.
 
 ### `casefile`
 
-Workflow skills and guards — orienting in a codebase, recording why it is the way it is, building
+Workflow skills and guards — recording why it is the way it is, building
 a milestone of spec rules in the main session, fixing bugs test-first, reviewing changes against
 their specs with an isolated agent, and hooks that hold the rules every time.
 
 | Skill | What it does |
 | --- | --- |
-| `repo-discovery` | Orients you in an unfamiliar codebase: detects repo shape (single, monorepo, or a parent folder of siblings), finds the context documents (`CLAUDE.md`, `AGENTS.md`, `ARCHITECTURE.md`, anything under `.claude/`), reads the stack from manifests rather than source, and reports what it could **not** determine. Built around a cost ceiling — read the map before the territory. |
 | `review` | Gets a verdict on one change — a branch, a PR, a task from `docs/plans/`, a fix for an issue in `docs/issues/` — from the isolated `casefile:reviewer` agent, which checks it against its task and the project's spec rules, re-runs the tests itself, and answers approve or changes-requested with findings. Runs only when you ask; never merges or fixes. |
 | `write-specs` | Turns a feature description, or the notes of a brainstorm that has ended, into spec rules with IDs (`### JOBS-020 · Title`), product decisions, decision entries, open questions and a new milestone in the build order. It drafts everything, asks the open questions together, and writes nothing until you say yes; `spec_lint.py` checks the specs hold together. Never starts or interrupts a brainstorm. |
 | `implement` | Builds one milestone of spec rules (`### MATCH-010 · Title` headings) in the main session, with no agent: it checks the milestone against your decisions, then writes its plan in `docs/plans/` — small tasks tied to rule IDs, test-first for each rule about what the code does, each naming the existing code it can reuse — and after your approval builds each task on a `feat/` branch you name, one at a time in your checkout, test-first, and commits it once, with its status, after your yes. No merge commits, no status-only commits. You merge the branch into `main`; casefile never does. The plan is the progress record, so a later session resumes from it; `plan_status.py` picks the next task and `rules_coverage.py` reports each rule it checks as covered by a test, untested with its reason, or missing, and the finish report hands the `[MANUAL]` rules to you to test by hand. |
 | `fix-bug` | Fixes one bug properly: the bug is a file in `docs/issues/`, reproduced with a failing test and fixed in the main session on a `fix/` branch you name ([`shared/work-branch.md`](shared/work-branch.md)), committed once after your yes, and you merge the branch. `issues_status.py` lists open issues and what they block, and checks every fixed one against the repository. |
 | `evidence` | Keeps the reasoning record true. Decision-log format and superseding, grading evidence when integrating with a system you do not control, and the discipline that separates *built* from *verified*. Includes a commit watermark, so you can tell what changed while you were away. |
-
-The two compose: `repo-discovery` answers what an existing project **is**, and
-`evidence` answers **why** — and keeps that answer honest as the code moves.
 
 None of them creates documents in a project that has not asked for them. They propose and wait —
 including `review`, which proposes `.claude/casefile.json` on first use.
@@ -94,10 +90,7 @@ tasks it does not build (D-041).
 #### Why there is a hook
 
 A skill fires when the model recognises its `description` in the situation in front of it. That
-works for `repo-discovery`, whose triggers are things a person actually types — *where does X
-live*, *how do I run this*, *an unfamiliar repo*.
-
-It does not work for `evidence`. Its primary trigger is **the start of a
+does not work for `evidence`. Its primary trigger is **the start of a
 session**, and no first message ever says so. Its other triggers are facts about the repo — the
 project keeps a decision log; the docs are behind `HEAD` — which cannot be recognised before
 reading the repo, and reading the repo is what the skill is for.
@@ -106,7 +99,9 @@ So the session-start hook (`hooks/casefile_hooks/session_start.py`) injects the 
 the skill, emitted on `startup`, `clear` and `compact`. It injects a **pointer, not the skill
 body** — the `Skill` tool loads the content on demand, keeping the per-session cost to a few
 hundred tokens rather than the whole file. Ahead of it comes the project context: where your
-decisions are, and that dropped work stays dropped. No agent is given either.
+decisions are, and that dropped work stays dropped. After it come the code guidelines, and, when the
+session is not inside a git repository, a warning that casefile's guards are off there and the session
+should ask which repository to work in. No agent is given any of it.
 
 ## Layout
 
@@ -140,8 +135,6 @@ skills/
     references/specs-layout.md  # the layout, rule format, README and product files
     scripts/spec_lint.py        # headings, unique IDs, tags, build order, links, file table
   review/
-    SKILL.md
-  repo-discovery/
     SKILL.md
   evidence/
     SKILL.md

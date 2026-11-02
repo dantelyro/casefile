@@ -88,6 +88,7 @@ so.
 | [D-074](0074-casefile-drops-its-multi-agent-workflow-the-main.md) | casefile drops its multi-agent workflow; the main session does the work | Accepted |
 | [D-075](0075-casefile-drops-its-specs-plans-build-order-and.md) | casefile drops its specs, plans, build order and evals, built and unbuilt alike; new milestones start fresh | Accepted |
 | [D-076](0076-code-guidelines-reach-the-main-session-through-the.md) | Code guidelines reach the main session through the SessionStart hook, as a third tagged block in session_start.py | Accepted |
+| [D-077](0077-repo-discovery-is-removed-the-session-start-hook.md) | repo-discovery is removed; the session-start hook warns when the session is outside a git repository | Accepted |
 
 ## Conventions
 

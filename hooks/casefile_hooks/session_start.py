@@ -2,8 +2,9 @@
 
 The main session starts with CONTEXT, where the project's decisions and product documents are and
 what to do with them, followed by DIRECTIVE, the pointer to the evidence skill (CTX-002), then
-GUIDELINES, the code rules. No agent is given any of them: casefile's one agent, the reviewer,
-reads the decisions itself (D-074).
+GUIDELINES, the code rules. Outside a git repository NOT_A_REPOSITORY comes first, since casefile's
+guards are off there; it replaced the repo-discovery skill (D-077). No agent is given any of them:
+casefile's one agent, the reviewer, reads the decisions itself (D-074).
 
 The evidence skill triggers on "the start of a session", which no user prompt ever says, so the
 skill never fires on its own judgement; this injects the trigger (D-003). It injects a pointer,
@@ -13,7 +14,10 @@ more (D-057), or for the first decision, which is recorded even when no file cha
 """
 
 import json
+import os
 import sys
+
+from casefile_hooks import lib
 
 CONTEXT = """<casefile-context>
 This project may record why it is the way it is. Before you act on code, specs or plans, read what applies to your work: the decision index (`docs/decisions/README.md`, or where the project's `CLAUDE.md` says) and, in full, every decision whose subject or cited rules touch the files or rules you work on; `docs/product/product-decisions.md` and `docs/product/open-questions.md` when the work concerns the product. A document the project does not have is absent; never invent one.
@@ -33,7 +37,7 @@ What the skill will have you do, so you know what you are opting into:
 - **The project keeps a decision log, architecture doc, or reconciliation watermark** -- run `git log --oneline <watermark>..HEAD` over the relevant source paths, read what changed, update whatever it invalidated, and move the watermark.
 - **The project keeps none of those** -- propose the set and ASK, then wait for an answer before creating anything.
 - **Neither applies** -- say so in one line and get on with what the user actually asked for. This is orientation, not a ceremony to perform.
-- **Always be aware of project stucture** -- the overview.md contains the cleanest project data where you can easly find reusable code, configurations, use-cases, types and more.
+- **Always be aware of project structure** -- `docs/architecture/overview.md` contains the cleanest project data, where you can easily find reusable code, configurations, use-cases, types and more.
 </casefile>"""
 
 
@@ -91,8 +95,17 @@ Apply these to every line of code you write or change.
 </casefile-guidelines>"""
 
 
+NOT_A_REPOSITORY = """<casefile-no-repository>
+This folder is not inside a git repository, so casefile's guards, commit checks and decision log do not
+apply here. If it holds several repositories, ask the developer which one to work in, and work inside it.
+</casefile-no-repository>"""
+
+
 def main(event: dict) -> None:
-    text = f"{CONTEXT}\n\n{DIRECTIVE}\n\n{GUIDELINES}"
+    blocks = [CONTEXT, DIRECTIVE, GUIDELINES]
+    if lib.git_root(event.get("cwd") or os.getcwd()) is None:
+        blocks.insert(0, NOT_A_REPOSITORY)
+    text = "\n\n".join(blocks)
     # Claude Code reads both the top-level and the nested field without deduplicating, so emit
     # exactly one: the nested form.
     sys.stdout.write(json.dumps({"hookSpecificOutput": {

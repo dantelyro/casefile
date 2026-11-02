@@ -42,6 +42,21 @@ def test_the_code_guidelines_follow_the_evidence_pointer():
     assert text.index("casefile:evidence") < text.index("<casefile-guidelines>"), text
 
 
+def test_outside_a_repository_the_warning_comes_first(tmp_path):
+    event = {"hook_event_name": "SessionStart", "source": "startup", "cwd": str(tmp_path)}
+    text = output(dict(os.environ), event)["hookSpecificOutput"]["additionalContext"]
+    assert text.startswith("<casefile-no-repository>"), text
+    assert text.index("</casefile-no-repository>") < text.index("<casefile-context>"), text
+
+
+def test_inside_a_repository_there_is_no_warning():
+    repository_root = HOOKS.parent
+    event = {"hook_event_name": "SessionStart", "source": "startup", "cwd": str(repository_root)}
+    text = output(dict(os.environ), event)["hookSpecificOutput"]["additionalContext"]
+    assert "<casefile-no-repository>" not in text, text
+    assert text.startswith("<casefile-context>"), text
+
+
 @pytest.mark.parametrize("env", [{"CLAUDE_PLUGIN_ROOT": "/x"}, {}])
 def test_exactly_one_context_field(env):
     out = output(env)
