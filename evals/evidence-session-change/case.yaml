@@ -1,4 +1,0 @@
-schema_version: "1.1"
-name: evidence-session-change
-context:
-  scaffold_script: fixture.sh
