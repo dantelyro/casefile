@@ -111,33 +111,6 @@ def test_ORCH_010_done_without_a_hash_is_done(repo):
     assert out["ready"] == ["T2"]
 
 
-# In progress while the task's wip ref exists (ORCH-009)
-
-def wip(repo, ref):
-    """Saves the staged tree under a wip ref, as the orchestrator does before a review (ORCH-004)."""
-    run = lambda *a: subprocess.run(["git", *a], cwd=repo, capture_output=True, text=True, check=True).stdout.strip()
-    run("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "base")
-    tree = run("write-tree")
-    commit = run("-c", "user.name=t", "-c", "user.email=t@t", "commit-tree", tree, "-p", "HEAD", "-m", "wip")
-    run("update-ref", ref, commit)
-
-
-def test_ORCH_009_a_todo_task_with_a_wip_ref_is_in_progress(repo):
-    write(repo, "docs/plans/M2.md", plan(task(1), task(2)))
-    wip(repo, "refs/casefile/wip/M2/T1")
-    _, out, _ = status(repo)
-    assert out["in_progress"] == ["T1"]
-    assert out["ready"] == ["T2"]
-    assert out["batch"] == ["T2"]
-
-
-def test_ORCH_009_a_wip_ref_of_another_milestone_does_not_count(repo):
-    write(repo, "docs/plans/M2.md", plan(task(1)))
-    wip(repo, "refs/casefile/wip/M3/T1")
-    out = status(repo)[1]
-    assert (out["in_progress"], out["batch"]) == ([], ["T1"])
-
-
 def test_nothing_ready(repo):
     write(repo, "docs/plans/M2.md", plan(task(1, "done (abc1234)")))
     out = status(repo)[1]

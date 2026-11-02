@@ -2,8 +2,7 @@
 
   ready        todo tasks whose dependencies are all done and that no open issue blocks
   batch        the first ready task: tasks are built one at a time (ORCH-011)
-  in_progress  tasks whose work is saved under refs/casefile/wip/<milestone>/<task> (ORCH-009), the
-               milestone being the plan's file name
+  in_progress  tasks an older plan marks `in-progress`; a task being built is the work in the checkout
   waiting      todo tasks held by an open issue in docs/issues/ (Blocks: <plan> <task>), or by an
                entry of the plan's Blockers named in their Depends on (`needs Gabriel (B18)`)
   blocked      tasks marked `blocked: <reason>`
@@ -99,18 +98,6 @@ def parse(plan_text: str) -> tuple[list[dict], list[str]]:
     return tasks, errors
 
 
-def mark_in_progress(tasks: list[dict], plan: str, repo: str = ".") -> None:
-    """A todo task whose work is saved under its wip ref is in progress (ORCH-009)."""
-    milestone = pathlib.Path(plan).stem
-    prefix = f"refs/casefile/wip/{milestone}/"
-    refs = subprocess.run(["git", "for-each-ref", "--format=%(refname)", prefix], cwd=repo,
-                          capture_output=True, text=True, check=False).stdout.split()
-    saved = {ref[len(prefix):] for ref in refs}
-    for t in tasks:
-        if t["status"] == "todo" and t["id"] in saved:
-            t["status"] = "in-progress"
-
-
 def config(root: str) -> dict:
     try:
         with open(os.path.join(root, ".claude", "casefile.json"), encoding="utf-8") as f:
@@ -145,7 +132,6 @@ def take_sibling_statuses(tasks: list[dict], plan: str, errors: list[str]) -> li
             path = os.path.join(root, siblings[name], rel)
             try:
                 theirs_tasks = parse(pathlib.Path(path).read_text(encoding="utf-8"))[0]
-                mark_in_progress(theirs_tasks, plan, os.path.join(root, siblings[name]))
                 copies[name] = {s["id"]: s for s in theirs_tasks}
             except OSError as e:
                 copies[name] = {}
@@ -184,7 +170,6 @@ def main() -> None:
         print(json.dumps({"errors": [f"{plan}: {e.strerror}"]}) if args.json else f"ERROR {plan}: {e.strerror}")
         sys.exit(1)
     tasks, errors = parse(text)
-    mark_in_progress(tasks, plan)
     elsewhere = take_sibling_statuses(tasks, plan, errors)
     by_id = {t["id"]: t for t in tasks}
     here = [t for t in tasks if not t.get("elsewhere")]
