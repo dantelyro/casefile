@@ -10,3 +10,6 @@
 **Decision:** (b), the developer's call. docs/specs/ holds README.md and area files with rule IDs; docs/product/ holds blueprint.md (build order), product-decisions.md and open-questions.md; .claude/devflow.json names the Markdown build order. Milestones are planned by devflow:planner and built with implement. Agent and skill behaviour that no unit test can run is tagged [MANUAL]; hook and script rules are [MVP] with tests named after them.
 
 **Trade-offs:** Two sources describe shipped behaviour until each area is specified: history designs and rules, the rules winning. Every release now pays for a plan, agents and reviews, and the tools being changed also build the change. Links into the moved designs were rewritten in 18 files.
+
+**Changed by:**
+- 2026-11-01 · dantelyro — by D-075: casefile's specs, plans, build order and the designs in docs/specs/history/ are deleted; only new milestones get specs, and the old designs survive in git.

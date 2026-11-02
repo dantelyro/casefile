@@ -1,6 +1,6 @@
 # D-067 — Measurable code practices are enforced by the project's linter through a Stop hook
 
-**Status:** Accepted (2026-10-29).
+**Status:** **SUPERSEDED by D-075 (2026-11-01).** The planned Stop-hook lint is dropped unbuilt, with its specs (M9). Accepted (2026-10-29).
 **Decided by:** dantelyro — Grade 1: decided in session on 2026-10-29, in the developer's words quoted under Context
 
 **Context:** Prose alone did not stop single-letter names and unreadable code (the developer, quoted in D-066). Names, complexity, nesting, function length and magic numbers can be measured by ESLint and ruff rules. The hooks reference documents that a Stop hook blocks the end of a turn with decision: block and a reason, that Stop fires in the main session only (subagents fire SubagentStop), and that onFailure has no effect on Stop (grade 3, fetched 2026-10-29). Asked whether to lint every turn with uncommitted changes or only what changed during the turn, the developer: 'lint only when changed'.
@@ -13,6 +13,7 @@
 
 **Changed by:**
 - 2026-10-31 · dantelyro — the hooks reference (grade 3, re-read 2026-10-29) documents
+- 2026-11-01 · dantelyro — superseded by D-075: the Stop-hook lint was never built, and its specs and milestone are dropped.
   `stop_hook_active` as true when the turn already continues because of a Stop hook, so PRAC-011 is
   built from it and confirmed live by hand. It also gives Stop no output that reaches the session
   without continuing the turn: a lint that times out or cannot start is reported to the developer

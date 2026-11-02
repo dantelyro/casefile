@@ -77,8 +77,8 @@ so.
 | [D-063](0063-the-claim-audit-milestone-is-dropped-a-full.md) | The claim-audit milestone is dropped; a full read of the docs is done on request | Accepted |
 | [D-064](0064-decisions-are-recorded-unasked-including-ones-with-no.md) | Decisions are recorded unasked, including ones with no change and dropped work | Accepted |
 | [D-065](0065-the-planner-checks-every-milestone-against-the-decision.md) | The planner checks every milestone against the decision log and the codebase | SUPERSEDED by D-074 |
-| [D-066](0066-code-practices-are-one-stack-scoped-skill-shared.md) | Code practices are one stack-scoped skill shared by the main session and the agents | Accepted |
-| [D-067](0067-measurable-code-practices-are-enforced-by-the-projects.md) | Measurable code practices are enforced by the project's linter through a Stop hook | Accepted |
+| [D-066](0066-code-practices-are-one-stack-scoped-skill-shared.md) | Code practices are one stack-scoped skill shared by the main session and the agents | SUPERSEDED by D-075 |
+| [D-067](0067-measurable-code-practices-are-enforced-by-the-projects.md) | Measurable code practices are enforced by the project's linter through a Stop hook | SUPERSEDED by D-075 |
 | [D-068](0068-m7-is-split-into-three-milestones-the-agents.md) | M7 is split into three milestones: the agents' history checks, the Stop lint and the code-practices skill | Accepted |
 | [D-069](0069-committing-a-tasks-status-by-amending-the-tasks.md) | Committing a task's status by amending the task's commit is dropped as a workaround | Accepted |
 | [D-070](0070-project-context-reaches-every-agent-through-a-subagentstart.md) | Project context reaches every agent through a SubagentStart hook, not through agent prompts | SUPERSEDED by D-074 |
@@ -86,6 +86,7 @@ so.
 | [D-072](0072-the-orchestrator-commits-each-task-once-after-review.md) | The orchestrator commits each task once, after review; implementers never commit and parallel mode is dropped | Accepted |
 | [D-073](0073-no-reference-to-worktrees-is-left-in-the.md) | No reference to worktrees is left in the plugin | Accepted |
 | [D-074](0074-casefile-drops-its-multi-agent-workflow-the-main.md) | casefile drops its multi-agent workflow; the main session does the work | Accepted |
+| [D-075](0075-casefile-drops-its-specs-plans-build-order-and.md) | casefile drops its specs, plans, build order and evals, built and unbuilt alike; new milestones start fresh | Accepted |
 
 ## Conventions
 
