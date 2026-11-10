@@ -16,6 +16,14 @@ developer's checkout, and leave it uncommitted until the developer says yes (ORC
 - **Set up**: dependencies missing or behind the lock file → the app's `install` command from
   `.claude/casefile.json`.
 
+## Brief, then wait
+
+Before writing a test or a line of code, tell the developer in plain words what the task or fix does
+and why: the rules it builds, what changes for whoever uses the app, the files it touches, and anything
+the existing or legacy code does that the task, issue or specs leave out, each with what you propose.
+The developer may not remember what the plan agreed. Then wait for their go: a go for the milestone is
+not a go for each task in it (D-079).
+
 ## Red, green, refactor
 
 1. **Red.** Write the tests first, each named after its rule ID (`MATCH-010: …`, `test_MATCH_010_…`);
@@ -36,6 +44,8 @@ developer's checkout, and leave it uncommitted until the developer says yes (ORC
 
 ## Rules
 
+- **A question from the developer is answered first**, in words, before any tool runs. A question is
+  not a go, and neither is a reply you are unsure how to read: confirm it before acting.
 - **A spec that is wrong, unclear or silent** where you need a decision → stop and ask. The spec is
   changed first (`write-specs`); never invent the rule, never edit a spec to fit the code.
 - Dependencies are added with the package manager's command (`npm install zod`, `uv add httpx`), never
@@ -45,6 +55,8 @@ developer's checkout, and leave it uncommitted until the developer says yes (ORC
   `tail`: an implementer once waited half an hour on a hung check hidden inside a chain (D-043).
 - A fresh database or service for a check is a throwaway one, on its own port, removed afterwards; never
   the developer's. Tests never call real outside services.
+- **Don't accept a plain yes** when more than one question is open: list them and ask the developer
+  which one the yes answers.
 
 ## Report, then wait
 
