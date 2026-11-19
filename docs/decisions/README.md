@@ -91,6 +91,8 @@ so.
 | [D-077](0077-repo-discovery-is-removed-the-session-start-hook.md) | repo-discovery is removed; the session-start hook warns when the session is outside a git repository | Accepted |
 | [D-078](0078-a-rule-the-code-guidelines-state-is-not.md) | A rule the code guidelines state is not repeated in a skill; skills keep their own procedure, and the reviewer keeps its copies | Accepted |
 | [D-079](0079-a-task-or-fix-is-briefed-to-the.md) | A task or fix is briefed to the developer in plain words before it is built, and waits for their go | Accepted |
+| [D-080](0080-a-brief-follows-what-decisions-and-specs-settle.md) | A brief follows what decisions and specs settle, and never cites an ID bare | Accepted |
+| [D-081](0081-every-session-warns-before-acting-on-a-request.md) | Every session warns before acting on a request that conflicts with a decision or spec rule | Accepted |
 
 ## Conventions
 

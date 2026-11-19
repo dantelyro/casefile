@@ -22,7 +22,7 @@ from casefile_hooks import lib
 CONTEXT = """<casefile-context>
 This project may record why it is the way it is. Before you act on code, specs or plans, read what applies to your work: the decision index (`docs/decisions/README.md`, or where the project's `CLAUDE.md` says) and, in full, every decision whose subject or cited rules touch the files or rules you work on; `docs/product/product-decisions.md` and `docs/product/open-questions.md` when the work concerns the product. A document the project does not have is absent; never invent one.
 
-A decision marked superseded, and work recorded as dropped or reverted, is not brought back. When your work would contradict an accepted decision or revive dropped work, do not build around it: say so, naming the decision.
+A decision marked superseded, and work recorded as dropped or reverted, is not brought back. When a request, the developer's own included, or anything you propose or build would contradict an accepted decision or a spec rule, or revive dropped work, stop before acting and warn the developer: name the decision or rule, say what it says and how the request conflicts with it, and ask whether to change it first or drop the request. Never build around it, and never follow either side silently: the spec or decision changes first, then the code.
 </casefile-context>"""
 
 DIRECTIVE = """<casefile>

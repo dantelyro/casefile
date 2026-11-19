@@ -21,7 +21,9 @@ developer's checkout, and leave it uncommitted until the developer says yes (ORC
 Before writing a test or a line of code, tell the developer in plain words what the task or fix does
 and why: the rules it builds, what changes for whoever uses the app, the files it touches, and anything
 the existing or legacy code does that the task, issue or specs leave out, each with what you propose.
-The developer may not remember what the plan agreed. Then wait for their go: a go for the milestone is
+A point an accepted decision or a spec rule already settles is not asked: state it, with what it
+says, and follow it; ask only what nothing settles. The developer may not remember what the plan
+agreed. Then wait for their go: a go for the milestone is
 not a go for each task in it (D-079).
 
 ## Red, green, refactor
@@ -55,12 +57,16 @@ not a go for each task in it (D-079).
   `tail`: an implementer once waited half an hour on a hung check hidden inside a chain (D-043).
 - A fresh database or service for a check is a throwaway one, on its own port, removed afterwards; never
   the developer's. Tests never call real outside services.
+- **Never cite an ID bare** to the developer, in a brief, report or question: a rule, decision or
+  task ID comes with what it says (`MATCH-010, required skills score 70%`), and each option
+  asked about with an example. The developer does not remember the numbers.
 - **Don't accept a plain yes** when more than one question is open: list them and ask the developer
   which one the yes answers.
 
 ## Report, then wait
 
-Before asking for the yes, tell the developer: per rule test, the failing assertion quoted from the red
+Before asking for the yes, brief the developer again in plain words, as before building: what was
+built, what changes for whoever uses the app, and what is left for later tasks. Then: per rule test, the failing assertion quoted from the red
 run (or `RED: none` and why); the test and lint commands with their counts; the files changed; and every
 planned or Notes item not done, or done differently, with the reason. A silently skipped item is a failed
 task.
