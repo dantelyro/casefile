@@ -5,7 +5,7 @@ developer merges it into the default branch (`.claude/casefile.json`, else `main
 and drops it by deleting the branch (D-062). You never merge it into the default branch.
 
 1. **Name it with the developer.** Propose a name — `feat/<milestone>-<slug>` for a milestone
-   (`feat/m7-saved-jobs`), `fix/<issue id>-<slug>` for a bug (`fix/i-0007-upload-keeps-file`) — and
+   (`feat/saved-jobs`), `fix/<issue id>-<slug>` for a bug (`fix/upload-keeps-file`) — and
    ask with the AskUserQuestion tool: your proposal first, two alternatives after it; the tool's own
    free-text answer is the developer's name. The name is how they keep track of what they are working
    on, so never pick it alone.
