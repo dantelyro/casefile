@@ -46,11 +46,11 @@ Written once, for a new project:
 How this project is built:
 
 1. **Spec first.** Every feature has a file here. Each rule has an ID (`MATCH-003`).
-2. **Test second.** For a rule that describes what the project's code does, a failing test whose
-   name starts with the rule ID comes before any code (`it("MATCH-003: …")`,
-   `def test_MATCH_003_…`).
+2. **Test second.** For a rule that describes what the project's code does, a failing test comes
+   before any code, with the rule ID in a comment (`// Rule: MATCH-003`), never in its
+   name.
 3. **Code third.** The least code that makes it pass, then refactor.
-4. **Trace.** Every rule that describes what the project's code does has a test named after it; a rule left untested states why on its plan line (`rules_coverage.py`).
+4. **Trace.** Every rule that describes what the project's code does has a test whose `Rule:` comment names it; a rule left untested states why on its plan line (`rules_coverage.py`).
 5. **Change.** To change behaviour: spec (a new or changed ID) → test → code. Never the other way round.
 
 This folder is the source of truth: if code and a spec disagree, the spec wins or is changed first.

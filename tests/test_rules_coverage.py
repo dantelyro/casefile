@@ -1,4 +1,4 @@
-"""rules_coverage.py: which rules in a plan's scope have a test named after them."""
+"""rules_coverage.py: which rules in a plan's scope have a test whose Rule comment names them (D-081)."""
 
 import json
 import pathlib
@@ -62,10 +62,9 @@ def repo(tmp_path):
 
 # Coverage
 
-def test_named_tests_in_both_styles(repo):
-    write(repo, "web/score.test.ts", "it('MATCH-001: required skills weigh 70%', () => {})\n"
-                                     'test("MATCH-002 nice skills", () => {})\n')
-    write(repo, "worker/tests/test_title.py", "def test_MATCH_003_title_family():\n    pass\n")
+def test_rule_comments_name_the_tests(repo):
+    write(repo, "web/score.test.ts", "// Rule: MATCH-001, MATCH-002\nit('weighs skills', () => {})\n")
+    write(repo, "worker/tests/test_title.py", "# Rule: MATCH-003\ndef test_title_family():\n    pass\n")
     code, out, err = coverage(repo)
     assert code == 0, err
     assert out["covered"] == ["MATCH-001", "MATCH-002", "MATCH-003"]
@@ -74,27 +73,12 @@ def test_named_tests_in_both_styles(repo):
 
 def test_untracked_rules_are_reported_not_failed(repo):
     for name in ("MATCH-001", "MATCH-002", "MATCH-003"):
-        write(repo, f"web/{name}.test.ts", f"it('{name}: x', () => {{}})\n")
+        write(repo, f"web/{name}.test.ts", f"// Rule: {name}\nit('x', () => {{}})\n")
     code, out, _ = coverage(repo)
     assert code == 0
     assert out["untracked"] == [{"rule": "CV-010", "tested": False}]
-    write(repo, "worker/tests/test_cv.py", "def test_CV_010_reads():\n    pass\n")
+    write(repo, "worker/tests/test_cv.py", "# Rule: CV-010\ndef test_reads():\n    pass\n")
     assert coverage(repo)[1]["untracked"] == [{"rule": "CV-010", "tested": True}]
-
-
-# Not a test
-
-def test_mentions_outside_test_names_do_not_count(repo):
-    write(repo, "web/score.ts", "// MATCH-001: implemented here\n")
-    write(repo, "web/score.test.ts", "// it('MATCH-002: commented out', () => {})\nconst x = 'MATCH-003: just text'\n")
-    write(repo, "worker/test_helpers.py", "def helper_MATCH_001():\n    pass\n")
-    out = coverage(repo)[1]
-    assert out["covered"] == []
-
-
-def test_test_shaped_calls_outside_test_files(repo):
-    write(repo, "web/test-utils.ts", "export const sample = () => it('MATCH-001: not a test file', () => {})\n")
-    assert coverage(repo)[1]["covered"] == []
 
 
 def test_lookalike_ids_in_the_plan_are_not_in_scope(repo):
@@ -104,9 +88,9 @@ def test_lookalike_ids_in_the_plan_are_not_in_scope(repo):
 
 
 def test_ignored_folders_and_prefix_lookalikes(repo):
-    write(repo, "web/node_modules/pkg/a.test.ts", "it('MATCH-001: x', () => {})\n")
+    write(repo, "web/node_modules/pkg/a.test.ts", "// Rule: MATCH-001\nit('x', () => {})\n")
     write(repo, ".gitignore", "web/node_modules/\n")
-    write(repo, "web/a.test.ts", "it('MATCH-0011: x', () => {})\n")
+    write(repo, "web/a.test.ts", "// Rule: MATCH-0011\nit('x', () => {})\n")
     assert coverage(repo)[1]["covered"] == []
 
 
@@ -116,7 +100,7 @@ def test_specs_dir_from_config(repo):
     write(repo, "rules/12-matching.md", SPEC)
     (repo / "docs/specs/12-matching.md").unlink()
     write(repo, ".claude/casefile.json", '{"specs_dir": "rules"}')
-    write(repo, "web/a.test.ts", "it('MATCH-001: x', () => {})\n")
+    write(repo, "web/a.test.ts", "// Rule: MATCH-001\nit('x', () => {})\n")
     _, out, _ = coverage(repo)
     assert "MATCH-001" in out["covered"]
     assert out["manual"] == ["MATCH-004"]
@@ -137,7 +121,8 @@ def test_a_test_in_a_sibling_repository_covers_the_rule(repo):
     back = repo / "back"
     back.mkdir()
     subprocess.run(["git", "init", "-q", "-b", "main"], cwd=back, check=True)
-    (back / "api.test.ts").write_text("it('MATCH-001: required skills weigh 70%', () => {})\n", encoding="utf-8")
+    (back / "api.test.ts").write_text("// Rule: MATCH-001\nit('weighs required skills at 70%', () => {})\n",
+                                      encoding="utf-8")
     write(repo, ".claude/casefile.json", json.dumps({"repo": "frontend", "siblings": {"backend": "back"}}))
     out = coverage(repo)[1]
     assert "MATCH-001" in out["covered"]
@@ -151,7 +136,7 @@ def plan_with(repo, lines):
 
 def test_RULE_006_an_untagged_rule_with_a_named_test_is_covered(repo):
     plan_with(repo, ["- MATCH-001 → T1 (no test: prose)"])
-    write(repo, "web/a.test.ts", "it('MATCH-001: x', () => {})\n")
+    write(repo, "web/a.test.ts", "// Rule: MATCH-001\nit('x', () => {})\n")
     code, out, err = coverage(repo)
     assert code == 0, err
     assert (out["covered"], out["missing"], out["later"]) == (["MATCH-001"], [], [])

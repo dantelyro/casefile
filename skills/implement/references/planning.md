@@ -16,8 +16,8 @@ README, and the plans (`plans_dir` [`docs/plans`]), whose earlier files show the
    - One that contradicts an accepted decision or a product decision goes under Blockers naming both.
 3. Collect every rule in scope except `[LATER]`; `[VERIFY]` rules, and anything the specs leave
    undecided that a task would have to decide, go under Blockers (RULE-002). Skip rules that already
-   have a passing test named after them.
-4. **What gets a test** (RULE-004): a test named after a rule only when the rule describes something the
+   have a passing test whose `Rule:` comment names them.
+4. **What gets a test** (RULE-004): a test for a rule only when the rule describes something the
    project's own code does, covering its normal, edge and failure cases. Any other rule gets no test,
    `[MANUAL]` ones included, and its plan line states why (RULE-005). Never a test for tools, packages,
    config or prose.
@@ -48,7 +48,7 @@ What exists already: <what the code already has that the tasks build on>
 - Rules: <RULE-ID>, <RULE-ID>
 - Repo: <repository whose code the task changes; only with `siblings` in the config>
 - App: <app folder from that repository's config, or repo>
-- Test first: <test file> — <test names, each starting with its rule ID>, or `none (no test: <reason>)`
+- Test first: <test file> — <test names, each with the rule ID its `Rule:` comment names>, or `none (no test: <reason>)`
 - Then implement: <files to create or change>
 - Reuse: <file and symbol, each> | none found (searched: <terms>)
 - Done when: <one observable check, e.g. "uv run pytest -q passes in worker/">
@@ -63,5 +63,5 @@ What exists already: <what the code already has that the tasks build on>
 <[VERIFY] rules, undecided questions with the options, tools to install; or "none">
 ```
 
-A rule line with no test named after the rule needs `(no test: <reason>)`; `rules_coverage.py` reports a
+A rule line with no test whose `Rule:` comment names the rule needs `(no test: <reason>)`; `rules_coverage.py` reports a
 rule with neither as missing.

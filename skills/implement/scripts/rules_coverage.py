@@ -1,10 +1,10 @@
-"""rules_coverage.py PLAN — which rules in a plan's scope have a test named after them.
+"""rules_coverage.py PLAN — which rules in a plan's scope have a test whose Rule comment names them.
 
 The scope is the plan's `## Rules covered` section. Each rule's tag comes from its heading in the
 specs folder (`specs_dir`, default docs/specs): `### MATCH-010 · Title` (tags after the title are
 optional: [LATER], [VERIFY], [MANUAL]).
 
-  covered    rules with a test named after them
+  covered    rules with a test whose Rule comment names them
   reasoned   rules with no test whose plan line says why: `- MATCH-010 → T1 (no test: <reason>)`
   missing    rules with neither — exit 1
   manual     [MANUAL] rules: the developer tests them by hand, never missing
@@ -12,10 +12,10 @@ optional: [LATER], [VERIFY], [MANUAL]).
   untracked  rules in scope with no heading in the specs (a table row, say): reported with whether
              a test names them, never failed
 
-A test is named after a rule when a test file holds `it('MATCH-010: …'` / `test("MATCH-010 …"`
-(Jest, Vitest, Playwright) or `def test_MATCH_010_…` (pytest, unittest). Comments do not count.
-Files are the repository's and each sibling repository's (`siblings` in casefile.json), minus what
-.gitignore ignores. Standard library only.
+A test names a rule in a comment, in whatever comment syntax its language uses: a line holding only
+comment marks before `Rule:` (`// Rule: MATCH-010`, `# Rule: MATCH-010, MATCH-011`) (D-081).
+Files are the repository's and each sibling repository's (`siblings` in casefile.json), minus
+Markdown and what .gitignore ignores. Standard library only.
 """
 
 import argparse
@@ -27,11 +27,9 @@ import subprocess
 import sys
 
 DEFAULT_RULE = r"[A-Z]+-\d{3}"
-TEST_FILE = re.compile(r"\.(test|spec)\.([cm]?[jt]s|[jt]sx)$|(^|/)test_[^/]*\.py$|_test\.py$")
 TAG = re.compile(r"\[([A-Z]+)\]")
 NO_TEST = re.compile(r"\(no test:(.*)\)")
-JS_COMMENTS = re.compile(r"/\*.*?\*/|(^|\s)//[^\n]*", re.DOTALL)
-PY_COMMENTS = re.compile(r"(^|\s)#[^\n]*")
+RULE_COMMENT = re.compile(r"^[^\w\n]*Rule:(.*)$", re.MULTILINE)
 
 
 def config(root: str) -> dict:
@@ -89,20 +87,16 @@ def main() -> None:
                                         check=False).stdout.splitlines())
                   for repo in [root] + [os.path.join(root, p) for p in (cfg.get("siblings") or {}).values()]]
     named: set[str] = set()
-    js_name = re.compile(rf"""(?<![.\w])(?:it|test)(?:\.\w+)*\s*\(\s*["'`]({rule})[:\s]""")
-    py_name = re.compile(r"^\s*(?:async\s+)?def test_([A-Z]+)_(\d+)_", re.MULTILINE)
     for repo, files in repo_files:
         for rel in files:
-            if not TEST_FILE.search(rel):
+            if rel.endswith(".md"):
                 continue
             try:
                 text = pathlib.Path(repo, rel).read_text(encoding="utf-8")
             except (OSError, UnicodeDecodeError):
                 continue
-            if rel.endswith(".py"):
-                named |= {f"{a}-{b}" for a, b in py_name.findall(PY_COMMENTS.sub(r"\1", text))}
-            else:
-                named |= set(js_name.findall(JS_COMMENTS.sub(r"\1", text)))
+            for comment in RULE_COMMENT.findall(text):
+                named |= set(re.findall(rf"(?<![\w-])({rule})(?![\w-])", comment))
 
     out = {"covered": [], "missing": [], "reasoned": [], "manual": [], "later": [], "untracked": [], "errors": errors}
     for r in scope:

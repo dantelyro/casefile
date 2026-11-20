@@ -100,8 +100,8 @@ When the score is computed
 Then required skills contribute 70 of the 100 points
 ```
 
-The ID links a test to the business rule it proves, and the rule to where it came from. A test is
-named after its rule (`MATCH-003: …`), so it is never a test of plain code: it fails when that rule
+The ID links a test to the business rule it proves, and the rule to where it came from. A test names its
+rule in a comment (`// Rule: MATCH-003`), so it is never a test of plain code: it fails when that rule
 is broken, and anyone reading it can open the rule. The rule in turn cites the decision behind it
 (`see D-012`), and the line in `product-decisions.md` where you settled it names the rule. From a
 failing test you can walk back to why the behaviour exists.
