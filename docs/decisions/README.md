@@ -91,6 +91,9 @@ so.
 | [D-077](0077-repo-discovery-is-removed-the-session-start-hook.md) | repo-discovery is removed; the session-start hook warns when the session is outside a git repository | Accepted |
 | [D-078](0078-a-rule-the-code-guidelines-state-is-not.md) | A rule the code guidelines state is not repeated in a skill; skills keep their own procedure, and the reviewer keeps its copies | Accepted |
 | [D-079](0079-a-task-or-fix-is-briefed-to-the.md) | A task or fix is briefed to the developer in plain words before it is built, and waits for their go | Accepted |
+| [D-080](0080-a-c-test-names-its-rule-with-an.md) | A C# test names its rule with an xUnit trait, not a prefix in its name | SUPERSEDED by D-081 |
+| [D-081](0081-a-test-names-its-rule-in-a-rule.md) | A test names its rule in a Rule comment, in every language | Accepted |
+| [D-082](0082-tests-are-announced-to-the-developer-before-they.md) | Tests are announced to the developer before they are written, and only meaningful ones are made | Accepted |
 
 ## Conventions
 
