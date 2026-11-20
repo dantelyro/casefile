@@ -93,6 +93,9 @@ so.
 | [D-079](0079-a-task-or-fix-is-briefed-to-the.md) | A task or fix is briefed to the developer in plain words before it is built, and waits for their go | Accepted |
 | [D-080](0080-a-brief-follows-what-decisions-and-specs-settle.md) | A brief follows what decisions and specs settle, and never cites an ID bare | Accepted |
 | [D-081](0081-every-session-warns-before-acting-on-a-request.md) | Every session warns before acting on a request that conflicts with a decision or spec rule | Accepted |
+| [D-082](0082-a-c-test-names-its-rule-with-an.md) | A C# test names its rule with an xUnit trait, not a prefix in its name | SUPERSEDED by D-083 |
+| [D-083](0083-a-test-names-its-rule-in-a-rule.md) | A test names its rule in a Rule comment, in every language | Accepted |
+| [D-084](0084-tests-are-announced-to-the-developer-before-they.md) | Tests are announced to the developer before they are written, and only meaningful ones are made | Accepted |
 
 ## Conventions
 

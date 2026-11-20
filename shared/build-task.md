@@ -28,7 +28,8 @@ not a go for each task in it (D-079).
 
 ## Red, green, refactor
 
-1. **Red.** Write the tests first, each named after its rule ID (`MATCH-010: …`, `test_MATCH_010_…`);
+1. **Red.** Write the tests first, each with its rule ID in a comment (`// Rule: MATCH-010`), never in
+   its name (D-083);
    for an issue, the test under "Test that must fail first". Add stubs with the real names and
    signatures so every test reaches its assertions. Run them in a step of its own and read the output
    before writing any implementation: each rule test must **fail on an assertion**. A missing module or

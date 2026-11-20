@@ -53,7 +53,7 @@ a broken file back to.
 5. Go through the checklist. Every finding has a file and line.
 
 ## Checklist
-- **Rules really tested.** Each rule the plan gives a test has one named after it that asserts the
+- **Rules really tested.** Each rule the plan gives a test has one whose `Rule:` comment names it that asserts the
   rule's Given/When/Then. A rule the plan leaves untested has its `(no test: …)` reason; a reason that
   does not hold (the rule describes the project's code) is a major finding, like a missing test. A test that passes whatever the code does is a finding. Data that belongs to one
   user needs a second user with overlapping data in the test, or "only this user's data counts" is

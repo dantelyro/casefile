@@ -84,6 +84,8 @@ Apply these to every line of code you write or change.
 - Build new behaviour test-first: a failing test, the code that passes it, then refactor.
 - On a bug: run the tests, gather evidence, reproduce it with a failing test, then fix.
 - A test must fail when the code it covers is broken. Test behaviour through public interfaces.
+- Before writing a test, tell the developer each test you will add and what behaviour it
+  proves, then wait for their go. Write only tests that fail when a behaviour breaks.
 - Existing tests record business rules: never change or delete one to make code pass. Ask the
   developer before changing or deleting any test, saying which rule changed.
 - Tests are deterministic and isolated: no sleeps, control time and randomness, no shared state,

@@ -28,3 +28,5 @@ specs come first.
 `rules_coverage.py` reports it as untracked, never as missing. Coverage proves a test is *named*
 after a rule, not that it passed — the spec asked for "passed in the last run", but devflow keeps no
 record of test runs; passing is shown by the reviewer and at merge (as in D-033).
+**Changed by:**
+- 2026-11-20 · dantelyro — naming part superseded by D-083: a test names its rule in a `Rule:` comment, not at the start of its name.
